@@ -8,33 +8,33 @@ interface ServerConfig {
 
 export const VIDEO_SERVERS: ServerConfig[] = [
   {
-    name: "VidCore",
-    buildUrl: (id) => `https://vidcore.net/embed/${id}`,
+    name: "VidSrc",
+    buildUrl: (id) => `https://vidsrc.dev/embed/movie/${id}`,
     type: "embed",
   },
   {
-    name: "VidEasy",
-    buildUrl: (id) => `https://www.videasy.to/embed/${id}`,
+    name: "VidSrc 2",
+    buildUrl: (id) => `https://vidsrc.to/embed/movie/${id}`,
     type: "embed",
   },
   {
-    name: "2Embed",
-    buildUrl: (id) => `https://www.2embed.cc/embed/${id}`,
+    name: "VidSrc 3",
+    buildUrl: (id) => `https://vidsrc.xyz/embed/movie/${id}`,
     type: "embed",
   },
   {
-    name: "SuperEmbed",
+    name: "EmbedMaster",
+    buildUrl: (id) => `https://embedmaster.link/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "API Player",
+    buildUrl: (id) => `https://apiplayer.ru/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "MultiEmbed",
     buildUrl: (id) => `https://multiembed.mov/?video_id=${id}`,
-    type: "embed",
-  },
-  {
-    name: "VidBinge",
-    buildUrl: (id) => `https://vidbinge.dev/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "MoviesApi",
-    buildUrl: (id) => `https://moviesapi.club/movie/${id}`,
     type: "embed",
   },
   {
@@ -45,6 +45,16 @@ export const VIDEO_SERVERS: ServerConfig[] = [
   {
     name: "VidLink",
     buildUrl: (id) => `https://vidlink.pro/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "2Embed",
+    buildUrl: (id) => `https://www.2embed.cc/embed/${id}`,
+    type: "embed",
+  },
+  {
+    name: "VidBinge",
+    buildUrl: (id) => `https://vidbinge.dev/embed/movie/${id}`,
     type: "embed",
   },
   {
@@ -60,11 +70,6 @@ export const VIDEO_SERVERS: ServerConfig[] = [
   {
     name: "M4UFree",
     buildUrl: (id) => `https://m4ufree.tv/embed/${id}`,
-    type: "embed",
-  },
-  {
-    name: "FilmPal",
-    buildUrl: (id) => `https://film-pal.com/embed/${id}`,
     type: "embed",
   },
 ];

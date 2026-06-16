@@ -62,6 +62,7 @@ export default function WatchPage() {
           src={currentServer.url}
           className="w-full h-full"
           allowFullScreen
+          referrerPolicy="no-referrer"
           allow="autoplay; fullscreen"
         />
       </div>

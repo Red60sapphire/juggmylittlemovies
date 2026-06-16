@@ -12,6 +12,7 @@ import {
 } from "@/lib/tmdb";
 import HeroBanner from "@/components/HeroBanner";
 import MovieRow from "@/components/MovieRow";
+import CollectionSection from "@/components/CollectionSection";
 import ContinueWatching from "@/components/ContinueWatching";
 import { createClient } from "@/lib/supabase/server";
 import type { WatchHistory, Movie } from "@/types";
@@ -109,9 +110,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
       <ContinueWatching items={continueWatching} />
       <MovieRow title="Trending Now" movies={trending.results} />
       <MovieRow title="Popular Movies" movies={popular.results} />
-      {collectionRows.map((c) => (
-        <MovieRow key={c.name} title={c.name} movies={c.movies} />
-      ))}
+      <CollectionSection collections={collectionRows} />
       {studioRows.map((s) => (
         <MovieRow key={s.name} title={`${s.name}`} movies={s.movies} />
       ))}
