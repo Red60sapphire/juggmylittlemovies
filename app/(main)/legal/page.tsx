@@ -11,7 +11,7 @@ export default function LegalPage() {
         <div>
           <h1 className="text-2xl font-bold text-white">Legal Information</h1>
           <p className="text-sm text-[#9CA3AF] mt-0.5">
-            StreameX operates as a content discovery platform
+            DaMovies operates as a content discovery platform
           </p>
         </div>
       </div>
@@ -23,7 +23,7 @@ export default function LegalPage() {
             <div>
               <h2 className="text-base font-semibold text-white mb-2">No Hosting Policy</h2>
               <p className="text-sm text-[#9CA3AF] leading-relaxed">
-                StreameX functions solely as an aggregator that indexes publicly available content from across the web. We do not upload, store, or host any media files on our infrastructure. All streams and downloads originate from external third-party platforms.
+                DaMovies functions solely as an aggregator that indexes publicly available content from across the web. We do not upload, store, or host any media files on our infrastructure. All streams and downloads originate from external third-party platforms.
               </p>
             </div>
           </div>
@@ -35,7 +35,7 @@ export default function LegalPage() {
             <div>
               <h2 className="text-base font-semibold text-white mb-2">Content Removal Requests</h2>
               <p className="text-sm text-[#9CA3AF] leading-relaxed">
-                Since StreameX does not host any files, we cannot directly remove content. All removal requests must be submitted to the original hosting platforms where the content actually resides. We have no technical ability to delete files we don't control.
+                Since DaMovies does not host any files, we cannot directly remove content. All removal requests must be submitted to the original hosting platforms where the content actually resides. We have no technical ability to delete files we don't control.
               </p>
             </div>
           </div>
@@ -59,7 +59,7 @@ export default function LegalPage() {
             <div>
               <h2 className="text-base font-semibold text-white mb-2">Disclaimer</h2>
               <p className="text-sm text-[#9CA3AF] leading-relaxed">
-                StreameX only utilizes publicly accessible data and APIs. We maintain no ownership or control over any media content. Users are solely responsible for how they interact with third-party services accessed through our platform.
+                DaMovies only utilizes publicly accessible data and APIs. We maintain no ownership or control over any media content. Users are solely responsible for how they interact with third-party services accessed through our platform.
               </p>
             </div>
           </div>
@@ -72,8 +72,8 @@ export default function LegalPage() {
               <h2 className="text-base font-semibold text-white mb-2">Contact Information</h2>
               <p className="text-sm text-[#9CA3AF] leading-relaxed">
                 For general inquiries or to report issues:{" "}
-                <a href="mailto:contact@streamex.sh" className="text-accent hover:underline">
-                  contact@streamex.sh
+                <a href="mailto:contact@damovies.net" className="text-accent hover:underline">
+                  contact@damovies.net
                 </a>
               </p>
             </div>
@@ -82,7 +82,7 @@ export default function LegalPage() {
 
         <div className="rounded-xl bg-[#1B1B1B] border border-[#2A2A2A] p-5">
           <p className="text-sm text-[#9CA3AF] leading-relaxed">
-            <strong className="text-white">Important:</strong> StreameX does not host any content. We aggregate links to publicly available media from third-party sources. For content-specific matters, please reach out directly to the websites hosting the files, as they have full control over their content.
+            <strong className="text-white">Important:</strong> DaMovies does not host any content. We aggregate links to publicly available media from third-party sources. For content-specific matters, please reach out directly to the websites hosting the files, as they have full control over their content.
           </p>
           <p className="text-sm text-[#9CA3AF] leading-relaxed mt-3">
             We will cooperate with legitimate legal requests to the extent technically possible, but please understand that we cannot remove content from servers we don't operate.
