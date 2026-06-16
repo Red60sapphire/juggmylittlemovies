@@ -46,7 +46,7 @@ async function ContinueWatchingSection() {
 }
 
 async function StudiosContent() {
-  const studioIds = getAllStudios().slice(0, 4);
+  const studioIds = getAllStudios().slice(0, 12);
   const studios = (await Promise.all(
     studioIds.map((s) => getCompany(s.id))
   )).filter((s) => s.name);
@@ -54,7 +54,7 @@ async function StudiosContent() {
 }
 
 async function CollectionsContent() {
-  const collectionIds = getAllCollections().slice(0, 5);
+  const collectionIds = getAllCollections().slice(0, 10);
   const collectionsData = await Promise.all(
     collectionIds.map(async (col) => {
       const data = await getCollection(col.id);
@@ -70,7 +70,8 @@ async function CollectionsContent() {
 }
 
 async function MovieRows() {
-  const [popular, topRated, trendingTV] = await Promise.all([
+  const [trending, popular, topRated, trendingTV] = await Promise.all([
+    getTrending(),
     getPopular(),
     getTopRated(),
     getTrendingTV(),
@@ -78,16 +79,17 @@ async function MovieRows() {
 
   return (
     <>
-      <MovieRow title="Popular Movies" movies={popular.results} />
-      <MovieRow title="Top Rated" movies={topRated.results} />
-      <MovieRow title="Popular TV Shows" movies={trendingTV.results} />
+      <MovieRow title="Trending Now" movies={trending.results.slice(0, 20)} />
+      <MovieRow title="Popular Movies" movies={popular.results.slice(0, 20)} />
+      <MovieRow title="Top Rated" movies={topRated.results.slice(0, 20)} />
+      <MovieRow title="Popular TV Shows" movies={trendingTV.results.slice(0, 20)} />
     </>
   );
 }
 
 export default function HomePage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <Suspense fallback={<HeroSkeleton />}>
         <HeroSection />
       </Suspense>

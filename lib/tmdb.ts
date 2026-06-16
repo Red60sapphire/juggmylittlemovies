@@ -92,6 +92,15 @@ const STUDIOS = [
   { id: 33, name: "Universal Pictures" },
   { id: 4, name: "Paramount Pictures" },
   { id: 34, name: "Sony Pictures" },
+  { id: 5, name: "DreamWorks Pictures" },
+  { id: 7, name: "20th Century Studios" },
+  { id: 12, name: "MGM" },
+  { id: 14, name: "Miramax" },
+  { id: 25, name: "Lionsgate" },
+  { id: 41, name: "A24" },
+  { id: 111, name: "Studio Ghibli" },
+  { id: 923, name: "Legendary Entertainment" },
+  { id: 138, name: "Focus Features" },
 ];
 
 export async function getStudioContent(companyId: number) {
@@ -115,6 +124,14 @@ const COLLECTIONS = [
   { id: 328, name: "Jurassic Park" },
   { id: 645, name: "James Bond" },
   { id: 86, name: "Indiana Jones" },
+  { id: 365, name: "Mission Impossible" },
+  { id: 2344, name: "Fast & Furious" },
+  { id: 3176, name: "The Matrix" },
+  { id: 218, name: "Terminator" },
+  { id: 112, name: "X-Men" },
+  { id: 967, name: "Pirates of the Caribbean" },
+  { id: 153, name: "John Wick" },
+  { id: 873, name: "Alien" },
 ];
 
 export async function getCollection(id: number) {
