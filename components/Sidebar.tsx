@@ -4,9 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Home, Search, Compass, Film, Tv, Ghost, BookOpen, Music2,
+  Home, Search, Compass, Film, Tv, Ghost, BookOpen,
   Trophy, Bookmark, History, Gavel, MessageCircle, PlaySquare,
-  TrendingUp, Scale,
+  TrendingUp, Scale, Flame,
 } from "lucide-react";
 
 const navItems = [
@@ -20,7 +20,6 @@ const browseItems = [
   { label: "TV Shows", href: "/tv-shows", icon: Tv },
   { label: "Anime", href: "/search?q=anime", icon: Ghost },
   { label: "Manga", href: "/search?q=manga", icon: BookOpen },
-  { label: "Music", href: "/search?q=music", icon: Music2 },
   { label: "Live Sports", href: "/search?q=sports", icon: Trophy },
 ];
 
@@ -112,7 +111,7 @@ export default function Sidebar({
               className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group text-[#9CA3AF] hover:text-white hover:bg-white/5"
               title={collapsed ? "UFC" : undefined}
             >
-              <Music2 className="w-5 h-5 flex-shrink-0" />
+              <Flame className="w-5 h-5 flex-shrink-0" />
               {!collapsed && <span className="truncate">UFC</span>}
             </a>
           ) : (
