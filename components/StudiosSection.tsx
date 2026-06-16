@@ -22,7 +22,7 @@ export default function StudiosSection({ studios }: Props) {
           <Link
             key={studio.id}
             href={`/studio/${studio.id}`}
-            className="group h-[120px] rounded-[18px] overflow-hidden bg-[#e5e5e5] hover:bg-white transition-all duration-200"
+            className="group block h-[120px] rounded-[18px] overflow-hidden bg-[#e5e5e5] hover:bg-white transition-all duration-200"
           >
             {studio.logo_path ? (
               <div className="w-full h-full flex items-center justify-center p-3">
