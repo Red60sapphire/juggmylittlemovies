@@ -125,7 +125,7 @@ export default function WatchPage() {
 
   return (
     <div className="max-w-[1600px] mx-auto">
-      <div className="flex gap-6">
+      <div className="flex flex-col xl:flex-row gap-4 md:gap-6">
         <div className="flex-1 min-w-0">
           <div className="relative rounded-2xl overflow-hidden bg-black border border-[#2A2A2A] group/player shadow-2xl">
             <div className="relative aspect-video bg-black">
@@ -226,16 +226,16 @@ export default function WatchPage() {
             </div>
           </div>
 
-          <div className="mt-6">
-            <div className="flex items-start justify-between gap-4 mb-5">
-              <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight mb-2">
+          <div className="mt-4 md:mt-6">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
+              <div className="min-w-0">
+                <h1 className="text-lg md:text-2xl font-bold text-white tracking-tight mb-1.5 break-words">
                   {movie.title || movie.name}
                 </h1>
-                <div className="flex items-center gap-3 text-sm text-[#9CA3AF]">
+                <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-[#9CA3AF] flex-wrap">
                   {movie.vote_average ? (
                     <span className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                      <Star className="w-3.5 h-3.5 md:w-4 md:h-4 fill-yellow-500 text-yellow-500" />
                       {formatRating(movie.vote_average)}
                     </span>
                   ) : null}
@@ -246,22 +246,22 @@ export default function WatchPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <button className="flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-semibold rounded-xl hover:bg-white/90 transition-all">
-                  <Plus className="w-4 h-4" />
-                  Watchlist
+                <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-white text-black text-xs md:text-sm font-semibold rounded-xl hover:bg-white/90 transition-all">
+                  <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <span className="hidden sm:inline">Watchlist</span>
                 </button>
                 <button className="p-2 rounded-xl bg-[#1B1B1B] border border-[#2A2A2A] text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] transition-all">
-                  <Share2 className="w-4 h-4" />
+                  <Share2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </button>
                 <button className="p-2 rounded-xl bg-[#1B1B1B] border border-[#2A2A2A] text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] transition-all">
-                  <Download className="w-4 h-4" />
+                  <Download className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </button>
               </div>
             </div>
 
             <div className="mb-3">
               <h3 className="text-sm font-semibold text-white/70 mb-3">Servers</h3>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 md:gap-2">
                 {servers.map((server) => {
                   const Icon = serverIcons[server.name] || Monitor;
                   const isActive = currentServer?.name === server.name;
@@ -294,7 +294,7 @@ export default function WatchPage() {
           </div>
         </div>
 
-        <div className="w-[340px] flex-shrink-0 hidden xl:block">
+        <div className="w-full xl:w-[340px] flex-shrink-0">
           <div className="space-y-5">
             <div className="relative rounded-xl overflow-hidden bg-[#171717] border border-[#2A2A2A]">
               <div className="relative aspect-[2/3]">

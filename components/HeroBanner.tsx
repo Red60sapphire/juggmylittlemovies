@@ -25,14 +25,14 @@ export default function HeroBanner({ movies }: Props) {
   }, [movies.length]);
 
   if (!movie || !mounted) {
-    return <div className="relative w-full h-[55vh] min-h-[400px] max-h-[650px] rounded-2xl overflow-hidden bg-[#1B1B1B] animate-shimmer" />;
+    return <div className="relative w-full h-[40vh] min-h-[300px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] rounded-2xl overflow-hidden bg-[#1B1B1B] animate-shimmer" />;
   }
 
   const title = movie.title || movie.name || "Untitled";
   const year = (movie.release_date || movie.first_air_date || "").split("-")[0];
 
   return (
-    <section className="relative w-full h-[55vh] min-h-[400px] max-h-[650px] overflow-hidden rounded-2xl mb-6">
+    <section className="relative w-full h-[40vh] min-h-[300px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] overflow-hidden rounded-xl md:rounded-2xl mb-6">
       <AnimatePresence mode="wait">
         {movies.slice(0, 5).map((m, i) => (
           <motion.div
@@ -57,7 +57,7 @@ export default function HeroBanner({ movies }: Props) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="absolute bottom-0 left-0 right-0 p-8 md:p-10"
+        className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-10"
       >
         <div className="max-w-2xl">
           <motion.div
@@ -80,7 +80,7 @@ export default function HeroBanner({ movies }: Props) {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.35 }}
-            className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 tracking-tight"
+            className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-2 md:mb-3 tracking-tight leading-tight"
           >
             {title}
           </motion.h1>
@@ -89,7 +89,7 @@ export default function HeroBanner({ movies }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="text-white/50 text-sm line-clamp-2 mb-5 max-w-xl leading-relaxed"
+            className="text-white/50 text-xs sm:text-sm line-clamp-2 mb-3 md:mb-5 max-w-xl leading-relaxed"
           >
             {movie.overview}
           </motion.p>

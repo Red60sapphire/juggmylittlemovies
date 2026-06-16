@@ -64,7 +64,7 @@ export default function CollectionSection({ collections }: Props) {
           <Link
             key={col.id}
             href={`/collection/${col.id}`}
-            className="group flex-shrink-0 w-[240px] snap-start relative h-[120px] rounded-xl overflow-hidden bg-[#171717] border border-[#2A2A2A] hover:border-accent/40 transition-all duration-200"
+            className="group flex-shrink-0 w-[180px] sm:w-[240px] snap-start relative h-[100px] sm:h-[120px] rounded-xl overflow-hidden bg-[#171717] border border-[#2A2A2A] hover:border-accent/40 transition-all duration-200"
           >
             {col.backdrop_path ? (
               <img

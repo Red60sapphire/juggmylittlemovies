@@ -89,7 +89,7 @@ export default function ContinueWatching({ items: serverItems }: Props) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: i * 0.05 }}
-              className="flex-shrink-0 w-[240px] snap-start"
+              className="flex-shrink-0 w-[200px] sm:w-[240px] snap-start"
             >
               <Link href={`/watch/${item.movie_id}`} className="group block">
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-[#1B1B1B] mb-1.5 shadow-md">

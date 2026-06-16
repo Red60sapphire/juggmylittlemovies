@@ -28,13 +28,21 @@ const libraryItems = [
   { label: "History", href: "/history", icon: History },
 ];
 
-export default function Sidebar({
-  collapsed,
-  onToggle,
-}: {
+const bottomNavItems = [
+  { label: "Home", href: "/", icon: Home },
+  { label: "Search", href: "/search", icon: Search },
+  { label: "Movies", href: "/movies", icon: Film },
+  { label: "TV", href: "/tv-shows", icon: Tv },
+  { label: "Account", href: "/watchlist", icon: Bookmark },
+];
+
+interface Props {
   collapsed: boolean;
   onToggle: () => void;
-}) {
+  mobile?: boolean;
+}
+
+export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
@@ -74,6 +82,34 @@ export default function Sidebar({
     );
   };
 
+  // Mobile bottom navigation bar
+  if (mobile) {
+    return (
+      <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-[#111111] border-t border-[#2A2A2A] flex items-center justify-around px-2 pb-safe">
+        {bottomNavItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg transition-all min-w-0",
+                active ? "text-accent" : "text-[#555] hover:text-white"
+              )}
+            >
+              <Icon className={cn("w-5 h-5", active && "text-accent")} />
+              <span className="text-[10px] font-medium truncate max-w-full">
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </nav>
+    );
+  }
+
+  // Desktop sidebar
   return (
     <aside
       className={cn(
