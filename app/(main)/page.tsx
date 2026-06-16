@@ -2,35 +2,25 @@ import {
   getTrending,
   getPopular,
   getTopRated,
-  getNowPlaying,
-  getUpcoming,
   getTrendingTV,
-  getStudioContent,
   getCollection,
+  getCompany,
   getAllStudios,
   getAllCollections,
 } from "@/lib/tmdb";
 import HeroBanner from "@/components/HeroBanner";
 import MovieRow from "@/components/MovieRow";
+import StudiosSection from "@/components/StudiosSection";
 import CollectionSection from "@/components/CollectionSection";
 import ContinueWatching from "@/components/ContinueWatching";
 import { createClient } from "@/lib/supabase/server";
 import type { WatchHistory, Movie } from "@/types";
 
 export default async function HomePage() {
-  const [
-    trending,
-    popular,
-    topRated,
-    nowPlaying,
-    upcoming,
-    trendingTV,
-  ] = await Promise.all([
+  const [trending, popular, topRated, trendingTV] = await Promise.all([
     getTrending(),
     getPopular(),
     getTopRated(),
-    getNowPlaying(),
-    getUpcoming(),
     getTrendingTV(),
   ]);
 
@@ -51,27 +41,26 @@ export default async function HomePage() {
     }
   }
 
-  let studioRows: { name: string; movies: Movie[] }[] = [];
-  let collectionRows: { name: string; movies: Movie[] }[] = [];
+  let studios: { id: number; name: string; logo_path: string | null }[] = [];
+  let collectionCards: { name: string; backdrop_path: string | null; movies: Movie[] }[] = [];
 
   if (hasContent) {
-    const studios = getAllStudios().slice(0, 4);
-    const studioData = await Promise.all(
-      studios.map(async (s) => ({
-        name: s.name,
-        movies: (await getStudioContent(s.id)) as Movie[],
-      }))
-    );
-    studioRows = studioData.filter((s) => s.movies.length > 0);
+    const studioIds = getAllStudios().slice(0, 4);
+    studios = (await Promise.all(
+      studioIds.map((s) => getCompany(s.id))
+    )).filter((s) => s.name);
 
-    const collections = getAllCollections().slice(0, 5);
-    const collectionData = await Promise.all(
-      collections.map(async (c) => {
-        const data = await getCollection(c.id);
-        return { name: data.name || c.name, movies: (data.parts || []) as Movie[] };
-      })
+    const collectionIds = getAllCollections().slice(0, 5);
+    const collectionsData = await Promise.all(
+      collectionIds.map((c) => getCollection(c.id))
     );
-    collectionRows = collectionData.filter((c) => c.movies.length > 0);
+    collectionCards = collectionsData
+      .filter((c) => c.parts?.length > 0)
+      .map((c) => ({
+        name: c.name,
+        backdrop_path: c.backdrop_path || null,
+        movies: c.parts as Movie[],
+      }));
   }
 
   if (!hasContent) {
@@ -108,15 +97,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
     <div className="space-y-6">
       <HeroBanner movies={trending.results.slice(0, 5)} />
       <ContinueWatching items={continueWatching} />
+      <StudiosSection studios={studios} />
+      <CollectionSection collections={collectionCards} />
       <MovieRow title="Trending Now" movies={trending.results} />
       <MovieRow title="Popular Movies" movies={popular.results} />
-      <CollectionSection collections={collectionRows} />
-      {studioRows.map((s) => (
-        <MovieRow key={s.name} title={`${s.name}`} movies={s.movies} />
-      ))}
       <MovieRow title="Top Rated" movies={topRated.results} />
-      <MovieRow title="Now Playing" movies={nowPlaying.results} />
-      <MovieRow title="Upcoming" movies={upcoming.results} />
       <MovieRow title="Popular TV Shows" movies={trendingTV.results} />
     </div>
   );

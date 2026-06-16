@@ -133,3 +133,24 @@ export function getAllCollections() {
 export async function searchMovies(query: string) {
   return tmdbFetch("/search/movie", `&query=${encodeURIComponent(query)}`);
 }
+
+export async function getCompany(id: number) {
+  const token = process.env.TMDB_ACCESS_TOKEN;
+  if (!token || token === "placeholder") return { id, name: "", logo_path: null };
+  try {
+    const res = await fetch(`${TMDB_BASE}/company/${id}?language=en-US`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return { id, name: "", logo_path: null };
+    return res.json();
+  } catch {
+    return { id, name: "", logo_path: null };
+  }
+}
+
+export async function getCompanyMovies(companyId: number, page = 1) {
+  return tmdbFetch(
+    "/discover/movie",
+    `&with_companies=${companyId}&sort_by=popularity.desc&page=${page}`
+  );
+}
