@@ -8,6 +8,11 @@ interface ServerConfig {
 
 export const VIDEO_SERVERS: ServerConfig[] = [
   {
+    name: "DaMovies",
+    buildUrl: (id) => `https://play.xpass.top/movie/${id}`,
+    type: "embed",
+  },
+  {
     name: "VidLink",
     buildUrl: (id) => `https://vidlink.pro/movie/${id}`,
     type: "embed",
