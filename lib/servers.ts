@@ -8,28 +8,8 @@ interface ServerConfig {
 
 export const VIDEO_SERVERS: ServerConfig[] = [
   {
-    name: "VidSrc",
-    buildUrl: (id) => `https://vidsrc.dev/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "VidSrc 2",
-    buildUrl: (id) => `https://vidsrc.to/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "VidSrc 3",
-    buildUrl: (id) => `https://vidsrc.xyz/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "EmbedMaster",
-    buildUrl: (id) => `https://embedmaster.link/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "API Player",
-    buildUrl: (id) => `https://apiplayer.ru/embed/movie/${id}`,
+    name: "VidLink",
+    buildUrl: (id) => `https://vidlink.pro/movie/${id}`,
     type: "embed",
   },
   {
@@ -40,11 +20,6 @@ export const VIDEO_SERVERS: ServerConfig[] = [
   {
     name: "AutoEmbed",
     buildUrl: (id) => `https://autoembed.cc/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "VidLink",
-    buildUrl: (id) => `https://vidlink.pro/movie/${id}`,
     type: "embed",
   },
   {
@@ -70,6 +45,31 @@ export const VIDEO_SERVERS: ServerConfig[] = [
   {
     name: "M4UFree",
     buildUrl: (id) => `https://m4ufree.tv/embed/${id}`,
+    type: "embed",
+  },
+  {
+    name: "EmbedMaster",
+    buildUrl: (id) => `https://embedmaster.link/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "API Player",
+    buildUrl: (id) => `https://apiplayer.ru/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "VidSrc",
+    buildUrl: (id) => `https://vidsrc.dev/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "VidSrc 2",
+    buildUrl: (id) => `https://vidsrc.to/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "VidSrc 3",
+    buildUrl: (id) => `https://vidsrc.xyz/embed/movie/${id}`,
     type: "embed",
   },
 ];
