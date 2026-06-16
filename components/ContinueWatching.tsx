@@ -52,10 +52,10 @@ export default function ContinueWatching({ items: serverItems }: Props) {
 
   if (!items.length) {
     return (
-      <section className="mb-6">
-        <h2 className="text-lg md:text-base font-bold text-white mb-3 tracking-tight">Continue Watching</h2>
-        <div className="py-6 text-center rounded-xl bg-[#111] border border-[#2A2A2A]">
-          <p className="text-xs text-white/30">Start watching a movie and it will show up here</p>
+      <section className="mb-7 md:mb-6">
+        <h2 className="text-xl md:text-base font-bold text-white mb-4 md:mb-3 tracking-tight">Continue Watching</h2>
+        <div className="py-8 text-center rounded-xl bg-[#111] border border-[#2A2A2A]">
+          <p className="text-sm text-white/30">Start watching a movie and it will show up here</p>
         </div>
       </section>
     );
@@ -66,9 +66,9 @@ export default function ContinueWatching({ items: serverItems }: Props) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="mb-6"
+      className="mb-7 md:mb-6"
     >
-      <h2 className="text-lg md:text-base font-bold text-white mb-3 tracking-tight">Continue Watching</h2>
+      <h2 className="text-xl md:text-base font-bold text-white mb-4 md:mb-3 tracking-tight">Continue Watching</h2>
       <div className="relative group/row">
         <button
           onClick={() => scroll("left")}
@@ -89,21 +89,21 @@ export default function ContinueWatching({ items: serverItems }: Props) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: i * 0.05 }}
-              className="flex-shrink-0 w-[280px] sm:w-[240px] snap-start"
+              className="flex-shrink-0 w-[300px] sm:w-[240px] snap-start"
             >
               <Link href={`/watch/${item.movie_id}`} className="group block">
-                <div className="relative aspect-video rounded-lg overflow-hidden bg-[#1B1B1B] mb-1.5 shadow-md">
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-[#1B1B1B] mb-2 shadow-md">
                   <img
                     src={getImageUrl(item.poster_path, "w342")}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                    <div className="w-10 h-10 rounded-full bg-accent/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg translate-y-2 group-hover:translate-y-0">
-                      <Play className="w-4 h-4 fill-white text-white ml-0.5" />
+                    <div className="w-12 h-12 rounded-full bg-accent/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg translate-y-2 group-hover:translate-y-0">
+                      <Play className="w-5 h-5 fill-white text-white ml-0.5" />
                     </div>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                  <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/10">
                     <div
                       className="h-full bg-accent transition-all duration-500"
                       style={{ width: `${Math.min((item.progress / (item.duration || 1)) * 100, 100)}%` }}
@@ -111,11 +111,11 @@ export default function ContinueWatching({ items: serverItems }: Props) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 px-0.5">
-                  <h3 className="text-xs font-medium text-white/80 group-hover:text-white transition-colors truncate">
+                  <h3 className="text-sm font-medium text-white/80 group-hover:text-white transition-colors truncate">
                     {item.title}
                   </h3>
                   {item.duration > 0 && (
-                    <span className="text-[10px] text-white/40 flex-shrink-0 tabular-nums">
+                    <span className="text-xs text-white/40 flex-shrink-0 tabular-nums">
                       {formatTime(item.duration - item.progress)} left
                     </span>
                   )}

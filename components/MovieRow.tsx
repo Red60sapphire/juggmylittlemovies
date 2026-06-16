@@ -43,10 +43,10 @@ export default function MovieRow({ title, movies }: Props) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4 }}
-      className="mb-5 md:mb-6"
+      className="mb-7 md:mb-6"
     >
-      <div className="flex items-center justify-between mb-3 md:mb-3">
-        <h2 className="text-lg md:text-base font-bold text-white tracking-tight">{title}</h2>
+      <div className="flex items-center justify-between mb-4 md:mb-3">
+        <h2 className="text-xl md:text-base font-bold text-white tracking-tight">{title}</h2>
         <div className="flex gap-1.5">
           <button
             onClick={() => scroll("left")}

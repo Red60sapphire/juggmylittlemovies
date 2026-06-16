@@ -21,7 +21,7 @@ export default function MovieCard({ movie, index = 0, priority }: Props) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.03 }}
-      className="flex-shrink-0 w-[210px] sm:w-[160px] snap-start"
+      className="flex-shrink-0 w-[180px] sm:w-[160px] snap-start"
     >
       <Link href={`/watch/${movie.id}`} className="group block">
         <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-[#1B1B1B] mb-1.5 shadow-lg transition-all duration-300 group-hover:shadow-accent/10 group-hover:-translate-y-0.5">

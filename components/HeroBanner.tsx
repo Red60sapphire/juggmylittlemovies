@@ -25,14 +25,14 @@ export default function HeroBanner({ movies }: Props) {
   }, [movies.length]);
 
   if (!movie || !mounted) {
-    return <div className="relative w-full h-[50vh] min-h-[380px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] rounded-none md:rounded-2xl overflow-hidden bg-[#1B1B1B] animate-shimmer" />;
+    return <div className="relative w-full h-[55vh] min-h-[460px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] rounded-none md:rounded-2xl overflow-hidden bg-[#1B1B1B] animate-shimmer" />;
   }
 
   const title = movie.title || movie.name || "Untitled";
   const year = (movie.release_date || movie.first_air_date || "").split("-")[0];
 
   return (
-    <section className="relative w-full h-[50vh] min-h-[420px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] overflow-hidden rounded-none md:rounded-2xl mb-5 md:mb-6">
+    <section className="relative w-full h-[55vh] min-h-[460px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] overflow-hidden rounded-none md:rounded-2xl mb-7 md:mb-6">
       <AnimatePresence mode="wait">
         {movies.slice(0, 5).map((m, i) => (
           <motion.div
@@ -80,7 +80,7 @@ export default function HeroBanner({ movies }: Props) {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.35 }}
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 md:mb-3 tracking-tight leading-tight"
+            className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-3 tracking-tight leading-tight"
           >
             {title}
           </motion.h1>
@@ -102,16 +102,16 @@ export default function HeroBanner({ movies }: Props) {
           >
             <Link
               href={`/watch/${movie.id}`}
-              className="flex items-center gap-2 px-6 py-3 md:py-2.5 bg-accent hover:bg-accent-hover text-white text-sm md:text-sm font-bold rounded-xl transition-all hover:shadow-lg hover:shadow-accent/25 active:scale-95"
+              className="flex items-center gap-2.5 px-7 py-3.5 md:px-6 md:py-2.5 bg-accent hover:bg-accent-hover text-white text-sm md:text-sm font-bold rounded-xl transition-all hover:shadow-lg hover:shadow-accent/25 active:scale-95"
             >
-              <Play className="w-5 h-5 md:w-4 md:h-4 fill-white" />
+              <Play className="w-5 h-5 fill-white" />
               Watch Now
             </Link>
             <Link
               href={`/movie/${movie.id}`}
-              className="flex items-center gap-2 px-5 py-3 md:px-4 md:py-2.5 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white text-sm md:text-sm font-semibold rounded-xl border border-white/10 transition-all active:scale-95"
+              className="flex items-center gap-2.5 px-6 py-3.5 md:px-4 md:py-2.5 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white text-sm md:text-sm font-semibold rounded-xl border border-white/10 transition-all active:scale-95"
             >
-              <Info className="w-5 h-5 md:w-4 md:h-4" />
+              <Info className="w-5 h-5" />
               Details
             </Link>
           </motion.div>
