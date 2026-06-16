@@ -8,10 +8,12 @@ import { Search, LogIn, LogOut } from "lucide-react";
 export default function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [authReady, setAuthReady] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
     if (!supabase) return;
+    setAuthReady(true);
     supabase.auth.getUser().then(({ data }: any) => setUser(data.user)).catch(() => {});
     const { data: sub } = supabase.auth.onAuthStateChange((_: any, session: any) => {
       setUser(session?.user ?? null);
@@ -61,7 +63,7 @@ export default function Navbar() {
               Sign Out
             </button>
           </div>
-        ) : (
+        ) : authReady ? (
           <Link
             href="/auth"
             className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-xl transition-colors"
@@ -69,7 +71,7 @@ export default function Navbar() {
             <LogIn className="w-4 h-4" />
             Sign In
           </Link>
-        )}
+        ) : null}
       </div>
     </header>
   );
