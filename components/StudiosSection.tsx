@@ -22,14 +22,14 @@ export default function StudiosSection({ studios }: Props) {
           <Link
             key={studio.id}
             href={`/studio/${studio.id}`}
-            className="group h-[130px] rounded-[18px] overflow-hidden bg-[#e5e5e5] hover:bg-white transition-all duration-200"
+            className="group h-[120px] rounded-[18px] overflow-hidden bg-[#e5e5e5] hover:bg-white transition-all duration-200"
           >
             {studio.logo_path ? (
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="w-full h-full flex items-center justify-center p-3">
                 <img
                   src={getImageUrl(studio.logo_path, "w500")}
                   alt={studio.name}
-                  className="w-[70%] h-[70%] object-contain opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200"
+                  className="w-full h-full object-contain opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200"
                 />
               </div>
             ) : (

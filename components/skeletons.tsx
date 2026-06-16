@@ -45,7 +45,7 @@ export function StudioSkeleton() {
       <div className="h-6 bg-[#1B1B1B] rounded-lg w-24 mb-4 animate-pulse" />
       <div className="grid grid-cols-2 gap-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-[130px] rounded-[18px] bg-[#e5e5e5] animate-pulse" />
+          <div key={i} className="h-[120px] rounded-[18px] bg-[#e5e5e5] animate-pulse" />
         ))}
       </div>
     </div>
