@@ -3,23 +3,24 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
-import { Search, LogIn, LogOut, UserIcon } from "lucide-react";
+import { Search, LogIn, LogOut } from "lucide-react";
 
 export default function Navbar() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const { data: sub } = supabase.auth.onAuthStateChange((_, session) => {
+    if (!supabase) return;
+    supabase.auth.getUser().then(({ data }: any) => setUser(data.user)).catch(() => {});
+    const { data: sub } = supabase.auth.onAuthStateChange((_: any, session: any) => {
       setUser(session?.user ?? null);
     });
     return () => sub?.subscription.unsubscribe();
   }, []);
 
   const handleSignOut = async () => {
+    if (!supabase) return;
     await supabase.auth.signOut();
   };
 

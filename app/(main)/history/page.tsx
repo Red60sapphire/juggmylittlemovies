@@ -17,6 +17,7 @@ export default function HistoryPage() {
   }, []);
 
   const loadHistory = async () => {
+    if (!supabase) { setLoading(false); return; }
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) {
       setLoading(false);
@@ -32,6 +33,7 @@ export default function HistoryPage() {
   };
 
   const clearHistory = async () => {
+    if (!supabase) return;
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) return;
     await supabase.from("watch_history").delete().eq("user_id", user.user.id);

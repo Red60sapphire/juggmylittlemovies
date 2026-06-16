@@ -24,8 +24,8 @@ export default async function HomePage() {
     ]);
 
   let continueWatching: WatchHistory[] = [];
-  try {
-    const supabase = await createClient();
+  const supabase = await createClient();
+  if (supabase) {
     const { data: userData } = await supabase.auth.getUser();
     if (userData?.user) {
       const { data } = await supabase
@@ -36,7 +36,7 @@ export default async function HomePage() {
         .limit(10);
       if (data) continueWatching = data;
     }
-  } catch {}
+  }
 
   return (
     <div className="space-y-6">

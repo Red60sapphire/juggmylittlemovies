@@ -17,6 +17,7 @@ export default function WatchlistPage() {
   }, []);
 
   const loadWatchlist = async () => {
+    if (!supabase) { setLoading(false); return; }
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) {
       setLoading(false);
@@ -32,6 +33,7 @@ export default function WatchlistPage() {
   };
 
   const removeItem = async (id: string) => {
+    if (!supabase) return;
     await supabase.from("watchlist").delete().eq("id", id);
     setItems((prev) => prev.filter((i) => i.id !== id));
   };

@@ -2,21 +2,24 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 export async function createClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key || url === "https://placeholder.supabase.co") {
+    return null;
+  }
   const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  try {
+    return createServerClient(url, key, {
       cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-          setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options)
           );
         },
       },
-    }
-  );
+    });
+  } catch {
+    return null;
+  }
 }

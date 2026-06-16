@@ -14,6 +14,7 @@ export default function ContinueWatchingPage() {
 
   useEffect(() => {
     const load = async () => {
+      if (!supabase) { setLoading(false); return; }
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
         setLoading(false);
