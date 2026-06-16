@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { getImageUrl, formatTime } from "@/lib/utils";
+import { getLocalHistory } from "@/lib/localHistory";
 import type { WatchHistory } from "@/types";
 import { Play, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 
@@ -11,10 +12,24 @@ interface Props {
   items: WatchHistory[];
 }
 
-export default function ContinueWatching({ items }: Props) {
+export default function ContinueWatching({ items: serverItems }: Props) {
   const rowRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
+  const [items, setItems] = useState<WatchHistory[]>(serverItems);
+
+  useEffect(() => {
+    const local = getLocalHistory();
+    if (local.length > 0) {
+      const merged = [...serverItems];
+      for (const localItem of local) {
+        if (!merged.some((m) => m.movie_id === localItem.movie_id)) {
+          merged.push(localItem);
+        }
+      }
+      setItems(merged);
+    }
+  }, [serverItems]);
 
   const checkScroll = () => {
     if (!rowRef.current) return;
@@ -53,7 +68,7 @@ export default function ContinueWatching({ items }: Props) {
             <Clock className="w-5 h-5 text-white/20" />
           </div>
           <p className="text-sm text-white/30">
-            Sign in and start watching to see your progress here
+            Start watching a movie and it will show up here
           </p>
         </div>
       </section>
@@ -91,10 +106,11 @@ export default function ContinueWatching({ items }: Props) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: i * 0.05 }}
+              className="flex-shrink-0 w-[280px] snap-start"
             >
               <Link
                 href={`/watch/${item.movie_id}`}
-                className="group flex-shrink-0 w-[280px] snap-start"
+                className="group block"
               >
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-white/[0.03] border border-white/[0.06]">
                   <img
@@ -112,7 +128,7 @@ export default function ContinueWatching({ items }: Props) {
                       className="h-full bg-accent transition-all duration-500"
                       style={{
                         width: `${Math.min(
-                          (item.progress / item.duration) * 100,
+                          (item.progress / (item.duration || 1)) * 100,
                           100
                         )}%`,
                       }}
@@ -123,9 +139,11 @@ export default function ContinueWatching({ items }: Props) {
                   <h3 className="text-sm font-medium text-white/80 group-hover:text-white transition-colors truncate">
                     {item.title}
                   </h3>
-                  <span className="text-xs text-white/40 flex-shrink-0 ml-3 tabular-nums">
-                    {formatTime(item.duration - item.progress)} left
-                  </span>
+                  {item.duration > 0 && (
+                    <span className="text-xs text-white/40 flex-shrink-0 ml-3 tabular-nums">
+                      {formatTime(item.duration - item.progress)} left
+                    </span>
+                  )}
                 </div>
               </Link>
             </motion.div>

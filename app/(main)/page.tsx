@@ -93,14 +93,14 @@ export default function HomePage() {
       <Suspense fallback={null}>
         <ContinueWatchingSection />
       </Suspense>
+      <Suspense fallback={<RowSkeleton />}>
+        <MovieRows />
+      </Suspense>
       <Suspense fallback={<StudioSkeleton />}>
         <StudiosContent />
       </Suspense>
       <Suspense fallback={<CollectionSkeleton />}>
         <CollectionsContent />
-      </Suspense>
-      <Suspense fallback={<RowSkeleton />}>
-        <MovieRows />
       </Suspense>
     </div>
   );
