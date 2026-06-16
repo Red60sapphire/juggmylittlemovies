@@ -25,14 +25,14 @@ export default function HeroBanner({ movies }: Props) {
   }, [movies.length]);
 
   if (!movie || !mounted) {
-    return <div className="relative w-full h-[55vh] min-h-[460px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] rounded-none md:rounded-2xl overflow-hidden bg-[#1B1B1B] animate-shimmer" />;
+    return <div className="relative w-full h-[60vh] min-h-[480px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] rounded-none md:rounded-2xl overflow-hidden bg-[#1B1B1B] animate-shimmer" />;
   }
 
   const title = movie.title || movie.name || "Untitled";
   const year = (movie.release_date || movie.first_air_date || "").split("-")[0];
 
   return (
-    <section className="relative w-full h-[55vh] min-h-[460px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] overflow-hidden rounded-none md:rounded-2xl mb-7 md:mb-6">
+    <section className="relative w-full h-[60vh] min-h-[480px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] overflow-hidden rounded-none md:rounded-2xl mb-8 md:mb-6">
       <AnimatePresence mode="wait">
         {movies.slice(0, 5).map((m, i) => (
           <motion.div

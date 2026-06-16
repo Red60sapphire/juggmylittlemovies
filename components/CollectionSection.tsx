@@ -43,7 +43,7 @@ export default function CollectionSection({ collections }: Props) {
   if (!collections.length) return null;
 
   return (
-    <section className="mb-7 md:mb-6">
+    <section       className="mb-8 md:mb-6">
       <div className="flex items-center justify-between mb-4 md:mb-3">
         <h2 className="text-xl md:text-base font-bold text-white tracking-tight">Collections</h2>
         <div className="flex gap-1.5">
@@ -64,7 +64,7 @@ export default function CollectionSection({ collections }: Props) {
           <Link
             key={col.id}
             href={`/collection/${col.id}`}
-            className="group flex-shrink-0 w-[280px] sm:w-[240px] snap-start relative h-[150px] sm:h-[120px] rounded-2xl overflow-hidden bg-[#171717] border border-[#2A2A2A] hover:border-accent/40 transition-all duration-200"
+            className="group flex-shrink-0 w-[300px] sm:w-[240px] snap-start relative h-[160px] sm:h-[120px] rounded-2xl overflow-hidden bg-[#171717] border border-[#2A2A2A] hover:border-accent/40 transition-all duration-200"
           >
             {col.backdrop_path ? (
               <img

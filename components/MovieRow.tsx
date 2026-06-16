@@ -43,7 +43,7 @@ export default function MovieRow({ title, movies }: Props) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4 }}
-      className="mb-7 md:mb-6"
+      className="mb-8 md:mb-6"
     >
       <div className="flex items-center justify-between mb-4 md:mb-3">
         <h2 className="text-xl md:text-base font-bold text-white tracking-tight">{title}</h2>
@@ -68,7 +68,7 @@ export default function MovieRow({ title, movies }: Props) {
       </div>
       <div
         ref={rowRef}
-        className="flex gap-3 md:gap-2 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
+        className="flex gap-4 md:gap-2 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {movies.map((movie, i) => (

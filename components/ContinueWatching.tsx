@@ -52,7 +52,7 @@ export default function ContinueWatching({ items: serverItems }: Props) {
 
   if (!items.length) {
     return (
-      <section className="mb-7 md:mb-6">
+      <section       className="mb-8 md:mb-6">
         <h2 className="text-xl md:text-base font-bold text-white mb-4 md:mb-3 tracking-tight">Continue Watching</h2>
         <div className="py-8 text-center rounded-xl bg-[#111] border border-[#2A2A2A]">
           <p className="text-sm text-white/30">Start watching a movie and it will show up here</p>
@@ -66,7 +66,7 @@ export default function ContinueWatching({ items: serverItems }: Props) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="mb-7 md:mb-6"
+      className="mb-8 md:mb-6"
     >
       <h2 className="text-xl md:text-base font-bold text-white mb-4 md:mb-3 tracking-tight">Continue Watching</h2>
       <div className="relative group/row">
@@ -89,7 +89,7 @@ export default function ContinueWatching({ items: serverItems }: Props) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: i * 0.05 }}
-              className="flex-shrink-0 w-[300px] sm:w-[240px] snap-start"
+              className="flex-shrink-0 w-[320px] sm:w-[240px] snap-start"
             >
               <Link href={`/watch/${item.movie_id}`} className="group block">
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-[#1B1B1B] mb-2 shadow-md">
