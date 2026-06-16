@@ -102,9 +102,23 @@ export default function Sidebar({
         ))}
 
         <SectionLabel label="Discover" />
-        {browseItems.map((item) => (
-          <NavLink key={item.href} item={item} />
-        ))}
+        {browseItems.map((item) =>
+          item.href === "/search?q=music" ? (
+            <a
+              key="ufc"
+              href="http://ufc.solutions/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group text-[#9CA3AF] hover:text-white hover:bg-white/5"
+              title={collapsed ? "UFC" : undefined}
+            >
+              <Music2 className="w-5 h-5 flex-shrink-0" />
+              {!collapsed && <span className="truncate">UFC</span>}
+            </a>
+          ) : (
+            <NavLink key={item.href} item={item} />
+          )
+        )}
 
         <SectionLabel label="Library" />
         {libraryItems.map((item) => (
