@@ -3,6 +3,7 @@ import { getBackdropUrl } from "@/lib/utils";
 import { Film } from "lucide-react";
 
 interface CollectionData {
+  id: number;
   name: string;
   backdrop_path?: string | null;
   movies: { id: number; title?: string; poster_path: string | null }[];
@@ -21,8 +22,8 @@ export default function CollectionSection({ collections }: Props) {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
         {collections.map((col) => (
           <Link
-            key={col.name}
-            href={`/search?q=${encodeURIComponent(col.name)}`}
+            key={col.id}
+            href={`/collection/${col.id}`}
             className="group relative h-[180px] rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06] hover:border-accent/40 transition-all duration-300"
           >
             {col.backdrop_path ? (
