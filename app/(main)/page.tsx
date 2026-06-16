@@ -6,7 +6,7 @@ import {
   getPopular,
   getTopRated,
   getTrendingTV,
-  getCollection,
+  searchCollection,
   getCompany,
   getAllStudios,
   getAllCollections,
@@ -55,17 +55,17 @@ async function StudiosContent() {
 
 async function CollectionsContent() {
   const collectionIds = getAllCollections().slice(0, 5);
-  const collectionsData = await Promise.all(
-    collectionIds.map((c) => getCollection(c.id))
+  const results = await Promise.all(
+    collectionIds.map(async (col) => {
+      const movies = await searchCollection(col.name);
+      return {
+        name: col.name,
+        backdrop_path: movies[0]?.backdrop_path || null,
+        movies: movies.slice(0, 8),
+      };
+    })
   );
-  const cards = collectionsData
-    .filter((c) => c.parts?.length > 0)
-    .map((c) => ({
-      name: c.name,
-      backdrop_path: c.backdrop_path || null,
-      movies: c.parts as Movie[],
-    }));
-  return <CollectionSection collections={cards} />;
+  return <CollectionSection collections={results.filter((c) => c.movies.length > 0)} />;
 }
 
 async function MovieRows() {

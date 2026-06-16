@@ -48,6 +48,14 @@ export async function searchMulti(query: string, page = 1) {
   );
 }
 
+export async function searchCollection(query: string) {
+  const data = await tmdbFetch(
+    "/search/movie",
+    `&query=${encodeURIComponent(query)}&page=1`
+  );
+  return data.results || [];
+}
+
 export async function getMovieDetails(id: number) {
   const token = process.env.TMDB_ACCESS_TOKEN;
   if (!token || token === "placeholder") {
