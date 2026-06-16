@@ -1,5 +1,10 @@
+"use client";
+
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { getImageUrl } from "@/lib/utils";
+import { ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 
 interface Studio {
   id: number;
@@ -12,36 +17,82 @@ interface Props {
 }
 
 export default function StudiosSection({ studios }: Props) {
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [showLeft, setShowLeft] = useState(false);
+  const [showRight, setShowRight] = useState(true);
+
+  const checkScroll = () => {
+    if (!rowRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = rowRef.current;
+    setShowLeft(scrollLeft > 10);
+    setShowRight(scrollLeft < scrollWidth - clientWidth - 10);
+  };
+
+  useEffect(() => {
+    const el = rowRef.current;
+    if (el) { el.addEventListener("scroll", checkScroll); checkScroll(); }
+    return () => el?.removeEventListener("scroll", checkScroll);
+  }, [studios]);
+
+  const scroll = (dir: "left" | "right") => {
+    if (!rowRef.current) return;
+    const amount = rowRef.current.clientWidth * 0.75;
+    rowRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  };
+
   if (!studios.length) return null;
 
   return (
-    <section className="mb-8 md:mb-6">
-      <h2 className="text-xl md:text-base font-bold text-white mb-4 md:mb-3 tracking-tight">Studios</h2>
-      <div className="grid grid-cols-2 gap-3">
-        {studios.map((studio) => (
-          <Link
+    <motion.section
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4 }}
+      className="mb-8 md:mb-6"
+    >
+      <div className="flex items-center justify-between mb-4 md:mb-3">
+        <h2 className="text-xl md:text-base font-bold text-white tracking-tight">Studios</h2>
+        <div className="flex gap-1.5">
+          <button onClick={() => scroll("left")} className={`p-1.5 rounded-lg bg-white/[0.05] border border-white/[0.08] hover:bg-white/10 transition-all ${showLeft ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+            <ChevronLeft className="w-3.5 h-3.5 text-white" />
+          </button>
+          <button onClick={() => scroll("right")} className={`p-1.5 rounded-lg bg-white/[0.05] border border-white/[0.08] hover:bg-white/10 transition-all ${showRight ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+            <ChevronRight className="w-3.5 h-3.5 text-white" />
+          </button>
+        </div>
+      </div>
+      <div
+        ref={rowRef}
+        className="flex gap-4 md:gap-2 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {studios.map((studio, i) => (
+          <motion.div
             key={studio.id}
-            href={`/studio/${studio.id}`}
-            className="group block h-[120px] rounded-[18px] overflow-hidden bg-[#e5e5e5] hover:bg-white transition-all duration-200"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: i * 0.03 }}
+            className="flex-shrink-0 w-[220px] sm:w-[160px] snap-start"
           >
-            {studio.logo_path ? (
-              <div className="w-full h-full flex items-center justify-center p-3">
-                <img
-                  src={getImageUrl(studio.logo_path, "w500")}
-                  alt={studio.name}
-                  className="w-full h-full object-contain opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200"
-                />
+            <Link href={`/studio/${studio.id}`} className="group block">
+              <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-[#e5e5e5] mb-1.5 shadow-lg transition-all duration-300 group-hover:-translate-y-0.5 flex items-center justify-center">
+                {studio.logo_path ? (
+                  <img
+                    src={getImageUrl(studio.logo_path, "w500")}
+                    alt={studio.name}
+                    className="w-[75%] h-[75%] object-contain opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200"
+                  />
+                ) : (
+                  <Building2 className="w-12 h-12 text-[#999]" />
+                )}
               </div>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-sm font-semibold text-[#333]">
-                  {studio.name}
-                </span>
-              </div>
-            )}
-          </Link>
+              <h3 className="text-sm font-medium text-white/80 group-hover:text-white transition-colors truncate px-0.5">
+                {studio.name}
+              </h3>
+            </Link>
+          </motion.div>
         ))}
       </div>
-    </section>
+    </motion.section>
   );
 }
