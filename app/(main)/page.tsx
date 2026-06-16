@@ -89,7 +89,7 @@ async function MovieRows() {
 
 export default function HomePage() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-6 md:space-y-5">
       <Suspense fallback={<HeroSkeleton />}>
         <HeroSection />
       </Suspense>

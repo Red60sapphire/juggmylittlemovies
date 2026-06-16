@@ -53,7 +53,7 @@ export default function ContinueWatching({ items: serverItems }: Props) {
   if (!items.length) {
     return (
       <section className="mb-6">
-        <h2 className="text-base font-bold text-white mb-3 tracking-tight">Continue Watching</h2>
+        <h2 className="text-lg md:text-base font-bold text-white mb-3 tracking-tight">Continue Watching</h2>
         <div className="py-6 text-center rounded-xl bg-[#111] border border-[#2A2A2A]">
           <p className="text-xs text-white/30">Start watching a movie and it will show up here</p>
         </div>
@@ -68,7 +68,7 @@ export default function ContinueWatching({ items: serverItems }: Props) {
       transition={{ duration: 0.4 }}
       className="mb-6"
     >
-      <h2 className="text-base font-bold text-white mb-3 tracking-tight">Continue Watching</h2>
+      <h2 className="text-lg md:text-base font-bold text-white mb-3 tracking-tight">Continue Watching</h2>
       <div className="relative group/row">
         <button
           onClick={() => scroll("left")}
@@ -80,7 +80,7 @@ export default function ContinueWatching({ items: serverItems }: Props) {
         </button>
         <div
           ref={rowRef}
-          className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
+          className="flex gap-3 md:gap-2 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {items.map((item, i) => (
@@ -89,7 +89,7 @@ export default function ContinueWatching({ items: serverItems }: Props) {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: i * 0.05 }}
-              className="flex-shrink-0 w-[200px] sm:w-[240px] snap-start"
+              className="flex-shrink-0 w-[280px] sm:w-[240px] snap-start"
             >
               <Link href={`/watch/${item.movie_id}`} className="group block">
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-[#1B1B1B] mb-1.5 shadow-md">

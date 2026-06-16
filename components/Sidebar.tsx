@@ -85,7 +85,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
   // Mobile bottom navigation bar
   if (mobile) {
     return (
-      <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-[#111111] border-t border-[#2A2A2A] flex items-center justify-around px-2 pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 h-[68px] bg-[#111111] border-t border-[#2A2A2A] flex items-center justify-around px-2 pb-safe">
         {bottomNavItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
@@ -94,12 +94,12 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg transition-all min-w-0",
+                "flex flex-col items-center justify-center gap-0.5 px-4 py-2 rounded-lg transition-all min-w-0 flex-1 max-w-[72px]",
                 active ? "text-accent" : "text-[#555] hover:text-white"
               )}
             >
-              <Icon className={cn("w-5 h-5", active && "text-accent")} />
-              <span className="text-[10px] font-medium truncate max-w-full">
+              <Icon className={cn("w-6 h-6", active && "text-accent")} />
+              <span className="text-[11px] font-medium truncate max-w-full leading-tight">
                 {item.label}
               </span>
             </Link>

@@ -27,7 +27,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           isMobile ? "ml-0 pb-16" : sidebarCollapsed ? "ml-[80px]" : "ml-[240px]"
         }`}
       >
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+        <main className="flex-1 px-5 py-4 md:px-6 md:py-6">{children}</main>
       </div>
       {isMobile && (
         <Sidebar
