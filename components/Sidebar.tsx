@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   Home, Search, Compass, Film, Tv, Ghost, BookOpen, Music2,
   Trophy, Bookmark, History, Gavel, MessageCircle, PlaySquare,
-  TrendingUp,
+  TrendingUp, Scale,
 } from "lucide-react";
 
 const navItems = [
@@ -125,6 +125,22 @@ export default function Sidebar({
           <MessageCircle className="w-5 h-5 flex-shrink-0" />
           {!collapsed && <span className="truncate">Discord</span>}
         </a>
+        <Link
+          href="/legal"
+          className={cn(
+            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+            pathname === "/legal"
+              ? "text-white font-medium"
+              : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+          )}
+          title={collapsed ? "Legal / DMCA" : undefined}
+        >
+          {pathname === "/legal" && (
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
+          )}
+          <Scale className={cn("w-5 h-5 flex-shrink-0", pathname === "/legal" && "text-accent")} />
+          {!collapsed && <span className="truncate">Legal / DMCA</span>}
+        </Link>
       </nav>
 
       <button
