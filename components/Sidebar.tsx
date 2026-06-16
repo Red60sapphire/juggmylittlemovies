@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   Home, TrendingUp, Star, Flame, PlaySquare, Tv, Film,
-  Search, Bookmark, History, Clock, Settings, User, Monitor,
+  Search, Bookmark, History, Clock, Settings, User, Monitor, MessageCircle,
 } from "lucide-react";
 
 const navItems = [
@@ -113,6 +113,19 @@ export default function Sidebar({
         <SectionLabel label="Account" />
         <NavLink item={{ label: "Profile", href: "/auth", icon: User }} />
         <NavLink item={{ label: "Settings", href: "/settings", icon: Settings }} />
+        <a
+          href="https://discord.gg/pW4vjXDDJM"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(
+            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+            "text-white/50 hover:text-white hover:bg-white/5"
+          )}
+          title={collapsed ? "Discord" : undefined}
+        >
+          <MessageCircle className="w-5 h-5 flex-shrink-0" />
+          {!collapsed && <span className="truncate">Discord</span>}
+        </a>
       </nav>
 
       <button
