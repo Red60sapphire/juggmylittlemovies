@@ -5,6 +5,10 @@ import {
   getNowPlaying,
   getUpcoming,
   getTrendingTV,
+  getStudioContent,
+  getCollection,
+  getAllStudios,
+  getAllCollections,
 } from "@/lib/tmdb";
 import HeroBanner from "@/components/HeroBanner";
 import MovieRow from "@/components/MovieRow";
@@ -13,15 +17,21 @@ import { createClient } from "@/lib/supabase/server";
 import type { WatchHistory, Movie } from "@/types";
 
 export default async function HomePage() {
-  const [trending, popular, topRated, nowPlaying, upcoming, trendingTV] =
-    await Promise.all([
-      getTrending(),
-      getPopular(),
-      getTopRated(),
-      getNowPlaying(),
-      getUpcoming(),
-      getTrendingTV(),
-    ]);
+  const [
+    trending,
+    popular,
+    topRated,
+    nowPlaying,
+    upcoming,
+    trendingTV,
+  ] = await Promise.all([
+    getTrending(),
+    getPopular(),
+    getTopRated(),
+    getNowPlaying(),
+    getUpcoming(),
+    getTrendingTV(),
+  ]);
 
   const hasContent = trending.results.length > 0;
 
@@ -38,6 +48,29 @@ export default async function HomePage() {
         .limit(10);
       if (data) continueWatching = data;
     }
+  }
+
+  let studioRows: { name: string; movies: Movie[] }[] = [];
+  let collectionRows: { name: string; movies: Movie[] }[] = [];
+
+  if (hasContent) {
+    const studios = getAllStudios().slice(0, 4);
+    const studioData = await Promise.all(
+      studios.map(async (s) => ({
+        name: s.name,
+        movies: (await getStudioContent(s.id)) as Movie[],
+      }))
+    );
+    studioRows = studioData.filter((s) => s.movies.length > 0);
+
+    const collections = getAllCollections().slice(0, 5);
+    const collectionData = await Promise.all(
+      collections.map(async (c) => {
+        const data = await getCollection(c.id);
+        return { name: data.name || c.name, movies: (data.parts || []) as Movie[] };
+      })
+    );
+    collectionRows = collectionData.filter((c) => c.movies.length > 0);
   }
 
   if (!hasContent) {
@@ -76,6 +109,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
       <ContinueWatching items={continueWatching} />
       <MovieRow title="Trending Now" movies={trending.results} />
       <MovieRow title="Popular Movies" movies={popular.results} />
+      {collectionRows.map((c) => (
+        <MovieRow key={c.name} title={c.name} movies={c.movies} />
+      ))}
+      {studioRows.map((s) => (
+        <MovieRow key={s.name} title={`${s.name}`} movies={s.movies} />
+      ))}
       <MovieRow title="Top Rated" movies={topRated.results} />
       <MovieRow title="Now Playing" movies={nowPlaying.results} />
       <MovieRow title="Upcoming" movies={upcoming.results} />

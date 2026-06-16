@@ -57,7 +57,7 @@ export default function Sidebar({
           </div>
           {!collapsed && (
             <span className="font-bold text-lg text-white whitespace-nowrap">
-              Stremer
+              DaMovies
             </span>
           )}
         </Link>

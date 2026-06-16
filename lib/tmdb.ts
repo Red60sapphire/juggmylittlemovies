@@ -75,3 +75,61 @@ export async function getDiscover(page = 1) {
     `&sort_by=popularity.desc&page=${page}`
   );
 }
+
+const STUDIOS = [
+  { id: 420, name: "Marvel Studios" },
+  { id: 3, name: "Pixar" },
+  { id: 2, name: "Walt Disney Pictures" },
+  { id: 174, name: "Warner Bros. Pictures" },
+  { id: 33, name: "Universal Pictures" },
+  { id: 4, name: "Paramount Pictures" },
+  { id: 34, name: "Sony Pictures" },
+];
+
+export async function getStudioContent(companyId: number) {
+  const data = await tmdbFetch(
+    "/discover/movie",
+    `&with_companies=${companyId}&sort_by=popularity.desc&page=1`
+  );
+  return data.results || [];
+}
+
+export function getAllStudios() {
+  return STUDIOS;
+}
+
+const COLLECTIONS = [
+  { id: 10, name: "Star Wars" },
+  { id: 1241, name: "Harry Potter" },
+  { id: 119, name: "Lord of the Rings" },
+  { id: 86311, name: "Marvel Cinematic Universe" },
+  { id: 187646, name: "DC Universe" },
+  { id: 328, name: "Jurassic Park" },
+  { id: 645, name: "James Bond" },
+  { id: 86, name: "Indiana Jones" },
+];
+
+export async function getCollection(id: number) {
+  const token = process.env.TMDB_ACCESS_TOKEN;
+  if (!token || token === "placeholder") {
+    return { name: "", parts: [] };
+  }
+  try {
+    const res = await fetch(`${TMDB_BASE}/collection/${id}?language=en-US`, {
+      headers: { Authorization: `Bearer ${token}` },
+      next: { revalidate: 7200 },
+    });
+    if (!res.ok) return { name: "", parts: [] };
+    return res.json();
+  } catch {
+    return { name: "", parts: [] };
+  }
+}
+
+export function getAllCollections() {
+  return COLLECTIONS;
+}
+
+export async function searchMovies(query: string) {
+  return tmdbFetch("/search/movie", `&query=${encodeURIComponent(query)}`);
+}
