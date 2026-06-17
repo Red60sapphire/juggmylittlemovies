@@ -118,13 +118,13 @@ export default function HeroBanner({ movies }: Props) {
         </div>
       </motion.div>
 
-      <div className="absolute bottom-5 right-5 md:bottom-6 md:right-8 flex gap-1.5 z-10">
+      <div className="absolute bottom-4 right-4 md:bottom-6 md:right-8 flex gap-2 z-10">
         {movies.slice(0, 5).map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`h-1.5 rounded-full transition-all duration-500 ${
-              i === current ? "w-8 bg-accent" : "w-1.5 bg-white/30 hover:bg-white/50"
+            className={`h-2 rounded-full transition-all duration-500 active:scale-90 ${
+              i === current ? "w-8 bg-accent" : "w-2 bg-white/30 hover:bg-white/50"
             }`}
           />
         ))}

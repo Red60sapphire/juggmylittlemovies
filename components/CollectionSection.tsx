@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import { getBackdropUrl } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Film } from "lucide-react";
@@ -18,21 +18,6 @@ interface Props {
 
 export default function CollectionSection({ collections }: Props) {
   const rowRef = useRef<HTMLDivElement>(null);
-  const [showLeft, setShowLeft] = useState(false);
-  const [showRight, setShowRight] = useState(true);
-
-  const checkScroll = () => {
-    if (!rowRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = rowRef.current;
-    setShowLeft(scrollLeft > 10);
-    setShowRight(scrollLeft < scrollWidth - clientWidth - 10);
-  };
-
-  useEffect(() => {
-    const el = rowRef.current;
-    if (el) { el.addEventListener("scroll", checkScroll); checkScroll(); }
-    return () => el?.removeEventListener("scroll", checkScroll);
-  }, [collections]);
 
   const scroll = (dir: "left" | "right") => {
     if (!rowRef.current) return;
@@ -43,15 +28,21 @@ export default function CollectionSection({ collections }: Props) {
   if (!collections.length) return null;
 
   return (
-    <section       className="mb-8 md:mb-6">
+    <section className="mb-8 md:mb-6">
       <div className="flex items-center justify-between mb-4 md:mb-3">
         <h2 className="text-xl md:text-base font-bold text-white tracking-tight">Collections</h2>
-        <div className="flex gap-1.5">
-          <button onClick={() => scroll("left")} className={`p-1.5 rounded-lg bg-white/[0.05] border border-white/[0.08] hover:bg-white/10 transition-all ${showLeft ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-            <ChevronLeft className="w-3.5 h-3.5 text-white" />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => scroll("left")}
+            className="p-2 md:p-1.5 rounded-lg bg-[#2A2A2A] hover:bg-accent/80 text-white/70 hover:text-white transition-all active:scale-90"
+          >
+            <ChevronLeft className="w-5 h-5 md:w-4 md:h-4" />
           </button>
-          <button onClick={() => scroll("right")} className={`p-1.5 rounded-lg bg-white/[0.05] border border-white/[0.08] hover:bg-white/10 transition-all ${showRight ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-            <ChevronRight className="w-3.5 h-3.5 text-white" />
+          <button
+            onClick={() => scroll("right")}
+            className="p-2 md:p-1.5 rounded-lg bg-[#2A2A2A] hover:bg-accent/80 text-white/70 hover:text-white transition-all active:scale-90"
+          >
+            <ChevronRight className="w-5 h-5 md:w-4 md:h-4" />
           </button>
         </div>
       </div>

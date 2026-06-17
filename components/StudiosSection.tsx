@@ -1,9 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { getImageUrl } from "@/lib/utils";
-import { Building2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 
 interface Studio {
   id: number;
@@ -16,6 +17,14 @@ interface Props {
 }
 
 export default function StudiosSection({ studios }: Props) {
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (dir: "left" | "right") => {
+    if (!rowRef.current) return;
+    const amount = rowRef.current.clientWidth * 0.75;
+    rowRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  };
+
   if (!studios.length) return null;
 
   return (
@@ -28,8 +37,25 @@ export default function StudiosSection({ studios }: Props) {
     >
       {/* Mobile: horizontal scroll row matching movie card dimensions */}
       <div className="md:hidden">
-        <h2 className="text-xl font-bold text-white tracking-tight mb-4">Studios</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-white tracking-tight">Studios</h2>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => scroll("left")}
+              className="p-2 rounded-lg bg-[#2A2A2A] hover:bg-accent/80 text-white/70 hover:text-white transition-all active:scale-90"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => scroll("right")}
+              className="p-2 rounded-lg bg-[#2A2A2A] hover:bg-accent/80 text-white/70 hover:text-white transition-all active:scale-90"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
         <div
+          ref={rowRef}
           className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
