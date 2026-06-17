@@ -26,7 +26,7 @@ export default function StudiosSection({ studios }: Props) {
       transition={{ duration: 0.4 }}
       className="mb-8 md:mb-6"
     >
-      {/* Mobile: 2-column grid matching movie card dimensions */}
+      {/* Mobile: 2-column grid, compact cards for logos */}
       <div className="md:hidden">
         <h2 className="text-xl font-bold text-white tracking-tight mb-4">Studios</h2>
         <div className="grid grid-cols-2 gap-4">
@@ -38,7 +38,7 @@ export default function StudiosSection({ studios }: Props) {
               transition={{ duration: 0.4, delay: i * 0.03 }}
             >
               <Link href={`/studio/${studio.id}`} className="group block">
-                <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-[#e5e5e5] mb-1.5 shadow-lg transition-all duration-300 group-hover:-translate-y-0.5 flex items-center justify-center">
+                <div className="relative aspect-[3/2] rounded-xl overflow-hidden bg-[#e5e5e5] mb-1.5 shadow-lg transition-all duration-300 group-hover:-translate-y-0.5 flex items-center justify-center">
                   {studio.logo_path ? (
                     <img
                       src={getImageUrl(studio.logo_path, "w500")}
