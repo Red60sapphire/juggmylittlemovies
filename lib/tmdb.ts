@@ -77,6 +77,13 @@ export async function getTVDetails(id: number) {
   return tmdbFetch(`/tv/${id}`, "&append_to_response=credits,videos,similar");
 }
 
+export async function getAnime(page = 1) {
+  return tmdbFetch(
+    "/discover/tv",
+    `&with_keywords=210024&sort_by=popularity.desc&page=${page}`
+  );
+}
+
 export async function getDiscover(page = 1) {
   return tmdbFetch(
     "/discover/movie",

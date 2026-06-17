@@ -8,73 +8,63 @@ interface ServerConfig {
 
 export const VIDEO_SERVERS: ServerConfig[] = [
   {
-    name: "DaMovies",
-    buildUrl: (id) => `https://play.xpass.top/movie/${id}`,
-    type: "embed",
-  },
-  {
     name: "VidLink",
-    buildUrl: (id) => `https://vidlink.pro/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "MultiEmbed",
-    buildUrl: (id) => `https://multiembed.mov/?video_id=${id}`,
-    type: "embed",
-  },
-  {
-    name: "AutoEmbed",
-    buildUrl: (id) => `https://autoembed.cc/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "2Embed",
-    buildUrl: (id) => `https://www.2embed.cc/embed/${id}`,
-    type: "embed",
-  },
-  {
-    name: "VidBinge",
-    buildUrl: (id) => `https://vidbinge.dev/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "DBMovie",
-    buildUrl: (id) => `https://dbmovie.xyz/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "GoStream",
-    buildUrl: (id) => `https://gostream.pro/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "M4UFree",
-    buildUrl: (id) => `https://m4ufree.tv/embed/${id}`,
-    type: "embed",
-  },
-  {
-    name: "EmbedMaster",
-    buildUrl: (id) => `https://embedmaster.link/movie/${id}`,
+    buildUrl: (id, s, e) =>
+      s && e ? `https://vidlink.pro/tv/${id}/${s}/${e}` : `https://vidlink.pro/movie/${id}`,
     type: "embed",
   },
   {
     name: "API Player",
-    buildUrl: (id) => `https://apiplayer.ru/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "VidSrc",
-    buildUrl: (id) => `https://vidsrc.dev/embed/movie/${id}`,
+    buildUrl: (id, s, e) =>
+      s && e ? `https://apiplayer.ru/embed/tv/${id}/${s}/${e}` : `https://apiplayer.ru/embed/movie/${id}`,
     type: "embed",
   },
   {
     name: "VidSrc 2",
-    buildUrl: (id) => `https://vidsrc.to/embed/movie/${id}`,
+    buildUrl: (id, s, e) =>
+      s && e ? `https://vidsrc.to/embed/tv/${id}/${s}/${e}` : `https://vidsrc.to/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "Embed.su",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://embed.su/embed/tv/${id}/${s}/${e}` : `https://embed.su/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "MultiEmbed",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://multiembed.mov/?video_id=${id}&s=${s}&e=${e}` : `https://multiembed.mov/?video_id=${id}`,
+    type: "embed",
+  },
+  {
+    name: "AutoEmbed",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://autoembed.cc/embed/tv/${id}/${s}/${e}` : `https://autoembed.cc/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "VidBinge",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://vidbinge.dev/embed/tv/${id}/${s}/${e}` : `https://vidbinge.dev/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "VidSrc",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://vidsrc.dev/embed/tv/${id}/${s}/${e}` : `https://vidsrc.dev/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "2Embed",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` : `https://www.2embed.cc/embed/${id}`,
     type: "embed",
   },
   {
     name: "VidSrc 3",
-    buildUrl: (id) => `https://vidsrc.xyz/embed/movie/${id}`,
+    buildUrl: (id, s, e) =>
+      s && e ? `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` : `https://vidsrc.xyz/embed/movie/${id}`,
     type: "embed",
   },
 ];

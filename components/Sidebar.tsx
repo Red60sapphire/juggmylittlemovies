@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Home, Search, Compass, Film, Tv, Ghost, BookOpen,
-  Trophy, Bookmark, History, Gavel, MessageCircle, PlaySquare,
+  Home, Search, Film, Tv, Ghost,
+  Trophy, Bookmark, History, MessageCircle, PlaySquare,
   TrendingUp, Scale, Flame,
 } from "lucide-react";
 
@@ -18,8 +18,7 @@ const navItems = [
 const browseItems = [
   { label: "Movies", href: "/movies", icon: Film },
   { label: "TV Shows", href: "/tv-shows", icon: Tv },
-  { label: "Anime", href: "/search?q=anime", icon: Ghost },
-  { label: "Manga", href: "/search?q=manga", icon: BookOpen },
+  { label: "Anime", href: "/anime", icon: Ghost },
   { label: "Live Sports", href: "/search?q=sports", icon: Trophy },
 ];
 

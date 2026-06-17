@@ -17,10 +17,9 @@ import {
 const LOAD_TIMEOUT = 10000;
 
 const serverIcons: Record<string, any> = {
-  DaMovies: Tv, VidLink: Film, MultiEmbed: Server, AutoEmbed: Monitor,
-  "2Embed": Monitor, VidBinge: Tv, DBMovie: Film, GoStream: Server,
-  M4UFree: Monitor, EmbedMaster: Server, "API Player": Server,
-  VidSrc: Monitor, "VidSrc 2": Monitor, "VidSrc 3": Monitor,
+  VidLink: Film, "API Player": Server, "VidSrc 2": Monitor,
+  "Embed.su": Tv, MultiEmbed: Server, AutoEmbed: Monitor,
+  VidBinge: Tv, VidSrc: Monitor, "2Embed": Monitor, "VidSrc 3": Monitor,
 };
 
 export default function WatchPage() {
