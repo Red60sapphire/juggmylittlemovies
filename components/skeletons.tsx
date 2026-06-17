@@ -45,9 +45,12 @@ export function StudioSkeleton() {
       {/* Mobile skeleton */}
       <div className="md:hidden">
         <div className="h-6 bg-[#1B1B1B] rounded-lg w-24 mb-4 animate-pulse" />
-        <div className="grid grid-cols-2 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-[160px] rounded-2xl bg-[#e5e5e5] animate-pulse" />
+        <div className="flex gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex-shrink-0 w-[220px] snap-start">
+              <div className="aspect-[2/3] rounded-xl bg-[#e5e5e5] animate-pulse" />
+              <div className="h-3 bg-[#1B1B1B] rounded-md mt-1.5 w-3/4 animate-pulse" />
+            </div>
           ))}
         </div>
       </div>

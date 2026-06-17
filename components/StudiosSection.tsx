@@ -26,19 +26,23 @@ export default function StudiosSection({ studios }: Props) {
       transition={{ duration: 0.4 }}
       className="mb-8 md:mb-6"
     >
-      {/* Mobile: 2-column grid matching collection card size */}
+      {/* Mobile: horizontal scroll row matching movie card dimensions */}
       <div className="md:hidden">
         <h2 className="text-xl font-bold text-white tracking-tight mb-4">Studios</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div
+          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
           {studios.map((studio, i) => (
             <motion.div
               key={studio.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: i * 0.03 }}
+              className="flex-shrink-0 w-[220px] snap-start"
             >
               <Link href={`/studio/${studio.id}`} className="group block">
-                <div className="relative w-full h-[160px] rounded-2xl overflow-hidden bg-[#e5e5e5] shadow-lg transition-all duration-300 group-hover:-translate-y-0.5 flex items-center justify-center">
+                <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-[#e5e5e5] mb-1.5 shadow-lg transition-all duration-300 group-hover:-translate-y-0.5 flex items-center justify-center">
                   {studio.logo_path ? (
                     <img
                       src={getImageUrl(studio.logo_path, "w500")}
@@ -49,6 +53,9 @@ export default function StudiosSection({ studios }: Props) {
                     <Building2 className="w-12 h-12 text-[#999]" />
                   )}
                 </div>
+                <h3 className="text-sm font-medium text-white/80 group-hover:text-white transition-colors truncate px-0.5">
+                  {studio.name}
+                </h3>
               </Link>
             </motion.div>
           ))}
