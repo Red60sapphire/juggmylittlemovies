@@ -59,10 +59,6 @@ npm run build
 npm start
 ```
 
-## Deployment
-
-This application is designed to be deployed on Vercel.
-
 ## License
 
 This project is provided for educational and personal development purposes.
