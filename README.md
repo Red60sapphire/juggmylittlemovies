@@ -63,6 +63,8 @@ npm start
 
 This project is provided for educational and personal development purposes.
 
----
+## Credits
 
-Built on top of [streamrr](https://github.com/Red60sapphire/streamrr) — credit to the original project and its contributors.
+This project is based on [Zynema](https://github.com/Red60sapphire/streamr) by [@Red60sapphire](https://github.com/Red60sapphire).
+
+Many thanks to the original developers and contributors whose work made this project possible.
