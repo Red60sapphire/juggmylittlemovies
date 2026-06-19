@@ -1,21 +1,23 @@
-import Providers from "@/components/Providers";
-import SiteGuard from "@/components/SiteGuard";
+﻿"use client";
 
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import Script from "next/script";
+import { useEffect, useState } from "react";
+
+export default function MainLayout({ children }: { children: React.ReactNode }) {
+  const [html, setHtml] = useState("");
+
+  useEffect(() => {
+    fetch("/layout-body.html")
+      .then((res) => res.text())
+      .then((text) => setHtml(text))
+      .catch(() => {});
+  }, []);
+
   return (
-    <Providers>
-      <SiteGuard />
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-lg focus:outline-none"
-      >
-        Skip to content
-      </a>
-      {children}
-    </Providers>
+    <>
+      <div dangerouslySetInnerHTML={{ __html: html }} />
+      <div id="children-container" style={{ display: "none" }}>{children}</div>
+      <Script src="/layout.js" strategy="afterInteractive" />
+    </>
   );
 }

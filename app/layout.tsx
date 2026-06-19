@@ -74,6 +74,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Cinzel:wght@400..900&display=swap" rel="stylesheet" />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-1WM87HQVQ3"
           strategy="afterInteractive"
