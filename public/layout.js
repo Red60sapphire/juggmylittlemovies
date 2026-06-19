@@ -90,10 +90,11 @@ function updateAuthUI(){
   }
 }
 function openAuthModal(mode){$('authModal').classList.add('open');renderAuthForm(mode||'login')}
-function closeModal(id){$(id).classList.remove('open')}
+function closeModal(id){var el=$(id);if(el)el.classList.remove('open')}
 $('authModal').addEventListener('click',function(e){if(e.target===this)closeModal('authModal')});
 $('watchPartyModal').addEventListener('click',function(e){if(e.target===this)closeModal('watchPartyModal')});
 $('settingsModal').addEventListener('click',function(e){if(e.target===this)closeModal('settingsModal')});
+$('movieDetailModal').addEventListener('click',function(e){if(e.target===this)closeModal('movieDetailModal')});
 function toggleUserDropdown(){$('userDropdown').classList.toggle('open')}
 document.addEventListener('click',function(e){var dd=$('userDropdown'),av=$('userAvatar');if(!dd.contains(e.target)&&!av.contains(e.target))dd.classList.remove('open')});
 function renderAuthForm(mode){
@@ -121,7 +122,8 @@ function handleSignup(){
   var result=register(user,pass);
   if(result.ok){login(user,pass);updateAuthUI();closeModal('authModal');showToast('Account created! Welcome!','success')}
   else{err.textContent=result.error;err.style.display='block'}
-}var DEFAULT_SETTINGS={theme:'dark',accent:'violet',fontSize:'medium',quality:'auto',autoplay:true,skipIntro:true,skipIntroSecs:85,subtitles:true,notifyReleases:true,notifyParty:true};
+}
+var DEFAULT_SETTINGS={theme:'dark',accent:'violet',fontSize:'medium',quality:'auto',autoplay:true,skipIntro:true,skipIntroSecs:85,subtitles:true,notifyReleases:true,notifyParty:true};
 function getSettings(){var s=lsGet(STORAGE_KEYS.settings,{});for(var k in DEFAULT_SETTINGS){if(DEFAULT_SETTINGS.hasOwnProperty(k)&&!(k in s))s[k]=DEFAULT_SETTINGS[k]}return s}
 function saveSettings(s){lsSet(STORAGE_KEYS.settings,s);applySettings()}
 function applySettings(){
@@ -215,7 +217,7 @@ function leaveRoom(){
 }
 function renderWPRoom(){
   var c=$('wpContent'),user=getCurrentUser(),myName=user?user.username:'Anonymous';
-  c.innerHTML='<div class="wp-header"><div class="wp-header-left"><div class="wp-icon">🎉</div><span class="wp-title">Watch Party</span></div><div style="display:flex;align-items:center;gap:8px"><button class="btn btn-sm btn-ghost" onclick="leaveRoom()" style="color:#EF4444">Leave</button><button class="modal-close" style="position:static" onclick="closeWP()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div><div class="wp-body"><div class="wp-room-display"><span style="font-size:12px;color:var(--text-muted)">Room Code</span><div class="wp-room-code">'+esc(wpState.roomCode)+'</div><div class="wp-room-actions"><button onclick="copyRoomCode()" title="Copy code"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div><div class="wp-room"><div class="wp-player"><div class="wp-player-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg><span id="wpNowPlaying">'+(wpState.selectedMovie?esc(wpState.selectedMovie.title):'No movie selected')+'</span></div><div class="wp-progress"><div class="wp-progress-bar" id="wpProgressBar"></div></div><div class="wp-player-info"><div class="wp-player-title" id="wpPlayerTitle">'+(wpState.selectedMovie?esc(wpState.selectedMovie.title):'Select a movie to watch')+'</div><div class="wp-sync-badge live" id="wpSyncBadge">🔴 LIVE SYNC</div></div><div class="wp-controls"><button onclick="wpPlay()" id="wpPlayBtn"'+(wpState.selectedMovie?'':' disabled')+'>▶ Play</button><button onclick="wpPause()" id="wpPauseBtn"'+(wpState.selectedMovie?'':' disabled')+'>⏸ Pause</button></div></div><div class="wp-sidebar"><div class="wp-people"><div class="wp-people-title">People in Room ('+wpState.users.length+')</div><div id="wpPeopleList">'+wpState.users.map(function(u){return'<div class="wp-person"><div class="wp-person-avatar">'+u.name.charAt(0).toUpperCase()+'</div><div class="wp-person-name">'+esc(u.name)+(u.name===myName?' <span style="color:var(--accent);font-size:11px">(you)</span>':'')+'</div>'+(u.isHost?'<span class="wp-person-host">HOST</span>':'')+'</div>'}).join('')+'</div></div><div class="wp-picker"><div class="wp-picker-title">Pick a Movie</div><div class="wp-picker-search"><input type="text" id="wpSearch" placeholder="Search..." oninput="filterWPMovies(this.value)"></div><div class="wp-picker-list" id="wpMovieList">'+MOVIE_PICKER_ITEMS.map(function(m){return'<div class="wp-picker-item'+(wpState.selectedMovie&&wpState.selectedMovie.id===m.id?' active':'')+'" onclick="selectWPMovie('+m.id+')" data-id="'+m.id+'"><img src="'+getImageUrl(m.poster,'w92')+'" alt="'+esc(m.title)+'" loading="lazy"><div class="wp-picker-item-info"><div class="wp-picker-item-title">'+esc(m.title)+'</div><div class="wp-picker-item-meta">'+m.year+'</div></div></div>'}).join('')+'</div></div></div></div></div>';
+  c.innerHTML='<div class="wp-header"><div class="wp-header-left"><div class="wp-icon">🎉</div><span class="wp-title">Watch Party</span></div><div style="display:flex;align-items:center;gap:8px"><button class="btn btn-sm btn-ghost" onclick="leaveRoom()" style="color:#EF4444">Leave</button><button class="modal-close" style="position:static" onclick="closeWP()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div><div class="wp-body"><div class="wp-room-display"><span style="font-size:12px;color:var(--text-muted)">Room Code</span><div class="wp-room-code">'+esc(wpState.roomCode)+'</div><div class="wp-room-actions"><button onclick="copyRoomCode()" title="Copy code"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div><div class="wp-room"><div class="wp-player"><div class="wp-player-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg><span id="wpNowPlaying">'+(wpState.selectedMovie?esc(wpState.selectedMovie.title):'No movie selected')+'</span></div><div class="wp-progress"><div class="wp-progress-bar" id="wpProgressBar"></div></div><div class="wp-player-info"><div class="wp-player-title" id="wpPlayerTitle">'+(wpState.selectedMovie?esc(wpState.selectedMovie.title):'Select a movie to watch')+'</div><div class="wp-sync-badge live" id="wpSyncBadge">🔴 LIVE SYNC</div></div><div class="wp-controls"><button onclick="wpPlay()" id="wpPlayBtn"'+(wpState.selectedMovie?'':' disabled')+'>▶ Play</button><button onclick="wpPause()" id="wpP... (line truncated to 2000 chars)
   startWPSync();
 }
 function filterWPMovies(q){
@@ -271,7 +273,38 @@ function checkWPSync(){
 }
 window.addEventListener('storage',function(e){if(wpState.roomCode&&e.key===WP_PREFIX+wpState.roomCode)checkWPSync()});
 function copyRoomCode(){if(wpState.roomCode){navigator.clipboard.writeText(wpState.roomCode).then(function(){showToast('Room code copied!','success')})['catch'](function(){showToast('Failed to copy','error')})}}var heroInterval=null,heroCurrent=0,heroMovies=[];
-function renderHome(){
+
+function openMovieDetail(id) {
+  var movie = MOCK_MOVIES.find(function(m){return m.id===id}) || MOCK_TV.find(function(m){return m.id===id});
+  if (!movie) return;
+  var title = movie.title || movie.name || 'Untitled';
+  var year = (movie.release_date || movie.first_air_date || '').split('-')[0];
+  var rating = formatRating(movie.vote_average);
+  var overview = movie.overview || 'No description available.';
+  var genres = (movie.genre_ids || []).map(function(id){return GENRE_NAMES[id]}).filter(Boolean);
+  var isMovie = !!movie.title;
+  var c = $('movieDetailContent');
+  c.innerHTML = '<div class="detail-header"><button class="modal-close" style="position:static" onclick="closeModal(\'movieDetailModal\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>' +
+    '<div class="detail-backdrop"><img src="'+getBackdropUrl(movie.backdrop_path)+'" alt="'+esc(title)+'" /></div>' +
+    '<div class="detail-body">' +
+    '<div class="detail-poster"><img src="'+getImageUrl(movie.poster_path,'w342')+'" alt="'+esc(title)+'" /></div>' +
+    '<div class="detail-info">' +
+    '<h2 class="detail-title">'+esc(title)+'</h2>' +
+    '<div class="detail-meta">' +
+    '<span class="detail-rating"><svg width="14" height="14" viewBox="0 0 24 24" fill="#F59E0B"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> '+rating+'</span>' +
+    (year ? '<span class="detail-year">'+esc(year)+'</span>' : '') +
+    '<span class="detail-type">'+(isMovie?'Movie':'Series')+'</span>' +
+    '</div>' +
+    (genres.length ? '<div class="detail-genres">'+genres.map(function(g){return '<span class="detail-genre">'+esc(g)+'</span>'}).join('')+'</div>' : '') +
+    '<p class="detail-desc">'+esc(overview)+'</p>' +
+    '<div class="detail-actions">' +
+    '<button class="btn btn-primary" onclick="addToContinue('+id+');closeModal(\'movieDetailModal\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Play Now</button>' +
+    '<button class="btn btn-secondary" onclick="showToast(\'Added to watchlist\',\'info\');closeModal(\'movieDetailModal\')">+ Watchlist</button>' +
+    '</div></div></div>';
+  $('movieDetailModal').classList.add('open');
+}
+
+function renderHome() {
   heroMovies=MOCK_MOVIES.slice(0,5);heroCurrent=0;renderHero();
   var c=$('contentRows'),continueItems=getContinueWatching(),html='';
   if(continueItems.length>0){
@@ -289,7 +322,7 @@ function renderHome(){
     html+='<div class="section"><div class="section-header"><div class="section-title-group"><div class="section-accent"></div><span class="section-title">'+esc(row.title)+'</span>'+(row.tag?'<span class="section-tag">'+esc(row.tag)+'</span>':'')+'</div><div class="section-controls"><button class="section-arrow" onclick="scrollRow(this,-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><button class="section-arrow" onclick="scrollRow(this,1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></div></div><div class="row-scroll" data-row="'+ri+'">';
     row.movies.forEach(function(m,i){
       var title=m.title||m.name||'Untitled',year=(m.release_date||m.first_air_date||'').split('-')[0],rating=formatRating(m.vote_average);
-      html+='<div class="movie-card" data-delay="'+(i*50)+'"><div class="movie-card-inner"><img class="movie-poster" src="'+getImageUrl(m.poster_path,'w342')+'" alt="'+esc(title)+'" loading="lazy"><div class="movie-card-gradient"></div><div class="movie-card-hover"><div class="movie-card-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div class="movie-card-top"><div class="movie-card-rating"><svg width="10" height="10" viewBox="0 0 24 24" fill="#F59E0B"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'+rating+'</div>'+(year?'<div class="movie-card-year">'+esc(year)+'</div>':'')+'</div><div class="movie-card-bottom"><div class="movie-card-title">'+esc(title)+'</div></div></div></div>'
+      html+='<div class="movie-card" data-delay="'+(i*50)+'" onclick="openMovieDetail('+m.id+')"><div class="movie-card-inner"><img class="movie-poster" src="'+getImageUrl(m.poster_path,'w342')+'" alt="'+esc(title)+'" loading="lazy"><div class="movie-card-gradient"></div><div class="movie-card-hover"><div class="movie-card-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div class="movie-card-top"><div class="movie-card-rating"><svg width="10" height="10" viewBox="0 0 24 24" fill="#F59E0B"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'+rating+'</div>'+(year?'<div class="movie-card-year">'+esc(year)+'</div>':'')+'</div><div class="movie-card-bottom"><div class="movie-card-title">'+esc(title)+'</div></div></div></div>'
     });
     html+='</div></div>'
   });
@@ -320,13 +353,14 @@ function renderHero(){
 function renderHeroContent(m,i){
   var title=m.title||m.name||'Untitled',year=(m.release_date||m.first_air_date||'').split('-')[0],rating=formatRating(m.vote_average);
   var genres=(m.genre_ids||[]).slice(0,2).map(function(id){return GENRE_NAMES[id]}).filter(Boolean);
-  return '<div class="hero-content-inner" data-idx="'+i+'" style="display:'+(i===0?'block':'none')+'"><div class="hero-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>'+(m.title?'Movie':'Series')+'</div><h1 class="hero-title">'+esc(title)+'</h1><div class="hero-meta"><div class="hero-meta-star"><svg width="14" height="14" viewBox="0 0 24 24" fill="#F59E0B"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'+rating+'</div>'+(year?'<span class="hero-meta-year">'+esc(year)+'</span>':'')+genres.map(function(g){return'<span class="hero-meta-tag">'+esc(g)+'</span>'}).join('')+'</div><p class="hero-desc">'+esc(m.overview)+'</p><div class="hero-actions"><button class="btn btn-primary" onclick="addToContinue('+m.id+')"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>Play Now</button><button class="btn btn-secondary">More Info</button></div></div>'
+  return '<div class="hero-content-inner" data-idx="'+i+'" style="display:'+(i===0?'block':'none')+'"><div class="hero-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>'+(m.title?'Movie':'Series')+'</div><h1 class="hero-title">'+esc(title)+'</h1><div class="hero-meta"><div class="hero-meta-star"><svg width="14" height="14" viewBox="0 0 24 24" fill="#F59E0B"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'+rating+'</div>'+(year?'<span class="hero-meta-year">'+esc(year)+'</span>':'')+genres.map(function(g){return'<span class="hero-meta-tag">'+esc(g)+'</span>'}).join('')+'</div><p class="hero-desc">'+esc(m.overview)+'</p><div class="hero-actions"><button class="btn btn-primary" onclick="openMovieDetail('+m.id+')"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>Play Now</button><button class="btn btn-secondary" onclick="openMovieDetail('+m.id+')">More Info</button></div></div>'
 }
 function goHero(idx){if(!heroMovies.length)return;heroCurrent=idx;updateHeroSlides();if(heroInterval){clearInterval(heroInterval);heroInterval=setInterval(nextHero,7000)}}
 function nextHero(){if(heroMovies.length)goHero((heroCurrent+1)%heroMovies.length)}
 function prevHero(){if(heroMovies.length)goHero((heroCurrent-1+heroMovies.length)%heroMovies.length)}
 function updateHeroSlides(){qsa('.hero-slide').forEach(function(s){s.classList.toggle('active',parseInt(s.dataset.idx)===heroCurrent)});qsa('.hero-content-inner').forEach(function(s){s.style.display=parseInt(s.dataset.idx)===heroCurrent?'block':'none'});qsa('.hero-dot').forEach(function(s){s.classList.toggle('active',parseInt(s.dataset.idx)===heroCurrent)})}
-function addToContinue(id){var m=MOCK_MOVIES.find(function(m){return m.id===id});if(!m)return;var cw=getContinueWatching();if(!cw.find(function(i){return i.id===id})){cw.unshift({id:id,title:m.title||m.name||'Untitled',poster:m.poster_path,progress:0,duration:7200});if(cw.length>20)cw.pop();lsSet(STORAGE_KEYS.continueWatching,cw);renderHome()}}function switchPage(page){
+function addToContinue(id){var m=MOCK_MOVIES.find(function(m){return m.id===id})||MOCK_TV.find(function(m){return m.id===id});if(!m)return;var cw=getContinueWatching();if(!cw.find(function(i){return i.id===id})){cw.unshift({id:id,title:m.title||m.name||'Untitled',poster:m.poster_path,progress:0,duration:7200});if(cw.length>20)cw.pop();lsSet(STORAGE_KEYS.continueWatching,cw);showToast('Now playing: '+esc(m.title||m.name),'success');renderHome()}}
+function switchPage(page){
   qsa('.nav-item').forEach(function(n){n.classList.remove('active')});
   var el=qs('.nav-item[data-page="'+page+'"]');if(el)el.classList.add('active');
   if(window.innerWidth<=768){$('sidebar').classList.remove('mobile-open')}
@@ -354,7 +388,7 @@ function handleSearch(q){
 function renderMovieGrid(movies){
   return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:12px 0">'+movies.map(function(m){
     var title=m.title||m.name||'Untitled',year=(m.release_date||m.first_air_date||'').split('-')[0],rating=formatRating(m.vote_average);
-    return '<div class="movie-card visible" style="width:auto"><div class="movie-card-inner"><img class="movie-poster" src="'+getImageUrl(m.poster_path,'w342')+'" alt="'+esc(title)+'" loading="lazy"><div class="movie-card-gradient"></div><div class="movie-card-hover"><div class="movie-card-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div class="movie-card-top"><div class="movie-card-rating"><svg width="10" height="10" viewBox="0 0 24 24" fill="#F59E0B"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'+rating+'</div>'+(year?'<div class="movie-card-year">'+esc(year)+'</div>':'')+'</div><div class="movie-card-bottom"><div class="movie-card-title">'+esc(title)+'</div></div></div></div>'
+    return '<div class="movie-card visible" style="width:auto" onclick="openMovieDetail('+m.id+')"><div class="movie-card-inner"><img class="movie-poster" src="'+getImageUrl(m.poster_path,'w342')+'" alt="'+esc(title)+'" loading="lazy"><div class="movie-card-gradient"></div><div class="movie-card-hover"><div class="movie-card-play"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div class="movie-card-top"><div class="movie-card-rating"><svg width="10" height="10" viewBox="0 0 24 24" fill="#F59E0B"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'+rating+'</div>'+(year?'<div class="movie-card-year">'+esc(year)+'</div>':'')+'</div><div class="movie-card-bottom"><div class="movie-card-title">'+esc(title)+'</div></div></div></div>'
   }).join('')+'</div>'
 }
 function getWatchlist(){return lsGet(STORAGE_KEYS.watchlist,[])}
@@ -373,9 +407,14 @@ function renderHistory(){
 }
 var toastTimeout=null;
 function showToast(msg,type){
-  var t=$('toast');t.textContent=msg;t.className='toast '+(type||'info')+' show';
+  var t=$('toast');if(!t)return;t.textContent=msg;t.className='toast '+(type||'info')+' show';
   if(toastTimeout)clearTimeout(toastTimeout);
   toastTimeout=setTimeout(function(){t.classList.remove('show')},3000)
 }
-// Initialize
-applySettings();updateAuthUI();renderHome();
+
+function initApp() {
+  applySettings();
+  updateAuthUI();
+  renderHome();
+}
+window.initApp = initApp;
