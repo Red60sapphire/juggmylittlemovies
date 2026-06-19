@@ -71,7 +71,7 @@ function MainItem({ item }: { item: typeof mainItems[0] }) {
   );
 }
 
-function DrawerItem({ item, onClose }: { item: typeof drawerItems[0]; onClose: () => void }) {
+function DrawerItem({ item, onClose }: { item: (typeof drawerItems)[0] & { external?: boolean }; onClose: () => void }) {
   const active = useIsActive(item.href, item.external);
   const router = useRouter();
   const Icon = item.icon;
