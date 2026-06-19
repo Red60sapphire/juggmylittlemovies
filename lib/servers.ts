@@ -10,7 +10,7 @@ interface ServerConfig {
 export const VIDEO_SERVERS: ServerConfig[] = [
   // Recommended servers first
   {
-    name: "Zynema",
+    name: "Juggmylittlemovies",
     buildUrl: (id, s, e) =>
       s && e ? `https://play.xpass.top/e/tv/${id}/${s}/${e}` : `https://play.xpass.top/e/movie/${id}`,
     type: "embed",

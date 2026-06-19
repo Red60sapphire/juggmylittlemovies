@@ -15,9 +15,9 @@ export async function generateMetadata({
   const company = await getCompany(parseInt(id));
   return {
     title: company.name,
-    description: `Browse movies from ${company.name}. Stream films produced by ${company.name} in HD on Zynema.`,
+    description: `Browse movies from ${company.name}. Stream films produced by ${company.name} in HD on Juggmylittlemovies.`,
     openGraph: {
-      title: `${company.name} | Zynema`,
+      title: `${company.name} | Juggmylittlemovies`,
       description: `Browse movies from ${company.name}.`,
     },
   };

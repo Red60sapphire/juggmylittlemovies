@@ -15,7 +15,7 @@ export async function generateMetadata({
     title: movie.title,
     description: movie.overview?.slice(0, 160) || `Watch ${movie.title} online in HD.`,
     openGraph: {
-      title: `${movie.title} | Zynema`,
+      title: `${movie.title} | Juggmylittlemovies`,
       description: movie.overview?.slice(0, 160) || `Watch ${movie.title} online in HD.`,
       images: movie.poster_path ? [{ url: getImageUrl(movie.poster_path) }] : [],
     },

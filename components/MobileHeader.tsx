@@ -39,7 +39,7 @@ export default function MobileHeader() {
   const currentTitle =
     pageTitles[pathname] ||
     pageTitles[pathname.replace(/\/[^/]+$/, "")] ||
-    "Zynema";
+    "Juggmylittlemovies";
 
   const root = pathname.split("/").filter(Boolean)[0] || "";
   const backHref = backFallback[root] || "/";
@@ -63,9 +63,9 @@ export default function MobileHeader() {
         ) : (
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg overflow-hidden flex-shrink-0 shadow-lg shadow-purple-600/20">
-              <img src="/icon.png" alt="Zynema" className="w-full h-full object-cover" />
+              <img src="/icon.png" alt="Juggmylittlemovies" className="w-full h-full object-cover" />
             </div>
-            <span className="font-bold text-base text-white tracking-tight">Zynema</span>
+            <span className="font-bold text-base text-white tracking-tight">Juggmylittlemovies</span>
           </div>
         )}
         {isSubPage && (

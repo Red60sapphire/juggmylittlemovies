@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
   Home, Search, Film, Tv, MessageCircle,
-  Ghost, Bookmark, History, TrendingUp, Flame, Scale, LayoutGrid, X, Globe,
+  Ghost, Bookmark, History, TrendingUp, LayoutGrid, X,
 } from "lucide-react";
 
 const mainItems = [
@@ -24,9 +24,6 @@ const drawerItems = [
   { label: "Trending", href: "/trending", icon: TrendingUp },
   { label: "Watchlist", href: "/watchlist", icon: Bookmark },
   { label: "History", href: "/history", icon: History },
-  { label: "UFC", href: "http://ufc.solutions/", icon: Flame, external: true },
-  { label: "Links", href: "/links", icon: Globe },
-  { label: "Legal", href: "/legal", icon: Scale },
 ];
 
 function useIsActive(href: string, external?: boolean) {

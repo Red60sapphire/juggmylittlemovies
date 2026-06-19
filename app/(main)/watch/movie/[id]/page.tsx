@@ -17,7 +17,7 @@ import {
 const LOAD_TIMEOUT = 10000;
 
 const serverIcons: Record<string, any> = {
-  Zynema: Film, Core: Monitor,
+  Juggmylittlemovies: Film, Core: Monitor,
   VidSrc: Tv, ZxcStream: Monitor,
   CinemaOS: Tv, Vid2: Monitor, Peach: Film, Mapi: Server,
   VidPlays: Tv, VidEasy: Film, ScreenScape: Monitor,
@@ -71,8 +71,8 @@ export default function MovieWatchPage() {
     const saved = sessionStorage.getItem("working_servers");
     const working = saved ? new Set<string>(JSON.parse(saved)) : new Set<string>();
     const sorted = [...availableServers].sort((a, b) => {
-      const aZynema = a.name === "Zynema" ? 0 : 1;
-      const bZynema = b.name === "Zynema" ? 0 : 1;
+      const aZynema = a.name === "Juggmylittlemovies" ? 0 : 1;
+      const bZynema = b.name === "Juggmylittlemovies" ? 0 : 1;
       if (aZynema !== bZynema) return aZynema - bZynema;
       const aW = working.has(a.name) ? 0 : 1;
       const bW = working.has(b.name) ? 0 : 1;
@@ -80,7 +80,7 @@ export default function MovieWatchPage() {
     });
     setServers(sorted);
     setWorkingServers(working);
-    const idx = sorted.findIndex((s) => s.name === "Zynema" || working.has(s.name));
+    const idx = sorted.findIndex((s) => s.name === "Juggmylittlemovies" || working.has(s.name));
     const initialIndex = idx >= 0 ? idx : 0;
 
     if (sorted.length > 0) {

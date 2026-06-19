@@ -29,9 +29,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Movies",
-  description: "Browse movies by genre - Action, Comedy, Drama, Horror, Sci-Fi, and more. Stream free HD movies on Zynema.",
+  description: "Browse movies by genre - Action, Comedy, Drama, Horror, Sci-Fi, and more. Stream free HD movies on Juggmylittlemovies.",
   openGraph: {
-    title: "Movies | Zynema",
+    title: "Movies | Juggmylittlemovies",
     description: "Browse movies by genre - Action, Comedy, Drama, Horror, Sci-Fi, and more.",
   },
 };

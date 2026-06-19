@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Now Playing",
-  description: "Watch movies and TV shows currently in theatres and now available to stream. New releases in HD on Zynema.",
+  description: "Watch movies and TV shows currently in theatres and now available to stream. New releases in HD on Juggmylittlemovies.",
   openGraph: {
-    title: "Now Playing | Zynema",
+    title: "Now Playing | Juggmylittlemovies",
     description: "Watch movies and TV shows currently in theatres and now available to stream.",
   },
 };

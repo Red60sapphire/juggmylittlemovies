@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Popular",
-  description: "Watch the most popular movies and TV shows right now. Stream trending content in HD on Zynema.",
+  description: "Watch the most popular movies and TV shows right now. Stream trending content in HD on Juggmylittlemovies.",
   openGraph: {
-    title: "Popular | Zynema",
+    title: "Popular | Juggmylittlemovies",
     description: "Watch the most popular movies and TV shows right now.",
   },
 };

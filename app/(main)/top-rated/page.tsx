@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Top Rated",
-  description: "Browse the highest rated movies and TV shows of all time. Stream critically acclaimed content in HD on Zynema.",
+  description: "Browse the highest rated movies and TV shows of all time. Stream critically acclaimed content in HD on Juggmylittlemovies.",
   openGraph: {
-    title: "Top Rated | Zynema",
+    title: "Top Rated | Juggmylittlemovies",
     description: "Browse the highest rated movies and TV shows of all time.",
   },
 };

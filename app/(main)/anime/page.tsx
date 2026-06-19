@@ -61,9 +61,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Anime",
-  description: "Stream free anime online - trending, top rated, recently aired, and anime movies. Watch subbed and dubbed anime on Zynema.",
+  description: "Stream free anime online - trending, top rated, recently aired, and anime movies. Watch subbed and dubbed anime on Juggmylittlemovies.",
   openGraph: {
-    title: "Anime | Zynema",
+    title: "Anime | Juggmylittlemovies",
     description: "Stream free anime online - trending, top rated, recently aired, and anime movies.",
   },
 };

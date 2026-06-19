@@ -3,9 +3,9 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-const SITE_NAME = "Zynema";
-const SITE_DESCRIPTION = "Zynema - Stream movies, TV shows, anime, and live TV in HD. Free streaming platform with trending content, watchlist, and watch history.";
-const SITE_URL = "https://zynema.co";
+const SITE_NAME = "Juggmylittlemovies";
+const SITE_DESCRIPTION = "Juggmylittlemovies - Stream movies, TV shows, anime, and live TV in HD. Free streaming platform with trending content, watchlist, and watch history.";
+const SITE_URL = "https://juggmylittlemovies.co";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
-  keywords: ["free movie streaming", "watch movies online", "TV shows", "anime streaming", "live TV", "Zynema", "stream movies", "HD streaming"],
+  keywords: ["free movie streaming", "watch movies online", "TV shows", "anime streaming", "live TV", "Juggmylittlemovies", "stream movies", "HD streaming"],
   authors: [{ name: SITE_NAME }],
   creator: SITE_NAME,
   publisher: SITE_NAME,

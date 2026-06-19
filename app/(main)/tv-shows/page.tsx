@@ -28,9 +28,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "TV Shows",
-  description: "Browse TV shows by genre - Drama, Comedy, Sci-Fi, Animation, and more. Stream free HD TV shows on Zynema.",
+  description: "Browse TV shows by genre - Drama, Comedy, Sci-Fi, Animation, and more. Stream free HD TV shows on Juggmylittlemovies.",
   openGraph: {
-    title: "TV Shows | Zynema",
+    title: "TV Shows | Juggmylittlemovies",
     description: "Browse TV shows by genre - Drama, Comedy, Sci-Fi, Animation, and more.",
   },
 };

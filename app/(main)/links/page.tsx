@@ -3,13 +3,11 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Active Domains",
-  description: "Access Zynema from any of our active domains. If one domain is blocked, try another.",
+  description: "Access Juggmylittlemovies from any of our active domains. If one domain is blocked, try another.",
 };
 
 const DOMAINS = [
-  { url: "https://zynema.co", label: "zynema.co" },
-  { url: "https://zynema.shop", label: "zynema.shop" },
-  { url: "https://zynema.info", label: "zynema.info" },
+  { url: "https://juggmylittlemovies.co", label: "juggmylittlemovies.co" },
   { url: "https://mobmovies.co", label: "mobmovies.co" },
   { url: "https://damovies.net", label: "damovies.net" },
 ];
@@ -23,7 +21,7 @@ export default function LinksPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-white tracking-tight">Active Domains</h1>
-          <p className="text-sm text-white/40 mt-0.5">Access Zynema from any of these links</p>
+          <p className="text-sm text-white/40 mt-0.5">Access Juggmylittlemovies from any of these links</p>
         </div>
       </div>
 
