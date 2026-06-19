@@ -1,4 +1,4 @@
-# Streamr
+# Juggmylittlemovies
 
 A modern streaming discovery and media platform built with Next.js, TypeScript, and Supabase.
 
@@ -30,8 +30,8 @@ A modern streaming discovery and media platform built with Next.js, TypeScript, 
 ### Installation
 
 ```bash
-git clone https://github.com/red60sapphire/streamr.git
-cd streamr
+git clone https://github.com/Red60sapphire/juggmylittlemovies.git
+cd juggmylittlemovies
 npm install
 ```
 
@@ -66,3 +66,7 @@ This application is designed to be deployed on Vercel.
 ## License
 
 This project is provided for educational and personal development purposes.
+
+---
+
+Built on top of [streamrr](https://github.com/Red60sapphire/streamrr) — credit to the original project and its contributors.
