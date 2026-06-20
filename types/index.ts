@@ -59,6 +59,31 @@ export interface Trailer {
   type: string;
 }
 
+export interface WatchParty {
+  id: string;
+  host_id: string;
+  movie_id: number;
+  movie_title: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  season_number: number | null;
+  episode_number: number | null;
+  is_tv: boolean;
+  invite_code: string;
+  status: "waiting" | "playing" | "ended";
+  current_time: number;
+  is_paused: boolean;
+  created_at: string;
+}
+
+export interface WatchPartyMember {
+  id: string;
+  party_id: string;
+  user_id: string;
+  display_name: string | null;
+  joined_at: string;
+}
+
 export interface MovieDetails {
   id: number;
   title: string;

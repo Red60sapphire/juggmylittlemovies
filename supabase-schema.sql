@@ -58,3 +58,68 @@ CREATE POLICY "Users can delete own history"
   USING (auth.uid() = user_id);
 
 CREATE INDEX watch_history_user_idx ON watch_history(user_id);
+
+-- Watch party table
+CREATE TABLE IF NOT EXISTS watch_parties (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  host_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  movie_id bigint NOT NULL,
+  movie_title text NOT NULL,
+  poster_path text,
+  backdrop_path text,
+  season_number integer,
+  episode_number integer,
+  is_tv boolean DEFAULT false,
+  invite_code text UNIQUE NOT NULL,
+  status text DEFAULT 'waiting' CHECK (status IN ('waiting', 'playing', 'ended')),
+  current_time integer DEFAULT 0,
+  is_paused boolean DEFAULT true,
+  created_at timestamptz DEFAULT now() NOT NULL
+);
+
+ALTER TABLE watch_parties ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view watch parties"
+  ON watch_parties FOR SELECT
+  USING (true);
+
+CREATE POLICY "Authenticated users can create parties"
+  ON watch_parties FOR INSERT
+  WITH CHECK (auth.uid() = host_id);
+
+CREATE POLICY "Host can update party"
+  ON watch_parties FOR UPDATE
+  USING (auth.uid() = host_id);
+
+CREATE POLICY "Host can delete party"
+  ON watch_parties FOR DELETE
+  USING (auth.uid() = host_id);
+
+CREATE INDEX watch_parties_invite_code_idx ON watch_parties(invite_code);
+CREATE INDEX watch_parties_host_idx ON watch_parties(host_id);
+
+-- Watch party members table
+CREATE TABLE IF NOT EXISTS watch_party_members (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  party_id uuid REFERENCES watch_parties(id) ON DELETE CASCADE NOT NULL,
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  display_name text,
+  joined_at timestamptz DEFAULT now() NOT NULL,
+  UNIQUE(party_id, user_id)
+);
+
+ALTER TABLE watch_party_members ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view party members"
+  ON watch_party_members FOR SELECT
+  USING (true);
+
+CREATE POLICY "Authenticated users can join parties"
+  ON watch_party_members FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Members can leave parties"
+  ON watch_party_members FOR DELETE
+  USING (auth.uid() = user_id);
+
+CREATE INDEX watch_party_members_party_idx ON watch_party_members(party_id);
