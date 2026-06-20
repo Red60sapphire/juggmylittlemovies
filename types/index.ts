@@ -23,6 +23,7 @@ export interface VideoSource {
   name: string;
   url: string;
   type: "embed" | "direct";
+  sandbox?: boolean;
 }
 
 export interface WatchHistory {
