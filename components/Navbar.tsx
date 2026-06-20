@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import { Search, LogIn, LogOut, X, TrendingUp } from "lucide-react";
+import { Search, LogIn, LogOut, X, TrendingUp, UserRound } from "lucide-react";
 
 interface SearchSuggestion {
   id: number;
@@ -13,8 +12,13 @@ interface SearchSuggestion {
   poster_path: string | null;
 }
 
+interface SessionUser {
+  id: string;
+  username: string;
+}
+
 export default function Navbar() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<SessionUser | null>(null);
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -22,17 +26,14 @@ export default function Navbar() {
   const [focused, setFocused] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const supabase = createClient();
-  const debounceRef = useRef<any>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!supabase) return;
-    setAuthReady(true);
-    supabase.auth.getUser().then(({ data }: any) => setUser(data.user)).catch(() => {});
-    const { data: sub } = supabase.auth.onAuthStateChange((_: any, session: any) => {
-      setUser(session?.user ?? null);
-    });
-    return () => sub?.subscription.unsubscribe();
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data: { user: SessionUser | null }) => setUser(data.user))
+      .catch(() => setUser(null))
+      .finally(() => setAuthReady(true));
   }, []);
 
   useEffect(() => {
@@ -61,7 +62,7 @@ export default function Navbar() {
     const val = e.target.value;
     setQuery(val);
     setShowSuggestions(true);
-    clearTimeout(debounceRef.current);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => fetchSuggestions(val), 300);
   };
 
@@ -86,8 +87,9 @@ export default function Navbar() {
   };
 
   const handleSignOut = async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    await fetch("/api/auth/logout", { method: "POST" });
+    setUser(null);
+    window.location.href = "/";
   };
 
   return (
@@ -181,6 +183,13 @@ export default function Navbar() {
             >
               My List
             </Link>
+            <Link
+              href="/settings"
+              className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.04] text-sm text-white/70 hover:text-white hover:bg-white/[0.07] transition-colors"
+            >
+              <UserRound className="w-4 h-4" />
+              {user.username}
+            </Link>
             <button
               onClick={handleSignOut}
               className="flex items-center gap-2 px-4 py-2 text-sm text-white/50 hover:text-white hover:bg-white/[0.05] rounded-xl transition-all"
@@ -190,13 +199,21 @@ export default function Navbar() {
             </button>
           </div>
         ) : authReady ? (
-          <Link
-            href="/auth"
-            className="flex items-center gap-2 px-5 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-accent/20"
-          >
-            <LogIn className="w-4 h-4" />
-            Sign In
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/login"
+              className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-accent/20"
+            >
+              <LogIn className="w-4 h-4" />
+              Log In
+            </Link>
+            <Link
+              href="/signup"
+              className="hidden sm:block px-4 py-2 text-sm text-white/50 hover:text-white hover:bg-white/[0.05] rounded-xl transition-all"
+            >
+              Sign Up
+            </Link>
+          </div>
         ) : null}
       </div>
     </header>

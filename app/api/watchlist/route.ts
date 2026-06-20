@@ -1,26 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: NextRequest) {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll(); },
-        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const session = await getSession();
+  const supabase = createAdminClient();
+  if (!session || !supabase) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -29,7 +14,7 @@ export async function POST(request: NextRequest) {
   const { data: existing } = await supabase
     .from("watchlist")
     .select("id")
-    .eq("user_id", user.id)
+    .eq("user_id", session.userId)
     .eq("movie_id", movie_id)
     .single();
 
@@ -39,7 +24,7 @@ export async function POST(request: NextRequest) {
   }
 
   await supabase.from("watchlist").insert({
-    user_id: user.id,
+    user_id: session.userId,
     movie_id,
     title,
     poster_path,

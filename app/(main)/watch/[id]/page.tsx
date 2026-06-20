@@ -11,7 +11,7 @@ import type { VideoSource, MovieDetails, CastMember, Trailer } from "@/types";
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, Maximize, Settings,
   Plus, Share2, Download, Star, Calendar, Clock, ChevronRight,
-  Wifi, RefreshCw, AlertTriangle, Server, Tv, Film, Monitor,
+  Wifi, RefreshCw, AlertTriangle, Server, Tv, Film, Monitor, Users,
 } from "lucide-react";
 
 const LOAD_TIMEOUT = 10000;
@@ -35,6 +35,7 @@ export default function WatchPage() {
   const [autoAdvancing, setAutoAdvancing] = useState(false);
   const [workingServers, setWorkingServers] = useState<Set<string>>(new Set());
   const [isPlaying, setIsPlaying] = useState(false);
+  const [partyError, setPartyError] = useState("");
   const timeoutRef = useRef<any>(null);
 
   const movieId = parseInt(params.id as string);
@@ -102,6 +103,31 @@ export default function WatchPage() {
     if (autoAdvancing) return;
     setAutoAdvancing(true);
     tryServer(serverIndex + 1);
+  };
+
+  const startWatchParty = async () => {
+    if (!movie) return;
+    setPartyError("");
+    const displayName = window.prompt("Display name for this watch party") || "";
+    const res = await fetch("/api/watch-party/rooms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        movieId,
+        title: movie.title || movie.name || "Untitled",
+        posterPath: movie.poster_path,
+        backdropPath: movie.backdrop_path,
+        displayName,
+      }),
+    });
+    const data = (await res.json()) as { roomId?: string; displayName?: string; hostKey?: string; error?: string };
+    if (!res.ok || !data.roomId) {
+      setPartyError(data.error || "Could not create watch party.");
+      return;
+    }
+    sessionStorage.setItem(`watch-party-name:${data.roomId}`, data.displayName || displayName || "Host");
+    if (data.hostKey) sessionStorage.setItem(`watch-party-host:${data.roomId}`, data.hostKey);
+    router.push(`/watch-party/${data.roomId}`);
   };
 
   const cast: CastMember[] = (movie as any)?.credits?.cast?.slice(0, 8) || [];
@@ -252,11 +278,20 @@ export default function WatchPage() {
                 <button className="p-2 rounded-xl bg-[#1B1B1B] border border-[#2A2A2A] text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] transition-all">
                   <Share2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </button>
+                <button onClick={startWatchParty} className="flex items-center gap-2 px-3 md:px-4 py-2 bg-accent text-white text-xs md:text-sm font-semibold rounded-xl hover:bg-accent-hover transition-all">
+                  <Users className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <span className="hidden sm:inline">Party</span>
+                </button>
                 <button className="p-2 rounded-xl bg-[#1B1B1B] border border-[#2A2A2A] text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] transition-all">
                   <Download className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </button>
               </div>
             </div>
+            {partyError ? (
+              <p className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+                {partyError}
+              </p>
+            ) : null}
 
             <div className="mb-3">
               <h3 className="text-sm font-semibold text-white/70 mb-3">Servers</h3>
