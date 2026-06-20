@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   Home, Search, Film, Tv, Ghost,
   Trophy, Bookmark, History, MessageCircle, PlaySquare,
-  TrendingUp, Scale, Flame,
+  TrendingUp, Scale, Flame, Users, Settings, LogIn, UserPlus,
 } from "lucide-react";
 
 const navItems = [
@@ -25,6 +25,7 @@ const browseItems = [
 const libraryItems = [
   { label: "Watchlist", href: "/watchlist", icon: Bookmark },
   { label: "History", href: "/history", icon: History },
+  { label: "Watch Party", href: "/watch-party", icon: Users },
 ];
 
 const bottomNavItems = [
@@ -32,7 +33,7 @@ const bottomNavItems = [
   { label: "Search", href: "/search", icon: Search },
   { label: "Movies", href: "/movies", icon: Film },
   { label: "TV", href: "/tv-shows", icon: Tv },
-  { label: "Account", href: "/watchlist", icon: Bookmark },
+  { label: "Watch Party", href: "/watch-party", icon: Users },
 ];
 
 interface Props {
@@ -159,6 +160,54 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
         ))}
 
         <SectionLabel label="Account" />
+        <Link
+          href="/settings"
+          className={cn(
+            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+            pathname === "/settings"
+              ? "text-white font-medium"
+              : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+          )}
+          title={collapsed ? "Settings" : undefined}
+        >
+          {pathname === "/settings" && (
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
+          )}
+          <Settings className={cn("w-5 h-5 flex-shrink-0", pathname === "/settings" && "text-accent")} />
+          {!collapsed && <span className="truncate">Settings</span>}
+        </Link>
+        <Link
+          href="/login"
+          className={cn(
+            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+            pathname === "/login"
+              ? "text-white font-medium"
+              : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+          )}
+          title={collapsed ? "Login" : undefined}
+        >
+          {pathname === "/login" && (
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
+          )}
+          <LogIn className={cn("w-5 h-5 flex-shrink-0", pathname === "/login" && "text-accent")} />
+          {!collapsed && <span className="truncate">Login</span>}
+        </Link>
+        <Link
+          href="/signup"
+          className={cn(
+            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+            pathname === "/signup"
+              ? "text-white font-medium"
+              : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+          )}
+          title={collapsed ? "Signup" : undefined}
+        >
+          {pathname === "/signup" && (
+            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
+          )}
+          <UserPlus className={cn("w-5 h-5 flex-shrink-0", pathname === "/signup" && "text-accent")} />
+          {!collapsed && <span className="truncate">Signup</span>}
+        </Link>
         <a
           href="https://discord.gg/pW4vjXDDJM"
           target="_blank"
