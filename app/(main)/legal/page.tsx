@@ -1,10 +1,9 @@
-```tsx
-import Link from "next/link";
 import { Code2, Heart, ExternalLink, Shield, Mail } from "lucide-react";
 
 export default function CreditsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
+
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-white">
@@ -136,6 +135,7 @@ export default function CreditsPage() {
           © 2026 juggmylittlemovies
         </p>
       </div>
+
     </div>
   );
 }
