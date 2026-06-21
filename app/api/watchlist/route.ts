@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export async function GET() {
+  const session = await getSession();
+  const supabase = createAdminClient();
+  if (!session || !supabase) {
+    return NextResponse.json({ items: [] });
+  }
+  const { data } = await supabase
+    .from("watchlist")
+    .select("*")
+    .eq("user_id", session.userId)
+    .order("added_at", { ascending: false });
+  return NextResponse.json({ items: data || [] });
+}
+
 export async function POST(request: NextRequest) {
   const session = await getSession();
   const supabase = createAdminClient();

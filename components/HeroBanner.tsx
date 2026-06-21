@@ -32,7 +32,7 @@ export default function HeroBanner({ movies }: Props) {
   const year = (movie.release_date || movie.first_air_date || "").split("-")[0];
 
   return (
-    <section className="relative w-full h-[60vh] min-h-[480px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] overflow-hidden rounded-none md:rounded-2xl mb-8 md:mb-6">
+    <section className="relative w-full h-[60vh] min-h-[480px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] overflow-hidden rounded-none md:rounded-2xl mb-8 md:mb-6 shadow-2xl shadow-black/30">
       <AnimatePresence mode="wait">
         {movies.slice(0, 5).map((m, i) => (
           <motion.div
@@ -49,8 +49,9 @@ export default function HeroBanner({ movies }: Props) {
         ))}
       </AnimatePresence>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0B] via-[#0B0B0B]/60 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0B] via-[#0B0B0B]/60 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/60 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0f] via-[#0a0a0f]/40 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0a0a0f] to-transparent" />
 
       <motion.div
         key={movie.id}
@@ -73,14 +74,14 @@ export default function HeroBanner({ movies }: Props) {
               <Star className="w-3 h-3 fill-yellow-400" />
               {formatRating(movie.vote_average)}
             </div>
-            {year && <span className="text-white/50 text-xs">{year}</span>}
+            {year && <span className="text-white/40 text-xs">{year}</span>}
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.35 }}
-            className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-3 tracking-tight leading-tight"
+            className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-3 md:mb-3 tracking-tight leading-tight"
           >
             {title}
           </motion.h1>
@@ -89,7 +90,7 @@ export default function HeroBanner({ movies }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="text-white/60 text-sm sm:text-sm line-clamp-2 mb-4 md:mb-5 max-w-xl leading-relaxed"
+            className="text-white/50 text-sm sm:text-sm line-clamp-2 mb-4 md:mb-5 max-w-xl leading-relaxed"
           >
             {movie.overview}
           </motion.p>
@@ -102,7 +103,7 @@ export default function HeroBanner({ movies }: Props) {
           >
             <Link
               href={`/watch/${movie.id}`}
-              className="flex items-center gap-2.5 px-7 py-3.5 md:px-6 md:py-2.5 bg-accent hover:bg-accent-hover text-white text-sm md:text-sm font-bold rounded-xl transition-all hover:shadow-lg hover:shadow-accent/25 active:scale-95"
+              className="flex items-center gap-2.5 px-7 py-3.5 md:px-6 md:py-2.5 bg-accent hover:bg-accent-hover text-white text-sm md:text-sm font-bold rounded-xl transition-all hover:shadow-lg hover:shadow-accent/20 active:scale-95"
             >
               <Play className="w-5 h-5 fill-white" />
               Watch Now

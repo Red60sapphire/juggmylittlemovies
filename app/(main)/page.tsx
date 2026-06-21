@@ -16,7 +16,8 @@ import MovieRow from "@/components/MovieRow";
 import StudiosSection from "@/components/StudiosSection";
 import CollectionSection from "@/components/CollectionSection";
 import ContinueWatching from "@/components/ContinueWatching";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getSession } from "@/lib/auth/session";
 import type { WatchHistory, Movie } from "@/types";
 import {
   HeroSkeleton,
@@ -32,14 +33,14 @@ async function HeroSection() {
 }
 
 async function ContinueWatchingSection() {
-  const supabase = await createClient();
+  const session = await getSession();
+  if (!session) return <ContinueWatching items={[]} />;
+  const supabase = createAdminClient();
   if (!supabase) return <ContinueWatching items={[]} />;
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData?.user) return <ContinueWatching items={[]} />;
   const { data } = await supabase
     .from("watch_history")
     .select("*")
-    .eq("user_id", userData.user.id)
+    .eq("user_id", session.userId)
     .order("watched_at", { ascending: false })
     .limit(10);
   return <ContinueWatching items={data || []} />;
