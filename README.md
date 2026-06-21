@@ -56,14 +56,6 @@ This repository exists because:
 
 ---
 
-## Contributing
-
-Please contribute to the original repository instead:
-
-https://github.com/osamabinoven/juggmylittlemovies
-
----
-
 ## Credits
 
 Original Project:
