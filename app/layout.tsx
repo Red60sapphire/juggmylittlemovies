@@ -3,7 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DaMovies - Watch Movies & TV Shows",
+  title: "juggmylittlemovies - Watch Movies & TV Shows",
   description: "Stream your favorite movies and TV shows in HD",
 };
 

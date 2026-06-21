@@ -5,7 +5,7 @@ import { DEFAULT_SETTINGS, UserSettings } from "@/lib/settings";
 
 export async function GET() {
   const session = await getSession();
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
   if (!session || !supabase) {
     return NextResponse.json({ settings: DEFAULT_SETTINGS, synced: false });
   }
@@ -21,7 +21,7 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   const session = await getSession();
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
   const settings = (await request.json()) as Partial<UserSettings>;
   if (!session || !supabase) {
     return NextResponse.json({ settings: { ...DEFAULT_SETTINGS, ...settings }, synced: false });

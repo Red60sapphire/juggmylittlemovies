@@ -16,10 +16,10 @@ function makeCode() {
 }
 
 export async function GET() {
-  if (!isSupabaseConfigured()) {
+  if (!(await isSupabaseConfigured())) {
     return NextResponse.json({ configured: false, rooms: [] });
   }
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
   if (!supabase) return NextResponse.json({ configured: false, rooms: [] });
 
   const { data } = await supabase
@@ -31,11 +31,11 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  if (!isSupabaseConfigured()) {
+  if (!(await isSupabaseConfigured())) {
     return NextResponse.json({ error: "Watch parties require Supabase Realtime." }, { status: 503 });
   }
 
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
   const session = await getSession();
   if (!supabase) return NextResponse.json({ error: "Watch parties are unavailable." }, { status: 503 });
 

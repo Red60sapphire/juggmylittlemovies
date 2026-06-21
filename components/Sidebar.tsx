@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -7,6 +8,7 @@ import {
   Home, Search, Film, Tv, Ghost,
   Trophy, Bookmark, History, MessageCircle, PlaySquare,
   TrendingUp, Scale, Flame, Users, Settings, LogIn, UserPlus,
+  Mail, Copy, Check, X,
 } from "lucide-react";
 
 const navItems = [
@@ -44,6 +46,14 @@ interface Props {
 
 export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
   const pathname = usePathname();
+  const [contactOpen, setContactOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText("osamabinoven@juggmylittlemovies.com");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -111,152 +121,204 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
 
   // Desktop sidebar
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 h-full bg-[#111111] border-r border-[#2A2A2A] transition-all duration-300 flex flex-col",
-        collapsed ? "w-[80px]" : "w-[240px]"
-      )}
-    >
-      <div className="flex items-center gap-3 px-4 h-16 border-b border-[#2A2A2A] flex-shrink-0">
-        <Link href="/" className="flex items-center gap-2 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-600/20">
-            <PlaySquare className="w-4 h-4 text-white" />
-          </div>
-          {!collapsed && (
-            <span className="font-bold text-lg text-white whitespace-nowrap tracking-tight">
-              DaMovies
-            </span>
-          )}
-        </Link>
-      </div>
-
-      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5 scrollbar-hide">
-        <SectionLabel label="Browse" />
-        {navItems.map((item) => (
-          <NavLink key={item.href} item={item} />
-        ))}
-
-        <SectionLabel label="Discover" />
-        {browseItems.map((item) => (
-          <NavLink key={item.href} item={item} />
-        ))}
-        <a
-          href="http://ufc.solutions/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(
-            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
-            "text-[#9CA3AF] hover:text-white hover:bg-white/5"
-          )}
-          title={collapsed ? "UFC" : undefined}
-        >
-          <Flame className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span className="truncate">UFC</span>}
-        </a>
-
-        <SectionLabel label="Library" />
-        {libraryItems.map((item) => (
-          <NavLink key={item.href} item={item} />
-        ))}
-
-        <SectionLabel label="Account" />
-        <Link
-          href="/settings"
-          className={cn(
-            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
-            pathname === "/settings"
-              ? "text-white font-medium"
-              : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
-          )}
-          title={collapsed ? "Settings" : undefined}
-        >
-          {pathname === "/settings" && (
-            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
-          )}
-          <Settings className={cn("w-5 h-5 flex-shrink-0", pathname === "/settings" && "text-accent")} />
-          {!collapsed && <span className="truncate">Settings</span>}
-        </Link>
-        <Link
-          href="/login"
-          className={cn(
-            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
-            pathname === "/login"
-              ? "text-white font-medium"
-              : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
-          )}
-          title={collapsed ? "Login" : undefined}
-        >
-          {pathname === "/login" && (
-            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
-          )}
-          <LogIn className={cn("w-5 h-5 flex-shrink-0", pathname === "/login" && "text-accent")} />
-          {!collapsed && <span className="truncate">Login</span>}
-        </Link>
-        <Link
-          href="/signup"
-          className={cn(
-            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
-            pathname === "/signup"
-              ? "text-white font-medium"
-              : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
-          )}
-          title={collapsed ? "Signup" : undefined}
-        >
-          {pathname === "/signup" && (
-            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
-          )}
-          <UserPlus className={cn("w-5 h-5 flex-shrink-0", pathname === "/signup" && "text-accent")} />
-          {!collapsed && <span className="truncate">Signup</span>}
-        </Link>
-        <a
-          href="https://discord.gg/pW4vjXDDJM"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(
-            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
-            "text-[#9CA3AF] hover:text-white hover:bg-white/5"
-          )}
-          title={collapsed ? "Discord" : undefined}
-        >
-          <MessageCircle className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span className="truncate">Discord</span>}
-        </a>
-        <Link
-          href="/legal"
-          className={cn(
-            "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
-            pathname === "/legal"
-              ? "text-white font-medium"
-              : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
-          )}
-          title={collapsed ? "Legal / DMCA" : undefined}
-        >
-          {pathname === "/legal" && (
-            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
-          )}
-          <Scale className={cn("w-5 h-5 flex-shrink-0", pathname === "/legal" && "text-accent")} />
-          {!collapsed && <span className="truncate">Legal / DMCA</span>}
-        </Link>
-      </nav>
-
-      <button
-        onClick={onToggle}
-        className="flex items-center justify-center h-12 border-t border-[#2A2A2A] text-[#9CA3AF] hover:text-white transition-colors flex-shrink-0"
+    <>
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-40 h-full bg-[#111111] border-r border-[#2A2A2A] transition-all duration-300 flex flex-col",
+          collapsed ? "w-[80px]" : "w-[240px]"
+        )}
       >
-        <svg
-          className={cn("w-5 h-5 transition-transform duration-300", collapsed && "rotate-180")}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+        <div className="flex items-center gap-3 px-4 h-16 border-b border-[#2A2A2A] flex-shrink-0">
+          <Link href="/" className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-600/20">
+              <PlaySquare className="w-4 h-4 text-white" />
+            </div>
+            {!collapsed && (
+              <span className="font-bold text-lg text-white whitespace-nowrap tracking-tight">
+                juggmylittlemovies
+              </span>
+            )}
+          </Link>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5 scrollbar-hide">
+          <SectionLabel label="Browse" />
+          {navItems.map((item) => (
+            <NavLink key={item.href} item={item} />
+          ))}
+
+          <SectionLabel label="Discover" />
+          {browseItems.map((item) => (
+            <NavLink key={item.href} item={item} />
+          ))}
+          <a
+            href="http://ufc.solutions/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+              "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+            )}
+            title={collapsed ? "UFC" : undefined}
+          >
+            <Flame className="w-5 h-5 flex-shrink-0" />
+            {!collapsed && <span className="truncate">UFC</span>}
+          </a>
+
+          <SectionLabel label="Library" />
+          {libraryItems.map((item) => (
+            <NavLink key={item.href} item={item} />
+          ))}
+
+          <SectionLabel label="Account" />
+          <Link
+            href="/settings"
+            className={cn(
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+              pathname === "/settings"
+                ? "text-white font-medium"
+                : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+            )}
+            title={collapsed ? "Settings" : undefined}
+          >
+            {pathname === "/settings" && (
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
+            )}
+            <Settings className={cn("w-5 h-5 flex-shrink-0", pathname === "/settings" && "text-accent")} />
+            {!collapsed && <span className="truncate">Settings</span>}
+          </Link>
+          <Link
+            href="/login"
+            className={cn(
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+              pathname === "/login"
+                ? "text-white font-medium"
+                : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+            )}
+            title={collapsed ? "Login" : undefined}
+          >
+            {pathname === "/login" && (
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
+            )}
+            <LogIn className={cn("w-5 h-5 flex-shrink-0", pathname === "/login" && "text-accent")} />
+            {!collapsed && <span className="truncate">Login</span>}
+          </Link>
+          <Link
+            href="/signup"
+            className={cn(
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+              pathname === "/signup"
+                ? "text-white font-medium"
+                : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+            )}
+            title={collapsed ? "Signup" : undefined}
+          >
+            {pathname === "/signup" && (
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
+            )}
+            <UserPlus className={cn("w-5 h-5 flex-shrink-0", pathname === "/signup" && "text-accent")} />
+            {!collapsed && <span className="truncate">Signup</span>}
+          </Link>
+          <button
+            onClick={() => setContactOpen(true)}
+            className={cn(
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group w-full text-left",
+              "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+            )}
+            title={collapsed ? "Contact us" : undefined}
+          >
+            <Mail className="w-5 h-5 flex-shrink-0" />
+            {!collapsed && <span className="truncate">Contact us</span>}
+          </button>
+          <a
+            href="https://discord.gg/pW4vjXDDJM"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+              "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+            )}
+            title={collapsed ? "Discord" : undefined}
+          >
+            <MessageCircle className="w-5 h-5 flex-shrink-0" />
+            {!collapsed && <span className="truncate">Discord</span>}
+          </a>
+          <Link
+            href="/legal"
+            className={cn(
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+              pathname === "/legal"
+                ? "text-white font-medium"
+                : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+            )}
+            title={collapsed ? "Legal / DMCA" : undefined}
+          >
+            {pathname === "/legal" && (
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
+            )}
+            <Scale className={cn("w-5 h-5 flex-shrink-0", pathname === "/legal" && "text-accent")} />
+            {!collapsed && <span className="truncate">Legal / DMCA</span>}
+          </Link>
+        </nav>
+
+        <button
+          onClick={onToggle}
+          className="flex items-center justify-center h-12 border-t border-[#2A2A2A] text-[#9CA3AF] hover:text-white transition-colors flex-shrink-0"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d={collapsed ? "M13 5l7 7-7 7M5 5l7 7-7 7" : "M11 19l-7-7 7-7m8 14l-7-7 7-7"}
-          />
-        </svg>
-      </button>
-    </aside>
+          <svg
+            className={cn("w-5 h-5 transition-transform duration-300", collapsed && "rotate-180")}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d={collapsed ? "M13 5l7 7-7 7M5 5l7 7-7 7" : "M11 19l-7-7 7-7m8 14l-7-7 7-7"}
+            />
+          </svg>
+        </button>
+      </aside>
+
+      {contactOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setContactOpen(false)} />
+          <div className="relative w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#141419] p-6 shadow-2xl">
+            <button
+              onClick={() => setContactOpen(false)}
+              className="absolute right-4 top-4 text-[#9CA3AF] hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-bold text-white mb-1">Contact us</h2>
+            <p className="text-sm text-white/50 mb-6">We'd love to hear from you.</p>
+            <div className="space-y-4">
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-4">
+                <p className="text-xs text-white/40 mb-2">Email</p>
+                <div className="flex items-center gap-2">
+                  <span className="flex-1 text-sm text-white break-all">osamabinoven@juggmylittlemovies.com</span>
+                  <button
+                    onClick={copyEmail}
+                    className="flex-shrink-0 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                  >
+                    {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-[#9CA3AF]" />}
+                  </button>
+                </div>
+              </div>
+              <a
+                href="https://discord.gg/pW4vjXDDJM"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] p-4 hover:bg-white/[0.08] transition-colors"
+              >
+                <MessageCircle className="w-5 h-5 text-[#5865F2]" />
+                <span className="text-sm font-semibold text-white">Join our Discord</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

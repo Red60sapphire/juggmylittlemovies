@@ -3,11 +3,11 @@ import { getSession } from "@/lib/auth/session";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/admin";
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!isSupabaseConfigured()) {
+  if (!(await isSupabaseConfigured())) {
     return NextResponse.json({ error: "Watch parties require Supabase Realtime." }, { status: 503 });
   }
   const { id } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
   if (!supabase) return NextResponse.json({ error: "Watch parties are unavailable." }, { status: 503 });
 
   const { data: room } = await supabase

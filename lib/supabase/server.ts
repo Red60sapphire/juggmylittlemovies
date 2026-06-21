@@ -2,12 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 export async function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const cookieStore = await cookies();
+  const cookieUrl = cookieStore.get("sb_url")?.value;
+  const cookieKey = cookieStore.get("sb_anon")?.value;
+  const url = cookieUrl || process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const key = cookieKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
   if (!url || !key || url === "https://placeholder.supabase.co") {
     return null;
   }
-  const cookieStore = await cookies();
   try {
     return createServerClient(url, key, {
       cookies: {

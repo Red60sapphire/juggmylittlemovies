@@ -9,11 +9,11 @@ interface JoinBody {
 }
 
 export async function POST(request: NextRequest) {
-  if (!isSupabaseConfigured()) {
+  if (!(await isSupabaseConfigured())) {
     return NextResponse.json({ error: "Watch parties require Supabase Realtime." }, { status: 503 });
   }
 
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
   const session = await getSession();
   if (!supabase) return NextResponse.json({ error: "Watch parties are unavailable." }, { status: 503 });
 
