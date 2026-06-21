@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Home, Search, Film, Tv, Ghost,
+  Home, Search, Film, Tv, Ghost, BookOpen,
   Trophy, Bookmark, History, MessageCircle,
   TrendingUp, Scale, Flame, Users, Settings, LogIn, UserPlus,
   Mail, Copy, Check, X,
@@ -21,6 +21,7 @@ const browseItems = [
   { label: "Movies", href: "/movies", icon: Film },
   { label: "TV Shows", href: "/tv-shows", icon: Tv },
   { label: "Anime", href: "/anime", icon: Ghost },
+  { label: "Manga", href: "/manga", icon: BookOpen },
   { label: "Live Sports", href: "/search?q=sports", icon: Trophy },
 ];
 
@@ -35,6 +36,8 @@ const bottomNavItems = [
   { label: "Search", href: "/search", icon: Search },
   { label: "Movies", href: "/movies", icon: Film },
   { label: "TV", href: "/tv-shows", icon: Tv },
+  { label: "Anime", href: "/anime", icon: Ghost },
+  { label: "Manga", href: "/manga", icon: BookOpen },
   { label: "Watch Party", href: "/watch-party", icon: Users },
 ];
 
