@@ -415,7 +415,7 @@ function SearchContent() {
                   <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">Movies</h3>
                   <span className="text-xs text-white/30">{movieResults.length}</span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 content-vis-auto">
                   {movieResults.map((movie, i) => (
                     <MovieCard key={`m-${movie.id}`} movie={movie} index={i} />
                   ))}
@@ -429,7 +429,7 @@ function SearchContent() {
                   <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">TV Shows</h3>
                   <span className="text-xs text-white/30">{tvResults.length}</span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 content-vis-auto">
                   {tvResults.map((movie, i) => (
                     <MovieCard key={`tv-${movie.id}`} movie={movie} index={i} />
                   ))}
@@ -437,7 +437,7 @@ function SearchContent() {
               </div>
             )}
             {!showTypeSections && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 content-vis-auto">
                 {results.map((movie, i) => (
                   <div key={movie.id} className="relative">
                     <MovieCard movie={movie} index={i} />

@@ -55,7 +55,8 @@ async function mdFetch(path: string, params = ""): Promise<any> {
 
 function getCoverUrl(mangaId: string, fileName: string | null, size: "256" | "512" = "256"): string | null {
   if (!fileName) return null;
-  return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}.${size}.jpg`;
+  const base = fileName.includes(".") ? fileName.slice(0, fileName.lastIndexOf(".")) : fileName;
+  return `https://uploads.mangadex.org/covers/${mangaId}/${base}.${size}.jpg`;
 }
 
 function extractTitle(attrs: any): string {

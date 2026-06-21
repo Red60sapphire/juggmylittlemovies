@@ -77,7 +77,7 @@ export default function TrendingPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 content-vis-auto">
           {Array.from({ length: 18 }).map((_, i) => (
             <div key={i} className="aspect-[2/3] rounded-lg bg-surface animate-pulse" />
           ))}
