@@ -1,5 +1,44 @@
 const TMDB_BASE = "https://api.themoviedb.org/3";
 
+export const MOVIE_GENRES = [
+  { id: 28, name: "Action" },
+  { id: 12, name: "Adventure" },
+  { id: 16, name: "Animation" },
+  { id: 35, name: "Comedy" },
+  { id: 80, name: "Crime" },
+  { id: 99, name: "Documentary" },
+  { id: 18, name: "Drama" },
+  { id: 10751, name: "Family" },
+  { id: 14, name: "Fantasy" },
+  { id: 36, name: "History" },
+  { id: 27, name: "Horror" },
+  { id: 10402, name: "Music" },
+  { id: 9648, name: "Mystery" },
+  { id: 10749, name: "Romance" },
+  { id: 878, name: "Science Fiction" },
+  { id: 53, name: "Thriller" },
+  { id: 10752, name: "War" },
+  { id: 37, name: "Western" },
+];
+
+export const TV_GENRES = [
+  { id: 10759, name: "Action & Adventure" },
+  { id: 16, name: "Animation" },
+  { id: 35, name: "Comedy" },
+  { id: 80, name: "Crime" },
+  { id: 99, name: "Documentary" },
+  { id: 18, name: "Drama" },
+  { id: 10751, name: "Family" },
+  { id: 10762, name: "Kids" },
+  { id: 9648, name: "Mystery" },
+  { id: 10764, name: "Reality" },
+  { id: 10765, name: "Sci-Fi & Fantasy" },
+  { id: 10766, name: "Soap" },
+  { id: 10767, name: "Talk" },
+  { id: 10768, name: "War & Politics" },
+  { id: 37, name: "Western" },
+];
+
 async function tmdbFetch(path: string, params = "") {
   const token = process.env.TMDB_ACCESS_TOKEN;
   if (!token || token === "placeholder") {
@@ -17,16 +56,48 @@ async function tmdbFetch(path: string, params = "") {
   }
 }
 
+export async function fetchAllPages(
+  fetchFn: (page: number) => Promise<{ results: any[]; total_pages: number; total_results: number }>,
+  maxPages = 20
+) {
+  const first = await fetchFn(1);
+  if (first.total_pages <= 1) return first;
+
+  const pagesToFetch = Math.min(first.total_pages, maxPages);
+  const promises = [];
+  for (let p = 2; p <= pagesToFetch; p++) {
+    promises.push(fetchFn(p));
+  }
+  const rest = await Promise.all(promises);
+  const allResults = first.results;
+  for (const r of rest) {
+    allResults.push(...(r.results || []));
+  }
+  return { results: allResults, page: 1, total_pages: pagesToFetch, total_results: first.total_results };
+}
+
 export async function getTrending() {
   return tmdbFetch("/trending/all/week");
+}
+
+export async function getTrendingMultiPage(maxPages = 5) {
+  return fetchAllPages((p) => tmdbFetch("/trending/all/week", `&page=${p}`), maxPages);
 }
 
 export async function getPopular() {
   return tmdbFetch("/movie/popular");
 }
 
+export async function getPopularMultiPage(maxPages = 5) {
+  return fetchAllPages((p) => tmdbFetch("/movie/popular", `&page=${p}`), maxPages);
+}
+
 export async function getTopRated() {
   return tmdbFetch("/movie/top_rated");
+}
+
+export async function getTopRatedMultiPage(maxPages = 5) {
+  return fetchAllPages((p) => tmdbFetch("/movie/top_rated", `&page=${p}`), maxPages);
 }
 
 export async function getNowPlaying() {
@@ -41,11 +112,19 @@ export async function getTrendingTV() {
   return tmdbFetch("/trending/tv/week");
 }
 
+export async function getTrendingTVMultiPage(maxPages = 5) {
+  return fetchAllPages((p) => tmdbFetch("/trending/tv/week", `&page=${p}`), maxPages);
+}
+
 export async function searchMulti(query: string, page = 1) {
   return tmdbFetch(
     "/search/multi",
     `&query=${encodeURIComponent(query)}&page=${page}`
   );
+}
+
+export async function searchMultiAllPages(query: string, maxPages = 5) {
+  return fetchAllPages((p) => searchMulti(query, p), maxPages);
 }
 
 export async function searchCollection(query: string) {
@@ -80,8 +159,36 @@ export async function getTVDetails(id: number) {
 export async function getAnime(page = 1) {
   return tmdbFetch(
     "/discover/tv",
-    `&with_keywords=210024&sort_by=popularity.desc&page=${page}`
+    `&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=${page}`
   );
+}
+
+export async function getAnimeMultiPage(maxPages = 5) {
+  return fetchAllPages((p) => getAnime(p), maxPages);
+}
+
+export async function searchAnime(query: string, page = 1) {
+  const [tvData, movieData] = await Promise.all([
+    tmdbFetch("/search/tv", `&query=${encodeURIComponent(query)}&page=${page}`),
+    tmdbFetch("/search/movie", `&query=${encodeURIComponent(query)}&page=${page}`),
+  ]);
+  const tvFiltered = (tvData.results || []).filter((r: any) => {
+    const genreIds: number[] = r.genre_ids || [];
+    const originCountry: string[] = r.origin_country || [];
+    const lang = r.original_language || "";
+    return genreIds.includes(16) && (originCountry.includes("JP") || lang === "ja");
+  });
+  const movieFiltered = (movieData.results || []).filter((r: any) => {
+    const genreIds: number[] = r.genre_ids || [];
+    const lang = r.original_language || "";
+    return genreIds.includes(16) && lang === "ja";
+  });
+  const merged = [...tvFiltered, ...movieFiltered];
+  return { results: merged, page: 1, total_pages: 1, total_results: merged.length };
+}
+
+export async function searchAnimeAllPages(query: string, maxPages = 5) {
+  return fetchAllPages((p) => searchAnime(query, p), maxPages);
 }
 
 export async function getDiscover(page = 1) {
@@ -89,6 +196,19 @@ export async function getDiscover(page = 1) {
     "/discover/movie",
     `&sort_by=popularity.desc&page=${page}`
   );
+}
+
+export async function getDiscoverMultiPage(maxPages = 5) {
+  return fetchAllPages((p) => getDiscover(p), maxPages);
+}
+
+export async function discoverByGenre(mediaType: "movie" | "tv", genreId: number, page = 1) {
+  const path = mediaType === "movie" ? "/discover/movie" : "/discover/tv";
+  return tmdbFetch(path, `&with_genres=${genreId}&sort_by=popularity.desc&page=${page}`);
+}
+
+export async function discoverByGenreMultiPage(mediaType: "movie" | "tv", genreId: number, maxPages = 5) {
+  return fetchAllPages((p) => discoverByGenre(mediaType, genreId, p), maxPages);
 }
 
 const STUDIOS = [
@@ -110,12 +230,19 @@ const STUDIOS = [
   { id: 138, name: "Focus Features" },
 ];
 
-export async function getStudioContent(companyId: number) {
+export async function getStudioContent(companyId: number, page = 1) {
   const data = await tmdbFetch(
     "/discover/movie",
-    `&with_companies=${companyId}&sort_by=popularity.desc&page=1`
+    `&with_companies=${companyId}&sort_by=popularity.desc&page=${page}`
   );
   return data.results || [];
+}
+
+export async function getStudioContentAll(companyId: number, maxPages = 50) {
+  return fetchAllPages((p) =>
+    tmdbFetch("/discover/movie", `&with_companies=${companyId}&sort_by=popularity.desc&page=${p}`),
+    maxPages
+  );
 }
 
 export function getAllStudios() {
@@ -185,4 +312,8 @@ export async function getCompanyMovies(companyId: number, page = 1) {
     "/discover/movie",
     `&with_companies=${companyId}&sort_by=popularity.desc&page=${page}`
   );
+}
+
+export async function getCompanyMoviesAll(companyId: number, maxPages = 50) {
+  return fetchAllPages((p) => getCompanyMovies(companyId, p), maxPages);
 }

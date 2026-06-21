@@ -1,24 +1,62 @@
-import { getCompany, getCompanyMovies } from "@/lib/tmdb";
-import { getImageUrl } from "@/lib/utils";
-import MovieGrid from "@/components/MovieGrid";
-import { Building2 } from "lucide-react";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+"use client";
 
-export default async function StudioPage({
+import { useState, useEffect } from "react";
+import { getImageUrl } from "@/lib/utils";
+import MovieCard from "@/components/MovieCard";
+import type { Movie } from "@/types";
+import { Building2, ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
+
+export default function StudioPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const companyId = parseInt(id);
-  const [company, data] = await Promise.all([
-    getCompany(companyId),
-    getCompanyMovies(companyId),
-  ]);
+  const [company, setCompany] = useState<any>(null);
+  const [allMovies, setAllMovies] = useState<Movie[]>([]);
+  const [displayCount, setDisplayCount] = useState(40);
+  const [loading, setLoading] = useState(true);
+  const [id, setId] = useState<string | null>(null);
+
+  useEffect(() => {
+    params.then((p) => setId(p.id));
+  }, [params]);
+
+  useEffect(() => {
+    if (!id) return;
+    const companyId = parseInt(id);
+    setLoading(true);
+    Promise.all([
+      fetch(`/api/tmdb/company/${companyId}`).then((r) => r.json()),
+      fetch(`/api/tmdb/company/${companyId}/movies?all=true`).then((r) => r.json()),
+    ]).then(([companyData, moviesData]) => {
+      setCompany(companyData);
+      setAllMovies(moviesData.results || []);
+      setLoading(false);
+    });
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!company) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <p className="text-white/50">Company not found</p>
+      </div>
+    );
+  }
+
+  const displayed = allMovies.slice(0, displayCount);
+  const hasMore = displayCount < allMovies.length;
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="flex items-center gap-4 mb-6">
         <Link
           href="/"
@@ -38,11 +76,25 @@ export default async function StudioPage({
             <h1 className="text-2xl font-bold text-white">{company.name}</h1>
           </div>
         )}
-        <span className="text-white/40 text-sm">
-          {data.total_results || data.results?.length || 0} movies
-        </span>
+        <span className="text-white/40 text-sm">{allMovies.length} movies</span>
       </div>
-      <MovieGrid movies={data.results || []} />
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {displayed.map((movie, i) => (
+          <MovieCard key={movie.id} movie={movie} index={i} />
+        ))}
+      </div>
+
+      {hasMore && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={() => setDisplayCount((c) => c + 40)}
+            className="px-8 py-3 bg-white/5 hover:bg-accent text-white text-sm font-semibold rounded-xl border border-white/10 hover:border-accent/50 transition-all"
+          >
+            Load More ({allMovies.length - displayCount} remaining)
+          </button>
+        </div>
+      )}
     </div>
   );
 }
