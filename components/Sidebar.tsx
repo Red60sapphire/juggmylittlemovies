@@ -230,19 +230,6 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
             <Mail className="w-5 h-5 flex-shrink-0" />
             {!collapsed && <span className="truncate">Contact us</span>}
           </button>
-          <a
-            href="https://discord.gg/pW4vjXDDJM"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
-              "text-[#9CA3AF] hover:text-white hover:bg-white/5"
-            )}
-            title={collapsed ? "Discord" : undefined}
-          >
-            <MessageCircle className="w-5 h-5 flex-shrink-0" />
-            {!collapsed && <span className="truncate">Discord</span>}
-          </a>
           <Link
             href="/legal"
             className={cn(
