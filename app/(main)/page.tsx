@@ -2,13 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { Suspense } from "react";
 import {
-  getTrending,
   getTrendingMultiPage,
-  getPopular,
   getPopularMultiPage,
-  getTopRated,
   getTopRatedMultiPage,
-  getTrendingTV,
   getTrendingTVMultiPage,
   getCollection,
   getCompany,
@@ -16,7 +12,8 @@ import {
   getAllCollections,
 } from "@/lib/tmdb";
 import HeroBanner from "@/components/HeroBanner";
-import MovieRow from "@/components/MovieRow";
+import HorizontalSlider from "@/components/HorizontalSlider";
+import MovieCard from "@/components/MovieCard";
 import StudiosSection from "@/components/StudiosSection";
 import CollectionSection from "@/components/CollectionSection";
 import ContinueWatching from "@/components/ContinueWatching";
@@ -31,7 +28,7 @@ import {
 } from "@/components/skeletons";
 
 async function HeroSection() {
-  const trending = await getTrending();
+  const trending = await getTrendingMultiPage(3);
   if (!trending.results.length) return null;
   return <HeroBanner movies={trending.results.slice(0, 5)} />;
 }
@@ -84,17 +81,17 @@ async function MovieRows() {
 
   return (
     <>
-      <MovieRow title="Trending Now" movies={trending.results.slice(0, 40)} />
-      <MovieRow title="Popular Movies" movies={popular.results.slice(0, 40)} />
-      <MovieRow title="Top Rated" movies={topRated.results.slice(0, 40)} />
-      <MovieRow title="Popular TV Shows" movies={trendingTV.results.slice(0, 40)} />
+      <HorizontalSlider title="Trending Now" items={trending.results.slice(0, 40)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />
+      <HorizontalSlider title="Popular Movies" items={popular.results.slice(0, 40)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />
+      <HorizontalSlider title="Top Rated" items={topRated.results.slice(0, 40)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />
+      <HorizontalSlider title="Popular TV Shows" items={trendingTV.results.slice(0, 40)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />
     </>
   );
 }
 
 export default function HomePage() {
   return (
-    <div className="space-y-8 md:space-y-5">
+    <div className="space-y-1 md:space-y-0">
       <Suspense fallback={<HeroSkeleton />}>
         <HeroSection />
       </Suspense>

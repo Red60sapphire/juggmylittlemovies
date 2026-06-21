@@ -1,93 +1,49 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0B0B0B;
+  --color-background: #08080e;
   --color-foreground: #ffffff;
-  --color-sidebar: #111111;
-  --color-surface: #171717;
-  --color-card: #1B1B1B;
-  --color-border: #2A2A2A;
+  --color-sidebar: #0d0d14;
+  --color-surface: #12121a;
+  --color-card: #16161f;
+  --color-elevated: #1c1c27;
+  --color-border: #1e1e2a;
+  --color-border-hover: #2a2a3a;
   --color-accent: #8b5cf6;
-  --color-accent-hover: #7c3aed;
-  --color-muted: #9CA3AF;
+  --color-accent-hover: #a78bfa;
+  --color-accent-muted: rgba(139, 92, 246, 0.15);
+  --color-muted: #a0a0b0;
+  --color-subtle: #6b6b7b;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
 }
 
 body {
-  background: #0B0B0B;
+  background: #08080e;
   color: #ffffff;
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+.animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out forwards;
-}
-
-.animate-shimmer {
-  background: linear-gradient(90deg, #1B1B1B 25%, #2A2A2A 50%, #1B1B1B 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.4s ease-out forwards;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.3s ease-out forwards;
-}
-
-::selection {
-  background: rgba(139, 92, 246, 0.3);
-  color: #ffffff;
-}
+::selection { background: rgba(139, 92, 246, 0.3); color: #ffffff; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

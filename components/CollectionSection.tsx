@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { getBackdropUrl } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Film } from "lucide-react";
+import { Film } from "lucide-react";
+import HorizontalSlider from "./HorizontalSlider";
 
 interface CollectionData {
   id: number;
@@ -18,61 +18,25 @@ interface Props {
 }
 
 export default function CollectionSection({ collections }: Props) {
-  const rowRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (dir: "left" | "right") => {
-    if (!rowRef.current) return;
-    const amount = rowRef.current.clientWidth * 0.6;
-    rowRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
-  };
-
   if (!collections.length) return null;
 
   return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: "-50px" }}
-      className="mb-8 md:mb-6"
-    >
-      <div className="flex items-center justify-between mb-4 md:mb-3">
-        <h2 className="text-xl md:text-base font-bold text-white tracking-tight">Collections</h2>
-        <div className="flex items-center gap-2">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => scroll("left")}
-            className="p-2 md:p-1.5 rounded-lg bg-[#2A2A2A] hover:bg-accent/80 text-white/70 hover:text-white transition-all"
+    <HorizontalSlider
+      title="Collections"
+      items={collections}
+      renderCard={(col, i) => (
+        <motion.div
+          key={col.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: Math.min(i * 0.03, 0.3) }}
+          style={{ scrollSnapAlign: "start" }}
+        >
+          <Link
+            href={`/collection/${col.id}`}
+            className="group block w-[290px] sm:w-[230px]"
           >
-            <ChevronLeft className="w-5 h-5 md:w-4 md:h-4" />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => scroll("right")}
-            className="p-2 md:p-1.5 rounded-lg bg-[#2A2A2A] hover:bg-accent/80 text-white/70 hover:text-white transition-all"
-          >
-            <ChevronRight className="w-5 h-5 md:w-4 md:h-4" />
-          </motion.button>
-        </div>
-      </div>
-      <div
-        ref={rowRef}
-        className="flex gap-3 md:gap-2 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {collections.map((col) => (
-          <motion.div
-            key={col.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            whileHover={{ y: -4 }}
-          >
-            <Link
-              href={`/collection/${col.id}`}
-              className="group flex-shrink-0 w-[300px] sm:w-[240px] snap-start relative h-[160px] sm:h-[120px] rounded-2xl overflow-hidden bg-[#171717] border border-[#2A2A2A] hover:border-accent/40 transition-all duration-200 block"
-            >
+            <div className="relative h-[150px] sm:h-[110px] rounded-lg overflow-hidden bg-surface ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-accent/30 group-hover:shadow-xl group-hover:shadow-accent/10 group-hover:-translate-y-0.5">
               {col.backdrop_path ? (
                 <img
                   src={getBackdropUrl(col.backdrop_path) || ""}
@@ -80,8 +44,8 @@ export default function CollectionSection({ collections }: Props) {
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-[#171717]">
-                  <Film className="w-6 h-6 text-white/15" />
+                <div className="w-full h-full flex items-center justify-center">
+                  <Film className="w-5 h-5 text-white/12" />
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
@@ -89,14 +53,14 @@ export default function CollectionSection({ collections }: Props) {
                 <h3 className="text-sm font-semibold text-white group-hover:text-accent transition-colors truncate">
                   {col.name}
                 </h3>
-                <span className="text-[11px] text-white/50 mt-0.5 block">
+                <p className="text-[11px] text-white/50 mt-0.5">
                   {col.movies.length} {col.movies.length === 1 ? "movie" : "movies"}
-                </span>
+                </p>
               </div>
-            </Link>
-          </motion.div>
-        ))}
-      </div>
-    </motion.section>
+            </div>
+          </Link>
+        </motion.div>
+      )}
+    />
   );
 }

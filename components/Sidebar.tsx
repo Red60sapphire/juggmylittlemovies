@@ -70,7 +70,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
           "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
           active
             ? "text-white font-medium"
-            : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+            : "text-muted hover:text-white hover:bg-white/[0.04]"
         )}
         title={collapsed ? item.label : undefined}
       >
@@ -86,7 +86,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
   const SectionLabel = ({ label }: { label: string }) => {
     if (collapsed) return null;
     return (
-      <p className="px-3 text-[11px] font-semibold text-[#555] uppercase tracking-widest mb-2 mt-6">
+      <p className="px-3 text-[11px] font-semibold text-subtle uppercase tracking-widest mb-2 mt-6">
         {label}
       </p>
     );
@@ -94,7 +94,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
 
   if (mobile) {
     return (
-      <nav className="fixed bottom-0 left-0 right-0 z-50 h-[72px] bg-[#111111] border-t border-[#2A2A2A] flex items-center justify-evenly px-2 pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 h-[72px] bg-sidebar border-t border-border flex items-center justify-evenly px-2 pb-safe">
         {bottomNavItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
@@ -104,7 +104,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 px-3 py-1.5 rounded-lg transition-all min-w-0 flex-1 max-w-[80px]",
-                active ? "text-accent" : "text-[#555] hover:text-white"
+                active ? "text-accent" : "text-subtle hover:text-white"
               )}
             >
               <Icon className={cn("w-7 h-7", active && "text-accent")} />
@@ -122,11 +122,11 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
     <>
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-full bg-[#111111] border-r border-[#2A2A2A] transition-all duration-300 flex flex-col",
+          "fixed left-0 top-0 z-40 h-full bg-sidebar border-r border-border transition-all duration-300 flex flex-col",
           collapsed ? "w-[80px]" : "w-[240px]"
         )}
       >
-        <div className="flex items-center gap-3 px-4 h-16 border-b border-[#2A2A2A] flex-shrink-0">
+        <div className="flex items-center gap-3 px-4 h-16 border-b border-border flex-shrink-0">
           <Link href="/" className="flex items-center gap-2 min-w-0">
             <div className="w-8 h-8 rounded-xl overflow-hidden flex-shrink-0 ring-1 ring-white/10">
               <img src="/icon.png" alt="juggmylittlemovies" className="w-full h-full object-cover" />
@@ -155,7 +155,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
             rel="noopener noreferrer"
             className={cn(
               "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
-              "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+              "text-muted hover:text-white hover:bg-white/[0.04]"
             )}
             title={collapsed ? "UFC" : undefined}
           >
@@ -177,7 +177,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
               "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
               pathname === "/settings"
                 ? "text-white font-medium"
-                : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+                : "text-muted hover:text-white hover:bg-white/[0.04]"
             )}
             title={collapsed ? "Settings" : undefined}
           >
@@ -204,7 +204,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
               "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
               pathname === "/legal"
                 ? "text-white font-medium"
-                : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+                : "text-muted hover:text-white hover:bg-white/[0.04]"
             )}
             title={collapsed ? "Legal / DMCA" : undefined}
           >
@@ -219,7 +219,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
           <div className={cn(
             "mx-2 mt-6 rounded-xl overflow-hidden",
             collapsed ? "px-0" : "p-3",
-            "bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.06]"
+            "bg-white/[0.03] border border-border/60"
           )}>
             {!collapsed && (
               <>
@@ -229,14 +229,14 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
                 </div>
                 <Link
                   href="/login"
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group border border-white/10 hover:border-accent/40 hover:bg-accent/5 text-[#9CA3AF] hover:text-white mb-1.5"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group border border-border hover:border-accent/40 hover:bg-accent-muted text-muted hover:text-white mb-1.5"
                 >
                   <LogIn className="w-5 h-5 flex-shrink-0 group-hover:text-accent transition-colors" />
                   <span className="truncate">Log in</span>
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-lg shadow-purple-600/20"
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-accent hover:bg-accent-hover text-white"
                 >
                   <UserPlus className="w-5 h-5 flex-shrink-0" />
                   <span>Sign up</span>
@@ -247,14 +247,14 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
               <div className="flex flex-col items-center gap-1 py-2">
                 <Link
                   href="/login"
-                  className="p-2 rounded-lg text-[#9CA3AF] hover:text-white hover:bg-white/10 transition-all"
+                  className="p-2 rounded-lg text-muted hover:text-white hover:bg-white/10 transition-all"
                   title="Login"
                 >
                   <LogIn className="w-5 h-5" />
                 </Link>
                 <Link
                   href="/signup"
-                  className="p-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white transition-all"
+                  className="p-2 rounded-lg bg-accent hover:bg-accent-hover text-white transition-all"
                   title="Signup"
                 >
                   <UserPlus className="w-5 h-5" />
