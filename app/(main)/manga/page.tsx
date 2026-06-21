@@ -93,7 +93,7 @@ function MangaHero({ manga }: { manga: MangaTitle[] }) {
           className={`absolute inset-0 transition-opacity duration-1000 ${i === current ? "opacity-100" : "opacity-0"}`}
         >
           {m.coverUrl ? (
-            <img src={m.coverUrl.replace("/256.", "/512.")} alt="" className="w-full h-full object-cover" />
+            <img src={m.coverUrl.replace(".256.", ".512.")} alt="" className="w-full h-full object-cover" loading="lazy" />
           ) : null}
         </div>
       ))}
@@ -273,7 +273,7 @@ export default function MangaPage() {
           </div>
         ) : mangaList.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 content-vis-auto">
               {mangaList.map((m, i) => (
                 <MangaCard key={m.id} manga={m} index={i} />
               ))}

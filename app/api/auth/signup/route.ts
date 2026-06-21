@@ -3,6 +3,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { setSession } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_SETTINGS } from "@/lib/settings";
+import { rateLimit, sanitizeInput } from "@/lib/rate-limit";
 
 interface SignupBody {
   username?: string;
@@ -10,10 +11,16 @@ interface SignupBody {
 }
 
 function normalizeUsername(username: string) {
-  return username.trim().toLowerCase();
+  return sanitizeInput(username.trim().toLowerCase().slice(0, 24));
 }
 
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for") || "anonymous";
+  const limit = rateLimit(`signup:${ip}`, 5, 60000);
+  if (!limit.allowed) {
+    return NextResponse.json({ error: "Too many signup attempts." }, { status: 429 });
+  }
+
   const supabase = createAdminClient();
   if (!supabase) {
     return NextResponse.json({ error: "Accounts are unavailable." }, { status: 503 });
@@ -21,7 +28,7 @@ export async function POST(request: NextRequest) {
 
   const body = (await request.json()) as SignupBody;
   const username = normalizeUsername(body.username || "");
-  const password = body.password || "";
+  const password = (body.password || "").slice(0, 128);
 
   if (!/^[a-z0-9_]{3,24}$/.test(username)) {
     return NextResponse.json({ error: "Username must be 3-24 characters using letters, numbers, or underscores." }, { status: 400 });
