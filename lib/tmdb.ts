@@ -1,6 +1,6 @@
 const TMDB_BASE = "https://api.themoviedb.org/3";
 
-export const MOVIE_GENRES = [
+export const SIMPLE_GENRES = [
   { id: 28, name: "Action" },
   { id: 12, name: "Adventure" },
   { id: 16, name: "Animation" },
@@ -10,16 +10,14 @@ export const MOVIE_GENRES = [
   { id: 18, name: "Drama" },
   { id: 10751, name: "Family" },
   { id: 14, name: "Fantasy" },
-  { id: 36, name: "History" },
   { id: 27, name: "Horror" },
-  { id: 10402, name: "Music" },
   { id: 9648, name: "Mystery" },
   { id: 10749, name: "Romance" },
-  { id: 878, name: "Science Fiction" },
+  { id: 878, name: "Sci-Fi" },
   { id: 53, name: "Thriller" },
-  { id: 10752, name: "War" },
-  { id: 37, name: "Western" },
 ];
+
+export const MOVIE_GENRES = SIMPLE_GENRES;
 
 export const TV_GENRES = [
   { id: 10759, name: "Action & Adventure" },
@@ -29,14 +27,12 @@ export const TV_GENRES = [
   { id: 99, name: "Documentary" },
   { id: 18, name: "Drama" },
   { id: 10751, name: "Family" },
-  { id: 10762, name: "Kids" },
+  { id: 14, name: "Fantasy" },
+  { id: 27, name: "Horror" },
   { id: 9648, name: "Mystery" },
-  { id: 10764, name: "Reality" },
-  { id: 10765, name: "Sci-Fi & Fantasy" },
-  { id: 10766, name: "Soap" },
-  { id: 10767, name: "Talk" },
-  { id: 10768, name: "War & Politics" },
-  { id: 37, name: "Western" },
+  { id: 10749, name: "Romance" },
+  { id: 878, name: "Sci-Fi" },
+  { id: 53, name: "Thriller" },
 ];
 
 async function tmdbFetch(path: string, params = "") {
@@ -167,6 +163,27 @@ export async function getAnimeMultiPage(maxPages = 5) {
   return fetchAllPages((p) => getAnime(p), maxPages);
 }
 
+export async function getTrendingAnime() {
+  const data = await tmdbFetch("/trending/tv/week");
+  const filtered = (data.results || []).filter((r: any) => {
+    const gids: number[] = r.genre_ids || [];
+    const oc: string[] = r.origin_country || [];
+    return gids.includes(16) && (oc.includes("JP") || r.original_language === "ja");
+  });
+  return { results: filtered.slice(0, 20), page: 1, total_pages: 1, total_results: filtered.length };
+}
+
+export async function getAnimeTopRated(page = 1) {
+  return tmdbFetch(
+    "/discover/tv",
+    `&with_genres=16&with_original_language=ja&sort_by=vote_average.desc&vote_count.gte=200&page=${page}`
+  );
+}
+
+export async function getAnimeTopRatedMultiPage(maxPages = 3) {
+  return fetchAllPages((p) => getAnimeTopRated(p), maxPages);
+}
+
 export async function searchAnime(query: string, page = 1) {
   const [tvData, movieData] = await Promise.all([
     tmdbFetch("/search/tv", `&query=${encodeURIComponent(query)}&page=${page}`),
@@ -190,6 +207,19 @@ export async function searchAnime(query: string, page = 1) {
 export async function searchAnimeAllPages(query: string, maxPages = 5) {
   return fetchAllPages((p) => searchAnime(query, p), maxPages);
 }
+
+export const ANIME_GENRES = [
+  { id: 10759, name: "Action & Adventure" },
+  { id: 16, name: "Animation" },
+  { id: 35, name: "Comedy" },
+  { id: 18, name: "Drama" },
+  { id: 14, name: "Fantasy" },
+  { id: 27, name: "Horror" },
+  { id: 9648, name: "Mystery" },
+  { id: 10749, name: "Romance" },
+  { id: 878, name: "Sci-Fi" },
+  { id: 53, name: "Thriller" },
+];
 
 export async function getDiscover(page = 1) {
   return tmdbFetch(

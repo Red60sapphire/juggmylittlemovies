@@ -12,7 +12,7 @@ import WatchPartyUI from "@/components/WatchPartyUI";
 import type { VideoSource, MovieDetails, CastMember, Trailer } from "@/types";
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, Maximize, Settings,
-  Plus, Share2, Download, Star, Calendar, Clock, ChevronRight,
+  Plus, Share2, Download, Star, Calendar, Clock, ChevronRight, Check,
   Wifi, RefreshCw, AlertTriangle, Server, Tv, Film, Monitor, Users,
 } from "lucide-react";
 
@@ -35,19 +35,27 @@ export default function WatchPage() {
   const [iframeError, setIframeError] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
   const [autoAdvancing, setAutoAdvancing] = useState(false);
+  const [switchingSource, setSwitchingSource] = useState(false);
+  const [autoRetryCount, setAutoRetryCount] = useState(0);
   const [workingServers, setWorkingServers] = useState<Set<string>>(new Set());
   const [isPlaying, setIsPlaying] = useState(false);
   const [partyError, setPartyError] = useState("");
+  const [shareCopied, setShareCopied] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
   const timeoutRef = useRef<any>(null);
+
+  const showToast = (msg: string) => { setToastMsg(msg); setTimeout(() => setToastMsg(""), 2500); };
+  const autoRetryRef = useRef<any>(null);
 
   const movieId = parseInt(params.id as string);
 
   const clearTimeout_ = () => {
     if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
+    if (autoRetryRef.current) { clearTimeout(autoRetryRef.current); autoRetryRef.current = null; }
   };
 
   const tryServer = useCallback((index: number) => {
-    if (index >= servers.length) { setIframeError(true); setAutoAdvancing(false); return; }
+    if (index >= servers.length) { setIframeError(true); setAutoAdvancing(false); setSwitchingSource(false); return; }
     clearTimeout_();
     setServerIndex(index);
     setCurrentServer(servers[index]);
@@ -55,8 +63,32 @@ export default function WatchPage() {
     setIframeError(false);
     setTimedOut(false);
     setIsPlaying(false);
+    setAutoAdvancing(false);
     timeoutRef.current = setTimeout(() => setTimedOut(true), LOAD_TIMEOUT);
   }, [servers]);
+
+  // Auto-retry: when timed out, try next server after 3s
+  useEffect(() => {
+    if (timedOut && !iframeLoaded && serverIndex < servers.length - 1) {
+      setAutoRetryCount((c) => c + 1);
+      autoRetryRef.current = setTimeout(() => {
+        setSwitchingSource(true);
+        tryServer(serverIndex + 1);
+      }, 3000);
+      return () => { if (autoRetryRef.current) clearTimeout(autoRetryRef.current); };
+    }
+  }, [timedOut, iframeLoaded, serverIndex, servers.length]);
+
+  // Auto-retry: when iframe errors, try next server after 1.5s
+  useEffect(() => {
+    if (iframeError && !iframeLoaded && serverIndex < servers.length - 1) {
+      autoRetryRef.current = setTimeout(() => {
+        setSwitchingSource(true);
+        tryServer(serverIndex + 1);
+      }, 1500);
+      return () => { if (autoRetryRef.current) clearTimeout(autoRetryRef.current); };
+    }
+  }, [iframeError, iframeLoaded, serverIndex, servers.length]);
 
   useEffect(() => {
     const availableServers = getServersForMovie(movieId);
@@ -182,8 +214,17 @@ export default function WatchPage() {
                   {!iframeLoaded && !iframeError && !timedOut && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#0B0B0B]">
                       <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                      <p className="text-sm text-[#9CA3AF]">Loading stream...</p>
+                      <p className="text-sm text-[#9CA3AF]">
+                        {switchingSource ? "Switching source..." : "Loading stream..."}
+                      </p>
                       <p className="text-xs text-[#555]">{currentServer.name}</p>
+                    </div>
+                  )}
+
+                  {switchingSource && (
+                    <div className="absolute top-3 left-3 z-20 px-3 py-1.5 bg-accent/80 backdrop-blur-sm rounded-lg text-xs font-medium text-white flex items-center gap-2">
+                      <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Switching source...
                     </div>
                   )}
 
@@ -283,12 +324,34 @@ export default function WatchPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-white text-black text-xs md:text-sm font-semibold rounded-xl hover:bg-white/90 transition-all">
+                <button
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      const wl = JSON.parse(localStorage.getItem("stremer_watchlist") || "[]");
+                      if (!wl.includes(movieId)) {
+                        wl.push(movieId);
+                        localStorage.setItem("stremer_watchlist", JSON.stringify(wl));
+                        showToast("Added to watchlist");
+                      } else {
+                        showToast("Already in watchlist");
+                      }
+                    }
+                  }}
+                  className="flex items-center gap-2 px-3 md:px-4 py-2 bg-white text-black text-xs md:text-sm font-semibold rounded-xl hover:bg-white/90 transition-all"
+                >
                   <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   <span className="hidden sm:inline">Watchlist</span>
                 </button>
-                <button className="p-2 rounded-xl bg-[#1B1B1B] border border-[#2A2A2A] text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] transition-all">
-                  <Share2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    setShareCopied(true);
+                    setTimeout(() => setShareCopied(false), 2000);
+                  }}
+                  className="p-2 rounded-xl bg-[#1B1B1B] border border-[#2A2A2A] text-[#9CA3AF] hover:text-white hover:bg-[#2A2A2A] transition-all"
+                  title="Copy share link"
+                >
+                  {shareCopied ? <Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-500" /> : <Share2 className="w-3.5 h-3.5 md:w-4 md:h-4" />}
                 </button>
                 <button onClick={startWatchParty} className="flex items-center gap-2 px-3 md:px-4 py-2 bg-accent text-white text-xs md:text-sm font-semibold rounded-xl hover:bg-accent-hover transition-all">
                   <Users className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -304,6 +367,12 @@ export default function WatchPage() {
                 {partyError}
               </p>
             ) : null}
+            {toastMsg && (
+              <div className="mb-4 rounded-xl bg-accent/20 border border-accent/30 px-3 py-2 text-sm text-accent flex items-center gap-2">
+                <Check className="w-4 h-4" />
+                {toastMsg}
+              </div>
+            )}
 
             <div className="mb-3">
               <h3 className="text-sm font-semibold text-white/70 mb-3">Servers</h3>
