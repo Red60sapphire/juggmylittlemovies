@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { getImageUrl } from "@/lib/utils";
-import { Database, DoorOpen, Users, Check } from "lucide-react";
+import { Database, DoorOpen, Users, Settings } from "lucide-react";
+import Link from "next/link";
 
 interface PublicRoom {
   id: string;
@@ -23,25 +24,6 @@ export default function WatchPartyPage() {
   const [displayName, setDisplayName] = useState("");
   const [accountName, setAccountName] = useState("");
   const [error, setError] = useState("");
-
-  const [sbUrl, setSbUrl] = useState("");
-  const [sbAnon, setSbAnon] = useState("");
-  const [sbService, setSbService] = useState("");
-  const [sbSaved, setSbSaved] = useState(false);
-
-  const saveSupabaseConfig = () => {
-    const setCookie = (name: string, value: string) => {
-      document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
-    };
-    if (sbUrl) setCookie("sb_url", sbUrl);
-    if (sbAnon) setCookie("sb_anon", sbAnon);
-    if (sbService) setCookie("sb_service", sbService);
-    setSbSaved(true);
-    setTimeout(() => {
-      setSbSaved(false);
-      window.location.reload();
-    }, 1500);
-  };
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("kicked")) {
@@ -82,38 +64,18 @@ export default function WatchPartyPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mx-auto max-w-lg space-y-6"
+        className="mx-auto max-w-md text-center"
       >
-        <div className="rounded-2xl border border-white/[0.08] bg-[#141419] p-8 text-center">
-          <Database className="mx-auto h-12 w-12 text-accent/60" />
-          <h1 className="mt-4 text-2xl font-bold text-white">Configure Supabase</h1>
-          <p className="mt-3 text-white/50">Enter your Supabase project credentials to enable watch parties.</p>
+        <div className="rounded-2xl border border-white/[0.08] bg-[#141419] p-10">
+          <Database className="mx-auto h-12 w-12 text-white/20" />
+          <h1 className="mt-5 text-2xl font-bold text-white">Watch Parties Unavailable</h1>
+          <p className="mt-3 text-sm text-white/50">
+            Supabase is not configured. Ask the site administrator to set the required environment variables.
+          </p>
+          <Link href="/settings" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white hover:bg-accent-hover transition-colors">
+            <Settings className="h-4 w-4" /> Settings
+          </Link>
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-2xl border border-white/[0.08] bg-[#141419] p-6"
-        >
-          <h2 className="mb-4 text-lg font-bold text-white">Supabase Configuration</h2>
-          <div className="space-y-4">
-            <label className="block text-sm text-white/65">
-              Supabase URL
-              <input value={sbUrl} onChange={(e) => setSbUrl(e.target.value)} placeholder="https://your-project.supabase.co" className="mt-1 w-full rounded-xl border border-white/[0.08] bg-[#0f0f15] px-3 py-3 text-white outline-none placeholder:text-white/20 text-sm" />
-            </label>
-            <label className="block text-sm text-white/65">
-              Anon Key
-              <input value={sbAnon} onChange={(e) => setSbAnon(e.target.value)} placeholder="eyJhbGciOiJIUzI1NiIs..." className="mt-1 w-full rounded-xl border border-white/[0.08] bg-[#0f0f15] px-3 py-3 text-white outline-none placeholder:text-white/20 text-sm font-mono" />
-            </label>
-            <label className="block text-sm text-white/65">
-              Service Role Key
-              <input value={sbService} onChange={(e) => setSbService(e.target.value)} placeholder="eyJhbGciOiJIUzI1NiIs..." className="mt-1 w-full rounded-xl border border-white/[0.08] bg-[#0f0f15] px-3 py-3 text-white outline-none placeholder:text-white/20 text-sm font-mono" />
-            </label>
-          </div>
-          <button onClick={saveSupabaseConfig} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white hover:bg-accent-hover transition-colors">
-            {sbSaved ? <><Check className="h-4 w-4" /> Saved! Reloading...</> : "Save & Reload"}
-          </button>
-        </motion.div>
       </motion.div>
     );
   }
