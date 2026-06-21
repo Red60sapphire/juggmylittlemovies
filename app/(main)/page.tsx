@@ -3,9 +3,13 @@ export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import {
   getTrending,
+  getTrendingMultiPage,
   getPopular,
+  getPopularMultiPage,
   getTopRated,
+  getTopRatedMultiPage,
   getTrendingTV,
+  getTrendingTVMultiPage,
   getCollection,
   getCompany,
   getAllStudios,
@@ -72,18 +76,18 @@ async function CollectionsContent() {
 
 async function MovieRows() {
   const [trending, popular, topRated, trendingTV] = await Promise.all([
-    getTrending(),
-    getPopular(),
-    getTopRated(),
-    getTrendingTV(),
+    getTrendingMultiPage(3),
+    getPopularMultiPage(3),
+    getTopRatedMultiPage(3),
+    getTrendingTVMultiPage(3),
   ]);
 
   return (
     <>
-      <MovieRow title="Trending Now" movies={trending.results.slice(0, 20)} />
-      <MovieRow title="Popular Movies" movies={popular.results.slice(0, 20)} />
-      <MovieRow title="Top Rated" movies={topRated.results.slice(0, 20)} />
-      <MovieRow title="Popular TV Shows" movies={trendingTV.results.slice(0, 20)} />
+      <MovieRow title="Trending Now" movies={trending.results.slice(0, 40)} />
+      <MovieRow title="Popular Movies" movies={popular.results.slice(0, 40)} />
+      <MovieRow title="Top Rated" movies={topRated.results.slice(0, 40)} />
+      <MovieRow title="Popular TV Shows" movies={trendingTV.results.slice(0, 40)} />
     </>
   );
 }

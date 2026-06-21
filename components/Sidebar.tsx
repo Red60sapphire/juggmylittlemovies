@@ -92,7 +92,6 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
     );
   };
 
-  // Mobile bottom navigation bar
   if (mobile) {
     return (
       <nav className="fixed bottom-0 left-0 right-0 z-50 h-[72px] bg-[#111111] border-t border-[#2A2A2A] flex items-center justify-evenly px-2 pb-safe">
@@ -119,7 +118,6 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
     );
   }
 
-  // Desktop sidebar
   return (
     <>
       <aside
@@ -189,38 +187,6 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
             <Settings className={cn("w-5 h-5 flex-shrink-0", pathname === "/settings" && "text-accent")} />
             {!collapsed && <span className="truncate">Settings</span>}
           </Link>
-          <Link
-            href="/login"
-            className={cn(
-              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group border",
-              pathname === "/login"
-                ? "text-white border-accent/40 bg-accent/10"
-                : "text-[#9CA3AF] border-white/5 hover:text-white hover:border-accent/30 hover:bg-accent/5"
-            )}
-            title={collapsed ? "Login" : undefined}
-          >
-            {pathname === "/login" && (
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
-            )}
-            <LogIn className={cn("w-5 h-5 flex-shrink-0", pathname === "/login" && "text-accent")} />
-            {!collapsed && <span className="truncate">Login</span>}
-          </Link>
-          <Link
-            href="/signup"
-            className={cn(
-              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group",
-              pathname === "/signup"
-                ? "text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg shadow-purple-600/20"
-                : "text-white bg-gradient-to-r from-purple-600/90 to-blue-600/90 hover:from-purple-500 hover:to-blue-500 shadow-lg shadow-purple-600/10"
-            )}
-            title={collapsed ? "Signup" : undefined}
-          >
-            {pathname === "/signup" && (
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-white rounded-full" />
-            )}
-            <UserPlus className="w-5 h-5 flex-shrink-0" />
-            {!collapsed && <span className="truncate">Signup</span>}
-          </Link>
           <button
             onClick={() => setContactOpen(true)}
             className={cn(
@@ -248,6 +214,54 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
             <Scale className={cn("w-5 h-5 flex-shrink-0", pathname === "/legal" && "text-accent")} />
             {!collapsed && <span className="truncate">Legal / DMCA</span>}
           </Link>
+
+          {/* Auth Section */}
+          <div className={cn(
+            "mx-2 mt-6 rounded-xl overflow-hidden",
+            collapsed ? "px-0" : "p-3",
+            "bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/[0.06]"
+          )}>
+            {!collapsed && (
+              <>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-4 rounded-full bg-accent" />
+                  <span className="text-[11px] font-semibold text-white/60 uppercase tracking-widest">Join</span>
+                </div>
+                <Link
+                  href="/login"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group border border-white/10 hover:border-accent/40 hover:bg-accent/5 text-[#9CA3AF] hover:text-white mb-1.5"
+                >
+                  <LogIn className="w-5 h-5 flex-shrink-0 group-hover:text-accent transition-colors" />
+                  <span className="truncate">Log in</span>
+                </Link>
+                <Link
+                  href="/signup"
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-lg shadow-purple-600/20"
+                >
+                  <UserPlus className="w-5 h-5 flex-shrink-0" />
+                  <span>Sign up</span>
+                </Link>
+              </>
+            )}
+            {collapsed && (
+              <div className="flex flex-col items-center gap-1 py-2">
+                <Link
+                  href="/login"
+                  className="p-2 rounded-lg text-[#9CA3AF] hover:text-white hover:bg-white/10 transition-all"
+                  title="Login"
+                >
+                  <LogIn className="w-5 h-5" />
+                </Link>
+                <Link
+                  href="/signup"
+                  className="p-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white transition-all"
+                  title="Signup"
+                >
+                  <UserPlus className="w-5 h-5" />
+                </Link>
+              </div>
+            )}
+          </div>
         </nav>
 
         <button

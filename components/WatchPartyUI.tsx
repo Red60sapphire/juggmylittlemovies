@@ -2,10 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { createClient } from "@/lib/supabase/client";
 import type { WatchParty, WatchPartyMember } from "@/types";
 import {
-  Users, Copy, Check, Play, Pause, LogOut, Share2, UserPlus,
+  Users, Copy, Check, Play, LogOut, Share2, UserPlus,
 } from "lucide-react";
 
 interface Props {
@@ -33,7 +32,7 @@ export default function WatchPartyUI({
   onSeek,
   playerRef,
 }: Props) {
-  const [user, setUser] = useState<any>(null);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [party, setParty] = useState<WatchParty | null>(null);
   const [members, setMembers] = useState<WatchPartyMember[]>([]);
   const [inviteCode, setInviteCode] = useState("");
@@ -43,11 +42,9 @@ export default function WatchPartyUI({
   const [error, setError] = useState("");
   const [isHost, setIsHost] = useState(false);
   const pollRef = useRef<any>(null);
-  const supabase = createClient();
 
   useEffect(() => {
-    if (!supabase) return;
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    fetch("/api/auth/me").then(r => r.json()).then(d => setLoggedIn(!!d.user)).catch(() => {});
   }, []);
 
   const createParty = async () => {
@@ -140,21 +137,15 @@ export default function WatchPartyUI({
   };
 
   const leaveParty = async () => {
-    if (!party || !supabase) return;
-    const { data: { user: u } } = await supabase.auth.getUser();
-    if (!u) return;
+    if (!party) return;
     try {
-      await fetch(`/api/watchparty/${party.id}/members`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: u.id }),
-      });
+      await fetch(`/api/watchparty/${party.id}/members`, { method: "DELETE" });
     } catch {}
     setParty(null);
     setMembers([]);
   };
 
-  if (!user) return null;
+  if (!loggedIn) return null;
 
   if (!party) {
     return (

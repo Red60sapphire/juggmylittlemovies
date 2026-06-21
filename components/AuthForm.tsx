@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlaySquare, Mail, Lock, Eye, EyeOff, LogIn, UserPlus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function AuthForm() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
@@ -38,21 +40,23 @@ export default function AuthForm() {
     }
     setLoading(true);
     setError("");
+
     try {
-      const { createClient } = await import("@/lib/supabase/client");
-      const supabase = createClient();
-      if (!supabase) { setError("Supabase not configured"); setLoading(false); return; }
+      const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/signup";
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
 
-      const { error: authError } = mode === "signup"
-        ? await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } })
-        : await supabase.auth.signInWithPassword({ email, password });
-
-      if (authError) {
-        setError(authError.message);
-        if (authError.message.includes("Email not confirmed") || authError.message.includes("confirmation")) {
-          setError("Check your email for a confirmation link");
-        }
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Authentication failed");
+        setLoading(false);
+        return;
       }
+
+      router.push("/");
     } catch {
       setError("Something went wrong");
     }
