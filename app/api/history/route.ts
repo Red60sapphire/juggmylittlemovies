@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
-  const supabase = await createAdminClient();
+  const supabase = createAdminClient();
   if (!session || !supabase) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

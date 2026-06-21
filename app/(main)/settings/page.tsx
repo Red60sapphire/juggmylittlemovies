@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { DEFAULT_SETTINGS, UserSettings } from "@/lib/settings";
 import { Bell, MonitorPlay, Palette, Shield, UserRound } from "lucide-react";
 
@@ -48,15 +49,15 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto max-w-5xl space-y-6">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
         <p className="text-sm font-semibold text-accent">Preferences</p>
         <h1 className="mt-2 text-3xl font-black tracking-tight text-white">Settings</h1>
         <p className="mt-2 text-sm text-white/45">{synced ? "Synced to your account." : "Saved locally on this device."}</p>
-      </div>
+      </motion.div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-2xl border border-white/[0.08] bg-[#141419] p-5">
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl border border-white/[0.08] bg-[#141419] p-5">
           <h2 className="mb-4 flex items-center gap-2 font-bold text-white"><MonitorPlay className="h-5 w-5 text-accent" /> Playback</h2>
           <label className="block text-sm text-white/65">
             Default server
@@ -74,9 +75,9 @@ export default function SettingsPage() {
               {["Off", "English", "Auto"].map((option) => <option key={option}>{option}</option>)}
             </select>
           </label>
-        </section>
+        </motion.section>
 
-        <section className="rounded-2xl border border-white/[0.08] bg-[#141419] p-5">
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl border border-white/[0.08] bg-[#141419] p-5">
           <h2 className="mb-4 flex items-center gap-2 font-bold text-white"><Palette className="h-5 w-5 text-accent" /> Appearance</h2>
           <label className="block text-sm text-white/65">
             Accent color
@@ -88,9 +89,9 @@ export default function SettingsPage() {
             Reduce motion
             <input type="checkbox" checked={settings.reduceMotion} onChange={(event) => update({ reduceMotion: event.target.checked })} />
           </label>
-        </section>
+        </motion.section>
 
-        <section className="rounded-2xl border border-white/[0.08] bg-[#141419] p-5">
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl border border-white/[0.08] bg-[#141419] p-5">
           <h2 className="mb-4 flex items-center gap-2 font-bold text-white"><Bell className="h-5 w-5 text-accent" /> Watch Party</h2>
           <label className="flex items-center justify-between rounded-xl bg-white/[0.04] px-3 py-3 text-sm text-white/70">
             Show chat by default
@@ -100,9 +101,9 @@ export default function SettingsPage() {
             Chat notification sound
             <input type="checkbox" checked={settings.chatSound} onChange={(event) => update({ chatSound: event.target.checked })} />
           </label>
-        </section>
+        </motion.section>
 
-        <section className="rounded-2xl border border-white/[0.08] bg-[#141419] p-5">
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl border border-white/[0.08] bg-[#141419] p-5">
           <h2 className="mb-4 flex items-center gap-2 font-bold text-white"><UserRound className="h-5 w-5 text-accent" /> Account</h2>
           {username ? (
             <div className="space-y-3">
@@ -113,9 +114,9 @@ export default function SettingsPage() {
           ) : (
             <p className="rounded-xl bg-white/[0.04] px-3 py-3 text-sm text-white/55"><Shield className="mr-2 inline h-4 w-4" /> Sign in to sync settings across devices.</p>
           )}
-        </section>
+        </motion.section>
 
       </div>
-    </div>
+    </motion.div>
   );
 }
