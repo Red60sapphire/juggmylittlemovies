@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPassword } from "@/lib/auth/password";
 import { setSession } from "@/lib/auth/session";
-import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 interface LoginBody {
   username?: string;
@@ -9,10 +9,6 @@ interface LoginBody {
 }
 
 export async function POST(request: NextRequest) {
-  if (!(isSupabaseConfigured())) {
-    return NextResponse.json({ error: "Accounts require Supabase configuration." }, { status: 503 });
-  }
-
   const supabase = createAdminClient();
   if (!supabase) {
     return NextResponse.json({ error: "Accounts are unavailable." }, { status: 503 });

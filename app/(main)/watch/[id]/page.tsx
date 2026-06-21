@@ -141,20 +141,30 @@ export default function WatchPage() {
 
   if (!movie) {
     return (
-      <div className="flex items-center justify-center min-h-[80vh]">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex items-center justify-center min-h-[80vh]"
+      >
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           <p className="text-sm text-[#9CA3AF]">Loading player...</p>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="max-w-[1600px] mx-auto"
+    >
       <div className="flex flex-col xl:flex-row gap-4 md:gap-6">
         <div className="flex-1 min-w-0">
-          <div className="relative rounded-2xl overflow-hidden bg-black border border-[#2A2A2A] group/player shadow-2xl">
+          <div className="relative rounded-2xl overflow-hidden bg-black border border-[#2A2A2A] group/player shadow-2xl shadow-black/40">
+            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-purple-600 via-blue-500 to-transparent z-10" />
             <div className="relative aspect-video bg-black">
               {currentServer && (
                 <>
@@ -227,28 +237,28 @@ export default function WatchPage() {
               )}
             </div>
 
-            <div className="flex items-center gap-3 px-4 py-3 bg-[#111111] border-t border-[#2A2A2A]">
-              <button className="p-1.5 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors">
-                <Play className="w-5 h-5" />
+            <div className="flex items-center gap-3 px-4 py-2.5 bg-[#111111] border-t border-[#2A2A2A] opacity-60 hover:opacity-100 transition-opacity">
+              <button title="Controls handled by embedded player" className="p-1 rounded-lg text-white/40 cursor-default">
+                <Play className="w-4 h-4" />
               </button>
-              <button className="p-1.5 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors">
-                <SkipBack className="w-5 h-5" />
+              <button title="Controls handled by embedded player" className="p-1 rounded-lg text-white/40 cursor-default">
+                <SkipBack className="w-4 h-4" />
               </button>
-              <button className="p-1.5 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors">
-                <SkipForward className="w-5 h-5" />
+              <button title="Controls handled by embedded player" className="p-1 rounded-lg text-white/40 cursor-default">
+                <SkipForward className="w-4 h-4" />
               </button>
-              <button className="p-1.5 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors">
-                <Volume2 className="w-5 h-5" />
+              <button title="Controls handled by embedded player" className="p-1 rounded-lg text-white/40 cursor-default">
+                <Volume2 className="w-4 h-4" />
               </button>
               <div className="flex-1 h-1 mx-2 bg-[#2A2A2A] rounded-full overflow-hidden">
-                <div className="w-1/3 h-full bg-white rounded-full" />
+                <div className="w-1/3 h-full bg-white/30 rounded-full" />
               </div>
-              <span className="text-xs text-[#9CA3AF] tabular-nums whitespace-nowrap">12:34 / 2:05:00</span>
-              <button className="p-1.5 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors">
-                <Settings className="w-5 h-5" />
+              <span className="text-xs text-[#555] tabular-nums whitespace-nowrap">Embed</span>
+              <button title="Controls handled by embedded player" className="p-1 rounded-lg text-white/40 cursor-default">
+                <Settings className="w-4 h-4" />
               </button>
-              <button className="p-1.5 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors">
-                <Maximize className="w-5 h-5" />
+              <button title="Controls handled by embedded player" className="p-1 rounded-lg text-white/40 cursor-default">
+                <Maximize className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -339,12 +349,17 @@ export default function WatchPage() {
 
         <div className="w-full xl:w-[340px] flex-shrink-0">
           <div className="space-y-5">
-            <div className="relative rounded-xl overflow-hidden bg-[#171717] border border-[#2A2A2A]">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="relative rounded-xl overflow-hidden bg-[#171717] border border-[#2A2A2A] group"
+            >
               <div className="relative aspect-[2/3]">
                 <img
                   src={getImageUrl(movie.poster_path, "w342") || "/placeholder.svg"}
                   alt={movie.title || movie.name || ""}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.02]"
                 />
                 <div className="absolute top-2 right-2 px-2 py-1 bg-black/80 backdrop-blur-sm rounded-lg text-xs font-bold text-yellow-500 flex items-center gap-1">
                   <Star className="w-3 h-3 fill-yellow-500" />
@@ -355,9 +370,14 @@ export default function WatchPage() {
                 <h2 className="font-bold text-white text-lg mb-1">{movie.title || movie.name}</h2>
                 <p className="text-xs text-[#9CA3AF]">{year} &middot; {movie.runtime || "?"} min</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="rounded-xl bg-[#171717] border border-[#2A2A2A] p-4">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+              className="rounded-xl bg-[#171717] border border-[#2A2A2A] p-4"
+            >
               <h3 className="text-sm font-semibold text-white mb-3">Movie Info</h3>
               <div className="space-y-2.5 text-sm">
                 <div className="flex justify-between">
@@ -377,17 +397,27 @@ export default function WatchPage() {
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
 
-            <div className="rounded-xl bg-[#171717] border border-[#2A2A2A] p-4">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="rounded-xl bg-[#171717] border border-[#2A2A2A] p-4"
+            >
               <h3 className="text-sm font-semibold text-white mb-2">Synopsis</h3>
               <p className="text-sm text-[#9CA3AF] leading-relaxed line-clamp-4">
                 {movie.overview || "No synopsis available."}
               </p>
-            </div>
+            </motion.div>
 
             {movie.genres && movie.genres.length > 0 && (
-              <div className="rounded-xl bg-[#171717] border border-[#2A2A2A] p-4">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.25 }}
+                className="rounded-xl bg-[#171717] border border-[#2A2A2A] p-4"
+              >
                 <h3 className="text-sm font-semibold text-white mb-3">Genres</h3>
                 <div className="flex flex-wrap gap-2">
                   {movie.genres.map((g) => (
@@ -396,11 +426,16 @@ export default function WatchPage() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {trailers.length > 0 && (
-              <div className="rounded-xl bg-[#171717] border border-[#2A2A2A] p-4">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="rounded-xl bg-[#171717] border border-[#2A2A2A] p-4"
+              >
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-white">Trailers</h3>
                   <ChevronRight className="w-4 h-4 text-[#9CA3AF]" />
@@ -421,11 +456,16 @@ export default function WatchPage() {
                     </a>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {cast.length > 0 && (
-              <div className="rounded-xl bg-[#171717] border border-[#2A2A2A] p-4">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.35 }}
+                className="rounded-xl bg-[#171717] border border-[#2A2A2A] p-4"
+              >
                 <h3 className="text-sm font-semibold text-white mb-3">Cast</h3>
                 <div className="space-y-2 max-h-[320px] overflow-y-auto scrollbar-hide">
                   {cast.map((c) => (
@@ -444,11 +484,11 @@ export default function WatchPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

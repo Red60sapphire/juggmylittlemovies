@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   Home, Search, Film, Tv, Ghost,
-  Trophy, Bookmark, History, MessageCircle, PlaySquare,
+  Trophy, Bookmark, History, MessageCircle,
   TrendingUp, Scale, Flame, Users, Settings, LogIn, UserPlus,
   Mail, Copy, Check, X,
 } from "lucide-react";
@@ -130,8 +130,8 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
       >
         <div className="flex items-center gap-3 px-4 h-16 border-b border-[#2A2A2A] flex-shrink-0">
           <Link href="/" className="flex items-center gap-2 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-600/20">
-              <PlaySquare className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-xl overflow-hidden flex-shrink-0 ring-1 ring-white/10">
+              <img src="/icon.png" alt="juggmylittlemovies" className="w-full h-full object-cover" />
             </div>
             {!collapsed && (
               <span className="font-bold text-lg text-white whitespace-nowrap tracking-tight">
@@ -170,6 +170,8 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
             <NavLink key={item.href} item={item} />
           ))}
 
+          <div className="mx-3 my-2 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
           <SectionLabel label="Account" />
           <Link
             href="/settings"
@@ -190,10 +192,10 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
           <Link
             href="/login"
             className={cn(
-              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group border",
               pathname === "/login"
-                ? "text-white font-medium"
-                : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+                ? "text-white border-accent/40 bg-accent/10"
+                : "text-[#9CA3AF] border-white/5 hover:text-white hover:border-accent/30 hover:bg-accent/5"
             )}
             title={collapsed ? "Login" : undefined}
           >
@@ -206,17 +208,17 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
           <Link
             href="/signup"
             className={cn(
-              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
+              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group",
               pathname === "/signup"
-                ? "text-white font-medium"
-                : "text-[#9CA3AF] hover:text-white hover:bg-white/5"
+                ? "text-white bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg shadow-purple-600/20"
+                : "text-white bg-gradient-to-r from-purple-600/90 to-blue-600/90 hover:from-purple-500 hover:to-blue-500 shadow-lg shadow-purple-600/10"
             )}
             title={collapsed ? "Signup" : undefined}
           >
             {pathname === "/signup" && (
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-white rounded-full" />
             )}
-            <UserPlus className={cn("w-5 h-5 flex-shrink-0", pathname === "/signup" && "text-accent")} />
+            <UserPlus className="w-5 h-5 flex-shrink-0" />
             {!collapsed && <span className="truncate">Signup</span>}
           </Link>
           <button
@@ -230,19 +232,6 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
             <Mail className="w-5 h-5 flex-shrink-0" />
             {!collapsed && <span className="truncate">Contact us</span>}
           </button>
-          <a
-            href="https://discord.gg/pW4vjXDDJM"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              "relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
-              "text-[#9CA3AF] hover:text-white hover:bg-white/5"
-            )}
-            title={collapsed ? "Discord" : undefined}
-          >
-            <MessageCircle className="w-5 h-5 flex-shrink-0" />
-            {!collapsed && <span className="truncate">Discord</span>}
-          </a>
           <Link
             href="/legal"
             className={cn(
