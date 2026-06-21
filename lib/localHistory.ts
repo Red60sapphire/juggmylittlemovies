@@ -1,6 +1,6 @@
 import type { WatchHistory } from "@/types";
 
-const STORAGE_KEY = "damovies_history";
+const STORAGE_KEY = "juggmylittlemovies_history";
 
 export function getLocalHistory(): WatchHistory[] {
   if (typeof window === "undefined") return [];

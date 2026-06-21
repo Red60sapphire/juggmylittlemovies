@@ -10,7 +10,7 @@ interface MessageBody {
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
   if (!supabase) return NextResponse.json({ error: "Chat requires Supabase." }, { status: 503 });
 
   const session = await getSession();

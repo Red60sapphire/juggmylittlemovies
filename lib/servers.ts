@@ -67,6 +67,12 @@ export const VIDEO_SERVERS: ServerConfig[] = [
       s && e ? `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` : `https://vidsrc.xyz/embed/movie/${id}`,
     type: "embed",
   },
+  {
+    name: "VidKing",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://www.vidking.net/embed/tv/${id}/${s}/${e}` : `https://www.vidking.net/embed/movie/${id}`,
+    type: "embed",
+  },
 ];
 
 export function getServersForMovie(tmdbId: number): VideoSource[] {

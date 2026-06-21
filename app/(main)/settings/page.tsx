@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { DEFAULT_SETTINGS, UserSettings } from "@/lib/settings";
-import { Bell, MonitorPlay, Palette, Shield, UserRound } from "lucide-react";
+import { Bell, Database, MonitorPlay, Palette, Shield, UserRound } from "lucide-react";
 
 const LOCAL_KEY = "stremer_settings";
 
@@ -10,6 +10,40 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [synced, setSynced] = useState(false);
   const [username, setUsername] = useState("");
+  const [sbUrl, setSbUrl] = useState("");
+  const [sbAnon, setSbAnon] = useState("");
+  const [sbService, setSbService] = useState("");
+  const [sbSaved, setSbSaved] = useState(false);
+
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+      return match ? decodeURIComponent(match[1]) : "";
+    };
+    setSbUrl(getCookie("sb_url"));
+    setSbAnon(getCookie("sb_anon"));
+    setSbService(getCookie("sb_service"));
+  }, []);
+
+  const saveSupabaseConfig = () => {
+    const setCookie = (name: string, value: string) => {
+      document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+    };
+    if (sbUrl) setCookie("sb_url", sbUrl);
+    if (sbAnon) setCookie("sb_anon", sbAnon);
+    if (sbService) setCookie("sb_service", sbService);
+    setSbSaved(true);
+    setTimeout(() => setSbSaved(false), 3000);
+  };
+
+  const clearSupabaseConfig = () => {
+    document.cookie = "sb_url=; path=/; max-age=0";
+    document.cookie = "sb_anon=; path=/; max-age=0";
+    document.cookie = "sb_service=; path=/; max-age=0";
+    setSbUrl("");
+    setSbAnon("");
+    setSbService("");
+  };
 
   useEffect(() => {
     const local = localStorage.getItem(LOCAL_KEY);
@@ -61,7 +95,7 @@ export default function SettingsPage() {
           <label className="block text-sm text-white/65">
             Default server
             <select value={settings.defaultServer} onChange={(event) => update({ defaultServer: event.target.value })} className="mt-2 w-full rounded-xl border border-white/[0.08] bg-[#0f0f15] px-3 py-3 text-white outline-none">
-              {["Auto", "VidLink", "VidSrc", "Embed.su", "MultiEmbed"].map((server) => <option key={server}>{server}</option>)}
+              {["Auto", "VidLink", "VidSrc", "Embed.su", "MultiEmbed", "VidKing"].map((server) => <option key={server}>{server}</option>)}
             </select>
           </label>
           <label className="mt-4 flex items-center justify-between rounded-xl bg-white/[0.04] px-3 py-3 text-sm text-white/70">
@@ -113,6 +147,33 @@ export default function SettingsPage() {
           ) : (
             <p className="rounded-xl bg-white/[0.04] px-3 py-3 text-sm text-white/55"><Shield className="mr-2 inline h-4 w-4" /> Sign in to sync settings across devices.</p>
           )}
+        </section>
+
+        <section className="rounded-2xl border border-white/[0.08] bg-[#141419] p-5 lg:col-span-2">
+          <h2 className="mb-4 flex items-center gap-2 font-bold text-white"><Database className="h-5 w-5 text-accent" /> Supabase Configuration</h2>
+          <p className="mb-4 text-sm text-white/50">Override the default Supabase credentials with your own. These are saved as cookies and will persist across sessions.</p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <label className="block text-sm text-white/65">
+              Supabase URL
+              <input value={sbUrl} onChange={(e) => setSbUrl(e.target.value)} placeholder="https://your-project.supabase.co" className="mt-1 w-full rounded-xl border border-white/[0.08] bg-[#0f0f15] px-3 py-3 text-white outline-none placeholder:text-white/20 text-sm" />
+            </label>
+            <label className="block text-sm text-white/65">
+              Anon Key
+              <input value={sbAnon} onChange={(e) => setSbAnon(e.target.value)} placeholder="eyJhbGciOiJIUzI1NiIs..." className="mt-1 w-full rounded-xl border border-white/[0.08] bg-[#0f0f15] px-3 py-3 text-white outline-none placeholder:text-white/20 text-sm font-mono" />
+            </label>
+            <label className="block text-sm text-white/65">
+              Service Role Key
+              <input value={sbService} onChange={(e) => setSbService(e.target.value)} placeholder="eyJhbGciOiJIUzI1NiIs..." className="mt-1 w-full rounded-xl border border-white/[0.08] bg-[#0f0f15] px-3 py-3 text-white outline-none placeholder:text-white/20 text-sm font-mono" />
+            </label>
+          </div>
+          <div className="mt-4 flex items-center gap-3">
+            <button onClick={saveSupabaseConfig} className="rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-white hover:bg-accent-hover transition-colors">
+              {sbSaved ? "Saved!" : "Save Configuration"}
+            </button>
+            <button onClick={clearSupabaseConfig} className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-bold text-white/70 hover:bg-white/[0.06] transition-colors">
+              Clear
+            </button>
+          </div>
         </section>
       </div>
     </div>

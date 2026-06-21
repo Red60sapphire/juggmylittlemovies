@@ -14,11 +14,11 @@ function normalizeUsername(username: string) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!isSupabaseConfigured()) {
+  if (!(await isSupabaseConfigured())) {
     return NextResponse.json({ error: "Accounts require Supabase configuration." }, { status: 503 });
   }
 
-  const supabase = createAdminClient();
+  const supabase = await createAdminClient();
   if (!supabase) {
     return NextResponse.json({ error: "Accounts are unavailable." }, { status: 503 });
   }

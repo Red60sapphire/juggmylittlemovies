@@ -5,7 +5,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/admin";
 export async function GET() {
   const session = await getSession();
   return NextResponse.json({
-    configured: isSupabaseConfigured(),
+    configured: await isSupabaseConfigured(),
     user: session ? { id: session.userId, username: session.username } : null,
   });
 }
