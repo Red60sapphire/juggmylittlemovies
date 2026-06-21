@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { getImageUrl } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Building2 } from "lucide-react";
+import { Building2 } from "lucide-react";
+import HorizontalSlider from "./HorizontalSlider";
 
 interface Studio {
   id: number;
@@ -17,100 +17,35 @@ interface Props {
 }
 
 export default function StudiosSection({ studios }: Props) {
-  const rowRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (dir: "left" | "right") => {
-    if (!rowRef.current) return;
-    const amount = rowRef.current.clientWidth * 0.75;
-    rowRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
-  };
-
   if (!studios.length) return null;
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4 }}
-      className="mb-8 md:mb-6"
-    >
-      {/* Mobile: horizontal scroll row matching movie card dimensions */}
-      <div className="md:hidden">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-white tracking-tight">Studios</h2>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => scroll("left")}
-              className="p-2 rounded-lg bg-[#2A2A2A] hover:bg-accent/80 text-white/70 hover:text-white transition-all active:scale-90"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => scroll("right")}
-              className="p-2 rounded-lg bg-[#2A2A2A] hover:bg-accent/80 text-white/70 hover:text-white transition-all active:scale-90"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+    <>
+      <div className="hidden md:block mb-6">
+        <div className="flex items-center mb-3">
+          <div className="w-0.5 h-4 bg-accent rounded-full mr-2.5 flex-shrink-0" />
+          <h2 className="text-base font-bold text-white tracking-tight">Studios</h2>
         </div>
-        <div
-          ref={rowRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-1"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {studios.map((studio, i) => (
-            <motion.div
-              key={studio.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.03 }}
-              className="flex-shrink-0 w-[220px] snap-start"
-            >
-              <Link href={`/studio/${studio.id}`} className="group block">
-                <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-[#e5e5e5] mb-1.5 shadow-lg transition-all duration-300 group-hover:-translate-y-0.5 flex items-center justify-center">
-                  {studio.logo_path ? (
-                    <img
-                      src={getImageUrl(studio.logo_path, "w500")}
-                      alt={studio.name}
-                      className="w-[75%] h-[75%] object-contain opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200"
-                    />
-                  ) : (
-                    <Building2 className="w-12 h-12 text-[#999]" />
-                  )}
-                </div>
-                <h3 className="text-sm font-medium text-white/80 group-hover:text-white transition-colors truncate px-0.5">
-                  {studio.name}
-                </h3>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* Desktop: grid layout */}
-      <div className="hidden md:block">
-        <h2 className="text-base font-bold text-white mb-4">Studios</h2>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-3">
           {studios.map((studio) => (
             <Link
               key={studio.id}
               href={`/studio/${studio.id}`}
-              className="group relative h-[170px] rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06] hover:border-accent/40 hover:bg-white/[0.06] transition-all duration-300"
+              className="group relative h-[160px] rounded-xl overflow-hidden bg-white/[0.03] border border-border hover:border-accent/30 hover:bg-white/[0.05] transition-all duration-300"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               {studio.logo_path ? (
-                <div className="w-full h-full flex items-center justify-center p-8">
+                <div className="w-full h-full flex items-center justify-center p-7">
                   <img
                     src={getImageUrl(studio.logo_path, "w500")}
                     alt={studio.name}
-                    className="max-w-[80%] max-h-[65%] object-contain opacity-50 group-hover:opacity-90 group-hover:scale-105 transition-all duration-300"
+                    className="max-w-[80%] max-h-[65%] object-contain opacity-40 group-hover:opacity-80 group-hover:scale-105 transition-all duration-300"
                   />
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center gap-3 h-full text-white/30 group-hover:text-white/60 transition-colors">
-                  <Building2 className="w-10 h-10" />
-                  <span className="text-sm font-medium text-center px-4 line-clamp-2">
+                <div className="flex flex-col items-center justify-center gap-2.5 h-full text-white/25 group-hover:text-white/50 transition-colors">
+                  <Building2 className="w-9 h-9" />
+                  <span className="text-xs font-medium text-center px-4 line-clamp-2">
                     {studio.name}
                   </span>
                 </div>
@@ -119,6 +54,39 @@ export default function StudiosSection({ studios }: Props) {
           ))}
         </div>
       </div>
-    </motion.section>
+
+      <div className="md:hidden">
+        <HorizontalSlider
+          title="Studios"
+          items={studios}
+          renderCard={(studio, i) => (
+            <motion.div
+              key={studio.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: Math.min(i * 0.03, 0.3) }}
+              className="w-[200px] sm:w-[150px]"
+            >
+              <Link href={`/studio/${studio.id}`} className="group block">
+                <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-surface mb-1.5 ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-accent/40 group-hover:shadow-xl group-hover:shadow-accent/15 group-hover:-translate-y-1 flex items-center justify-center">
+                  {studio.logo_path ? (
+                    <img
+                      src={getImageUrl(studio.logo_path, "w500")}
+                      alt={studio.name}
+                      className="w-[75%] h-[75%] object-contain opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-200"
+                    />
+                  ) : (
+                    <Building2 className="w-10 h-10 text-white/20" />
+                  )}
+                </div>
+                <h3 className="text-xs font-medium text-white/70 group-hover:text-white transition-colors truncate px-0.5">
+                  {studio.name}
+                </h3>
+              </Link>
+            </motion.div>
+          )}
+        />
+      </div>
+    </>
   );
 }
