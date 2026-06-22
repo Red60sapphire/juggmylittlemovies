@@ -96,7 +96,7 @@ export default function WatchPartyPage() {
   if (!configured) {
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-md text-center">
-        <div className="relative rounded-2xl bg-[#0c0c14]/90 backdrop-blur-xl border border-white/[0.06] p-10 shadow-2xl">
+        <div className="relative rounded-2xl glass glass-border p-10 shadow-2xl">
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
           <div className="w-16 h-16 rounded-2xl bg-white/[0.04] flex items-center justify-center mx-auto mb-4 ring-1 ring-white/5">
             <AlertCircle className="h-8 w-8 text-white/20" />
@@ -118,7 +118,7 @@ export default function WatchPartyPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-[#0c0c1a] to-[#0c0c14] p-6 md:p-8"
+        className="relative overflow-hidden rounded-2xl glass-border bg-gradient-to-b from-[#0c0c1a] to-[#0c0c14] p-6 md:p-8"
       >
         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px]" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/5 rounded-full blur-[80px]" />
@@ -155,7 +155,7 @@ export default function WatchPartyPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="flex flex-col items-center gap-5 rounded-2xl border border-white/[0.06] bg-[#0c0c14]/80 backdrop-blur-sm p-6 md:p-8"
+        className="flex flex-col items-center gap-5 rounded-2xl glass glass-border p-6 md:p-8"
       >
         <div className="text-center">
           <p className="text-xs font-semibold text-white/30 uppercase tracking-widest">Room Code</p>
@@ -217,7 +217,7 @@ export default function WatchPartyPage() {
         </div>
 
         {rooms.length === 0 ? (
-          <div className="rounded-2xl border border-white/[0.06] bg-[#0c0c14]/60 backdrop-blur-sm p-10 text-center">
+          <div className="rounded-2xl glass glass-border p-10 text-center">
             <Users className="w-10 h-10 text-white/10 mx-auto mb-3" />
             <p className="text-sm font-semibold text-white/50">No public rooms right now</p>
             <p className="text-xs text-white/30 mt-1">Start a watch party from any movie to see it here.</p>
@@ -233,7 +233,7 @@ export default function WatchPartyPage() {
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => join(room.id)}
-                className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0c0c14]/80 backdrop-blur-sm text-left transition-all hover:border-accent/40 hover:bg-white/[0.04] shadow-lg shadow-black/20"
+                className="group relative overflow-hidden rounded-2xl glass-border glass text-left transition-all hover:border-accent/40 hover:bg-white/[0.04] shadow-lg shadow-black/20 shine"
               >
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-accent/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="aspect-video bg-white/[0.02] relative overflow-hidden">
