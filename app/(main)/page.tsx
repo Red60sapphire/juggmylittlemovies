@@ -28,65 +28,75 @@ import {
 } from "@/components/skeletons";
 
 async function HeroSection() {
-  const trending = await getTrendingMultiPage(3);
-  if (!trending.results.length) return null;
-  return <HeroBanner movies={trending.results.slice(0, 5)} />;
+  try {
+    const trending = await getTrendingMultiPage(3);
+    if (!trending?.results?.length) return null;
+    return <HeroBanner movies={trending.results.slice(0, 5)} />;
+  } catch { return null; }
 }
 
 async function ContinueWatchingSection() {
-  const session = await getSession();
-  if (!session) return <ContinueWatching items={[]} />;
-  const supabase = createAdminClient();
-  if (!supabase) return <ContinueWatching items={[]} />;
-  const { data } = await supabase
-    .from("watch_history")
-    .select("*")
-    .eq("user_id", session.userId)
-    .order("watched_at", { ascending: false })
-    .limit(10);
-  return <ContinueWatching items={data || []} />;
+  try {
+    const session = await getSession();
+    if (!session) return <ContinueWatching items={[]} />;
+    const supabase = createAdminClient();
+    if (!supabase) return <ContinueWatching items={[]} />;
+    const { data } = await supabase
+      .from("watch_history")
+      .select("*")
+      .eq("user_id", session.userId)
+      .order("watched_at", { ascending: false })
+      .limit(10);
+    return <ContinueWatching items={data || []} />;
+  } catch { return <ContinueWatching items={[]} />; }
 }
 
 async function StudiosContent() {
-  const studioIds = getAllStudios().slice(0, 12);
-  const studios = (await Promise.all(
-    studioIds.map((s) => getCompany(s.id))
-  )).filter((s) => s.name);
-  return <StudiosSection studios={studios} />;
+  try {
+    const studioIds = getAllStudios().slice(0, 12);
+    const studios = (await Promise.all(
+      studioIds.map((s) => getCompany(s.id))
+    )).filter((s) => s.name);
+    return <StudiosSection studios={studios} />;
+  } catch { return null; }
 }
 
 async function CollectionsContent() {
-  const collectionIds = getAllCollections().slice(0, 10);
-  const collectionsData = await Promise.all(
-    collectionIds.map(async (col) => {
-      const data = await getCollection(col.id);
-      return {
-        id: col.id,
-        name: data.name,
-        backdrop_path: data.backdrop_path || null,
-        movies: data.parts || [],
-      };
-    })
-  );
-  return <CollectionSection collections={collectionsData.filter((c) => c.movies.length > 0)} />;
+  try {
+    const collectionIds = getAllCollections().slice(0, 10);
+    const collectionsData = await Promise.all(
+      collectionIds.map(async (col) => {
+        const data = await getCollection(col.id);
+        return {
+          id: col.id,
+          name: data.name,
+          backdrop_path: data.backdrop_path || null,
+          movies: data.parts || [],
+        };
+      })
+    );
+    return <CollectionSection collections={collectionsData.filter((c) => c.movies.length > 0)} />;
+  } catch { return null; }
 }
 
 async function MovieRows() {
-  const [trending, popular, topRated, trendingTV] = await Promise.all([
-    getTrendingMultiPage(3),
-    getPopularMultiPage(3),
-    getTopRatedMultiPage(3),
-    getTrendingTVMultiPage(3),
-  ]);
+  try {
+    const [trending, popular, topRated, trendingTV] = await Promise.all([
+      getTrendingMultiPage(1).catch(() => ({ results: [] })),
+      getPopularMultiPage(1).catch(() => ({ results: [] })),
+      getTopRatedMultiPage(1).catch(() => ({ results: [] })),
+      getTrendingTVMultiPage(1).catch(() => ({ results: [] })),
+    ]);
 
-  return (
-    <>
-      <HorizontalSlider title="Trending Now" items={trending.results.slice(0, 40)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />
-      <HorizontalSlider title="Popular Movies" items={popular.results.slice(0, 40)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />
-      <HorizontalSlider title="Top Rated" items={topRated.results.slice(0, 40)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />
-      <HorizontalSlider title="Popular TV Shows" items={trendingTV.results.slice(0, 40)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />
-    </>
-  );
+    return (
+      <>
+        {trending.results.length > 0 && <HorizontalSlider title="Trending Now" items={trending.results.slice(0, 20)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />}
+        {popular.results.length > 0 && <HorizontalSlider title="Popular Movies" items={popular.results.slice(0, 20)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />}
+        {topRated.results.length > 0 && <HorizontalSlider title="Top Rated" items={topRated.results.slice(0, 20)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />}
+        {trendingTV.results.length > 0 && <HorizontalSlider title="Popular TV Shows" items={trendingTV.results.slice(0, 20)} renderCard={(movie, i) => <MovieCard movie={movie} index={i} />} />}
+      </>
+    );
+  } catch { return null; }
 }
 
 export default function HomePage() {
