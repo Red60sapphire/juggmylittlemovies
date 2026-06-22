@@ -275,7 +275,7 @@ export default function WatchPartyRoom({ roomId }: WatchPartyRoomProps) {
         </div>
 
         {/* Participants */}
-        <div className="rounded-2xl border border-white/[0.08] bg-[#0c0c14]/80 backdrop-blur-sm p-5">
+        <div className="rounded-2xl glass glass-border p-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center">
@@ -328,7 +328,7 @@ export default function WatchPartyRoom({ roomId }: WatchPartyRoomProps) {
         {/* Movie link */}
         <Link
           href={`/watch/${room.movie_id}`}
-          className="flex items-center gap-3 rounded-2xl border border-white/[0.08] bg-[#0c0c14]/80 backdrop-blur-sm p-4 hover:bg-white/[0.04] transition-all group"
+          className="flex items-center gap-3 rounded-2xl glass glass-border p-4 hover:bg-white/[0.04] transition-all group"
         >
           {room.poster_path ? (
             <img src={getImageUrl(room.poster_path, "w92") || ""} alt="" className="w-12 h-16 rounded-lg object-cover flex-shrink-0" />

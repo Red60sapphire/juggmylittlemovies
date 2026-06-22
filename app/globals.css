@@ -54,6 +54,24 @@ img[loading="lazy"][src]:not([src=""]) { opacity: 1; background: transparent; }
 
 ::selection { background: rgba(139, 92, 246, 0.3); color: #ffffff; }
 
+/* Glass utility */
+.glass { background: rgba(12, 12, 20, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.glass-border { border: 1px solid rgba(255,255,255,0.06); }
+
+/* Card hover shine */
+.shine { position: relative; overflow: hidden; }
+.shine::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.03) 55%, transparent 60%); background-size: 200% 100%; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.shine:hover::after { opacity: 1; animation: shimmer 2s infinite; }
+
+/* Subtle glow for accent elements */
+.glow-accent { box-shadow: 0 0 20px rgba(139, 92, 246, 0.15); }
+
+/* Custom scrollbar for main content */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
