@@ -16,13 +16,16 @@ import {
 
 const LOAD_TIMEOUT = 7000;
 
-const serverIcons: Record<string, any> = {
-  VidLink: Film, "Embed.su": Tv, MultiEmbed: Server,
-  SuperEmbed: Monitor, VidBinge: Tv, VidSrc: Monitor,
-  "VidSrc 2": Monitor, "VidSrc 3": Monitor, "VidSrc.icu": Monitor,
-  "2Embed": Monitor, AutoEmbed: Monitor, VidKing: Tv,
-  "API Player": Server, SmashyStream: Monitor,
-};
+function getServerIcon(name: string): any {
+  const lower = name.toLowerCase();
+  if (lower.includes("embed")) return Server;
+  if (lower.includes("player") || lower.includes("api")) return Server;
+  if (lower.includes("flix") || lower.includes("movie") || lower.includes("box") || lower.includes("film")) return Film;
+  if (lower.includes("stream") || lower.includes("watch") || lower.includes("show") || lower.includes("hub")) return Tv;
+  if (lower.includes("vid") || lower.includes("link") || lower.includes("king") || lower.includes("play")) return Tv;
+  if (lower.includes("dbgo") || lower.includes("rive")) return Monitor;
+  return Monitor;
+}
 
 interface SeasonInfo {
   id: number;
@@ -373,7 +376,7 @@ export default function TvWatchPage() {
               <p className="text-xs text-[#9CA3AF] mb-3">🚀 Please try different servers if one isn&apos;t working, and consider using ad blockers or the Brave browser.</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 md:gap-2">
                 {servers.map((server) => {
-                  const Icon = serverIcons[server.name] || Monitor;
+                  const Icon = getServerIcon(server.name);
                   const isActive = currentServer?.name === server.name;
                   return (
                     <button

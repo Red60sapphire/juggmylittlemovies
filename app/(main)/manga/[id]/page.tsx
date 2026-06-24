@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import type { MangaTitle, MangaChapter, MangaVolume } from "@/lib/mangadex";
-import { BookOpen, Star, ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function MangaDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -172,9 +172,6 @@ export default function MangaDetailPage({ params }: { params: Promise<{ id: stri
         <div className="flex-1">
           <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight mb-2">{manga.title}</h1>
           <div className="flex items-center gap-3 text-sm text-white/60 mb-4 flex-wrap">
-            <span className="flex items-center gap-1 text-yellow-400 font-semibold">
-              <Star className="w-4 h-4 fill-yellow-400" /> {manga.rating.toFixed(1)}
-            </span>
             {manga.year && <span>{manga.year}</span>}
             <span className="capitalize">{manga.status}</span>
             <span>{manga.chapterCount || "?"} chapters</span>

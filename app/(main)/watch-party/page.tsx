@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { getImageUrl } from "@/lib/utils";
-import { DoorOpen, Users, Settings, Hash, AlertCircle, Globe, Sparkles, Play, Tv } from "lucide-react";
+import {
+  DoorOpen, Users, Hash, Globe, Play, Tv, Plus, Search, X,
+  Film, ArrowRight, Sparkles, UserRound, AlertCircle, Settings,
+} from "lucide-react";
 import Link from "next/link";
 
 interface PublicRoom {
@@ -16,33 +19,76 @@ interface PublicRoom {
   participant_count: number;
 }
 
+interface MovieResult {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  media_type: string;
+}
+
 export default function WatchPartyPage() {
   const router = useRouter();
+  const [mode, setMode] = useState<"choose" | "join" | "create" | "name">("choose");
   const [configured, setConfigured] = useState(true);
   const [rooms, setRooms] = useState<PublicRoom[]>([]);
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [displayName, setDisplayName] = useState("");
   const [accountName, setAccountName] = useState("");
   const [error, setError] = useState("");
-  const codeRefs = Array.from({ length: 6 }, () => useState<HTMLInputElement | null>(null));
+  const [creating, setCreating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<MovieResult[]>([]);
+  const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
+  const [searching, setSearching] = useState(false);
+  const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const codeInputsRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const searchTimeout = useRef<any>(null);
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("kicked")) {
-      setError("You were removed from that room.");
-    }
-    fetch("/api/auth/me")
-      .then((res) => res.json())
-      .then((data: { user: { username: string } | null }) => setAccountName(data.user?.username || ""))
-      .catch(() => {});
+    codeRefs.current = codeRefs.current.slice(0, 6);
+  }, []);
 
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d: { user: { username: string } | null }) => setAccountName(d.user?.username || ""))
+      .catch(() => {});
     fetch("/api/watch-party/rooms")
-      .then((res) => res.json())
-      .then((data: { configured: boolean; rooms: PublicRoom[] }) => {
-        setConfigured(data.configured);
-        setRooms(data.rooms || []);
+      .then((r) => r.json())
+      .then((d: { configured: boolean; rooms: PublicRoom[] }) => {
+        setConfigured(d.configured);
+        setRooms(d.rooms || []);
       })
       .catch(() => setConfigured(false));
   }, []);
+
+  useEffect(() => {
+    if (mode === "name" && nameInputRef.current) {
+      nameInputRef.current.focus();
+    }
+  }, [mode]);
+
+  // Search movies when typing
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/tmdb/search?q=${encodeURIComponent(searchQuery)}&page=1`);
+        const data = await res.json();
+        setSearchResults((data.results || []).slice(0, 8));
+      } catch {
+        setSearchResults([]);
+      }
+      setSearching(false);
+    }, 400);
+    return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current); };
+  }, [searchQuery]);
 
   const handleCodeChange = (index: number, value: string) => {
     if (value.length > 1) {
@@ -50,54 +96,95 @@ export default function WatchPartyPage() {
       const newCode = [...code];
       pasted.forEach((char, i) => { if (i < 6) newCode[i] = char; });
       setCode(newCode);
-      const nextEmpty = pasted.length < 6 ? pasted.length : 5;
-      const ref = codeRefs[nextEmpty];
-      if (ref) ref[1](ref[0]);
+      const next = pasted.length < 6 ? pasted.length : 5;
+      codeRefs.current[next]?.focus();
+      if (pasted.length === 6) {
+        setTimeout(() => setMode("name"), 300);
+      }
       return;
     }
     const digit = value.replace(/\D/g, "").slice(0, 1);
     const newCode = [...code];
     newCode[index] = digit;
     setCode(newCode);
-    if (digit && index < 5) {
-      const ref = codeRefs[index + 1];
-      if (ref) ref[1](ref[0]);
+    if (digit && index < 5) codeRefs.current[index + 1]?.focus();
+    if (digit && index === 5) {
+      setTimeout(() => setMode("name"), 300);
     }
   };
 
   const handleCodeKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
-      const ref = codeRefs[index - 1];
-      if (ref) ref[1](ref[0]);
+      codeRefs.current[index - 1]?.focus();
     }
   };
 
-  const join = async (roomId?: string) => {
+  const joinRoom = async () => {
     setError("");
-    const fullCode = roomId ? "" : code.join("");
-    if (!roomId && fullCode.length !== 6) {
-      setError("Enter a valid 6-digit room code.");
-      return;
-    }
+    const fullCode = code.join("");
+    if (fullCode.length !== 6) { setError("Enter a valid 6-digit code."); return; }
+    if (!displayName.trim()) { setError("Enter a display name."); return; }
     const res = await fetch("/api/watch-party/join", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: fullCode, roomId, displayName }),
+      body: JSON.stringify({ code: fullCode, displayName: displayName.trim() }),
     });
-    const data = (await res.json()) as { roomId?: string; displayName?: string; error?: string };
-    if (!res.ok || !data.roomId) {
-      setError(data.error || "Could not join room.");
+    const data = (await res.json()) as { roomId?: string; error?: string };
+    if (!res.ok || !data.roomId) { setError(data.error || "Could not join room."); return; }
+    sessionStorage.setItem(`watch-party-name:${data.roomId}`, displayName.trim());
+    router.push(`/watch-party/${data.roomId}`);
+  };
+
+  const joinPublicRoom = async (roomId: string) => {
+    setError("");
+    if (!displayName.trim() && !accountName) {
+      setDisplayName("");
+      setMode("name");
       return;
     }
-    sessionStorage.setItem(`watch-party-name:${data.roomId}`, data.displayName || accountName || displayName);
+    const name = displayName || accountName || "Guest";
+    const res = await fetch("/api/watch-party/join", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roomId, displayName: name }),
+    });
+    const data = (await res.json()) as { roomId?: string; error?: string };
+    if (!res.ok || !data.roomId) { setError(data.error || "Could not join room."); return; }
+    sessionStorage.setItem(`watch-party-name:${data.roomId}`, name);
     router.push(`/watch-party/${data.roomId}`);
+  };
+
+  const createRoom = async () => {
+    if (!selectedMovie) return;
+    setCreating(true);
+    setError("");
+    const name = displayName || accountName || "Host";
+    try {
+      const res = await fetch("/api/watch-party/rooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          movieId: selectedMovie.id,
+          title: selectedMovie.title,
+          posterPath: selectedMovie.poster_path,
+          displayName: name,
+        }),
+      });
+      const data = (await res.json()) as { roomId?: string; displayName?: string; hostKey?: string; error?: string };
+      if (!res.ok || !data.roomId) { setError(data.error || "Could not create room."); return; }
+      sessionStorage.setItem(`watch-party-name:${data.roomId}`, data.displayName || name);
+      if (data.hostKey) sessionStorage.setItem(`watch-party-host:${data.roomId}`, data.hostKey);
+      router.push(`/watch-party/${data.roomId}`);
+    } catch {
+      setError("Could not create room.");
+    }
+    setCreating(false);
   };
 
   if (!configured) {
     return (
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-md text-center">
-        <div className="relative rounded-2xl glass glass-border p-10 shadow-2xl">
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="max-w-md text-center">
           <div className="w-16 h-16 rounded-2xl bg-white/[0.04] flex items-center justify-center mx-auto mb-4 ring-1 ring-white/5">
             <AlertCircle className="h-8 w-8 text-white/20" />
           </div>
@@ -107,170 +194,328 @@ export default function WatchPartyPage() {
             <Settings className="h-4 w-4" /> Settings
           </Link>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
-  return (
-    <div className="space-y-8">
-      {/* Hero */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="relative overflow-hidden rounded-2xl glass-border bg-gradient-to-b from-[#0c0c1a] to-[#0c0c14] p-6 md:p-8"
-      >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px]" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/5 rounded-full blur-[80px]" />
-        <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-accent text-xs font-semibold uppercase tracking-widest">
-              <Tv className="w-3.5 h-3.5" />
-              Watch Together
-            </div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">Join a room</h1>
-            <p className="text-sm text-white/40 max-w-lg">Enter the 6-digit code shared by the host to join their watch party.</p>
+  if (mode === "choose") {
+    return (
+      <div className="space-y-8 animate-fade-in">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-8">
+          <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-4">
+            <Users className="w-8 h-8 text-accent" />
           </div>
+          <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">Watch Together</h1>
+          <p className="text-white/40 max-w-md mx-auto">Start or join a watch party to sync playback with friends in real time.</p>
+        </motion.div>
 
-          <div className="flex-shrink-0">
-            {!accountName ? (
-              <input
-                value={displayName}
-                onChange={(event) => setDisplayName(event.target.value)}
-                className="rounded-xl border border-white/[0.06] bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-accent/40 transition-colors w-full md:w-48 backdrop-blur-sm"
-                placeholder="Your display name"
-              />
-            ) : (
-              <div className="rounded-xl border border-white/[0.06] bg-black/40 px-4 py-3 text-sm text-white/60 flex items-center gap-2 backdrop-blur-sm">
-                <Users className="w-4 h-4 text-accent/60" />
-                {accountName}
+        <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => { setMode("join"); setCode(["", "", "", "", "", ""]); setError(""); }}
+            className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#0c0c14] to-[#0c0c1a] p-8 text-left transition-all hover:border-accent/40 hover:shadow-xl hover:shadow-accent/5"
+          >
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-all" />
+            <div className="relative">
+              <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mb-4 ring-1 ring-accent/20">
+                <DoorOpen className="w-7 h-7 text-accent" />
               </div>
-            )}
-          </div>
-        </div>
-      </motion.div>
+              <h2 className="text-xl font-bold text-white mb-1">Join a Room</h2>
+              <p className="text-sm text-white/40 mb-4">Enter a 6-digit code to join a friend&apos;s watch party.</p>
+              <div className="flex items-center gap-2 text-sm font-semibold text-accent group-hover:gap-3 transition-all">
+                Enter code <ArrowRight className="w-4 h-4" />
+              </div>
+            </div>
+          </motion.button>
 
-      {/* Code input */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="flex flex-col items-center gap-5 rounded-2xl glass glass-border p-6 md:p-8"
-      >
-        <div className="text-center">
-          <p className="text-xs font-semibold text-white/30 uppercase tracking-widest">Room Code</p>
-          <p className="text-sm text-white/50 mt-1">Ask the host for the 6-digit code</p>
-        </div>
-        <div className="flex gap-2.5" dir="ltr">
-          {code.map((digit, i) => (
-            <input
-              key={i}
-              ref={(el) => { if (el) codeRefs[i][1](el); }}
-              value={digit}
-              onChange={(e) => handleCodeChange(i, e.target.value)}
-              onKeyDown={(e) => handleCodeKeyDown(i, e)}
-              onFocus={(e) => e.target.select()}
-              inputMode="numeric"
-              maxLength={6}
-              className="w-11 h-14 md:w-14 md:h-16 rounded-xl border border-white/[0.08] bg-black/40 text-center text-2xl font-black text-white outline-none transition-all focus:border-accent/60 focus:shadow-lg focus:shadow-accent/10 backdrop-blur-sm"
-              style={{ caretColor: "transparent" }}
-            />
-          ))}
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => join()}
-          className="flex items-center justify-center gap-2 rounded-xl bg-accent px-8 py-3 text-sm font-bold text-white hover:bg-accent-hover transition-all shadow-lg shadow-accent/20"
-        >
-          <DoorOpen className="h-4 w-4" /> Join Room
-        </motion.button>
-
-        <AnimatePresence>
-          {error ? (
-            <motion.p
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              className="rounded-xl border border-red-500/20 bg-red-500/8 px-3.5 py-2.5 text-sm text-red-200 flex items-center gap-2"
-            >
-              <div className="w-1.5 h-1.5 rounded-full bg-red-400/60 flex-shrink-0" />
-              {error}
-            </motion.p>
-          ) : null}
-        </AnimatePresence>
-      </motion.div>
-
-      {/* Public rooms */}
-      <motion.section
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-1 h-6 bg-accent rounded-full" />
-          <h2 className="text-xl font-bold text-white">Public rooms</h2>
-          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-accent/10 text-accent text-xs font-semibold">
-            <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            {rooms.length} live
-          </div>
+          <motion.button
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.15 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => { setMode("create"); setError(""); }}
+            className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-br from-[#0c0c14] to-[#0c0c1a] p-8 text-left transition-all hover:border-emerald-400/40 hover:shadow-xl hover:shadow-emerald-500/5"
+          >
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all" />
+            <div className="relative">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4 ring-1 ring-emerald-500/20">
+                <Plus className="w-7 h-7 text-emerald-400" />
+              </div>
+              <h2 className="text-xl font-bold text-white mb-1">Create a Room</h2>
+              <p className="text-sm text-white/40 mb-4">Pick a movie or show and invite friends to watch together.</p>
+              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-400 group-hover:gap-3 transition-all">
+                Get started <ArrowRight className="w-4 h-4" />
+              </div>
+            </div>
+          </motion.button>
         </div>
 
-        {rooms.length === 0 ? (
-          <div className="rounded-2xl glass glass-border p-10 text-center">
-            <Users className="w-10 h-10 text-white/10 mx-auto mb-3" />
-            <p className="text-sm font-semibold text-white/50">No public rooms right now</p>
-            <p className="text-xs text-white/30 mt-1">Start a watch party from any movie to see it here.</p>
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {rooms.map((room, i) => (
-              <motion.button
-                key={room.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + i * 0.05 }}
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => join(room.id)}
-                className="group relative overflow-hidden rounded-2xl glass-border glass text-left transition-all hover:border-accent/40 hover:bg-white/[0.04] shadow-lg shadow-black/20 shine"
-              >
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-accent/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="aspect-video bg-white/[0.02] relative overflow-hidden">
-                  {room.poster_path ? (
-                    <img src={getImageUrl(room.poster_path, "w500") || ""} alt="" className="h-full w-full object-cover opacity-60 transition-all duration-500 group-hover:opacity-90 group-hover:scale-105" />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center">
-                      <Globe className="w-10 h-10 text-white/10" />
+        {rooms.length > 0 && (
+          <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-1 h-6 bg-accent rounded-full" />
+              <h2 className="text-lg font-bold text-white">Public rooms</h2>
+              <span className="px-2.5 py-0.5 rounded-full bg-accent/10 text-accent text-xs font-semibold">
+                {rooms.length} live
+              </span>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {rooms.map((room, i) => (
+                <motion.button
+                  key={room.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + i * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => joinPublicRoom(room.id)}
+                  className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0c0c14] text-left transition-all hover:border-accent/40 hover:bg-white/[0.02] shadow-lg"
+                >
+                  <div className="aspect-video relative overflow-hidden bg-white/[0.02]">
+                    {room.poster_path ? (
+                      <img src={getImageUrl(room.poster_path, "w500") || ""} alt="" className="h-full w-full object-cover opacity-60 transition-all duration-500 group-hover:opacity-90 group-hover:scale-105" />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center"><Globe className="w-10 h-10 text-white/10" /></div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c14] via-transparent to-transparent" />
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-lg text-xs font-bold text-white/90">
+                      <Hash className="w-3 h-3" /> {room.code}
                     </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c14] via-transparent to-transparent" />
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-lg text-xs font-bold text-white/90">
-                    <Hash className="w-3 h-3" /> {room.code}
+                    <div className="absolute top-3 right-3 px-2 py-1 bg-accent/80 backdrop-blur-sm rounded-lg text-[10px] font-bold text-white flex items-center gap-1">
+                      <Play className="w-2.5 h-2.5 fill-white" /> Join
+                    </div>
                   </div>
-                  <div className="absolute top-3 right-3 px-2 py-1 bg-accent/80 backdrop-blur-sm rounded-lg text-[10px] font-bold text-white flex items-center gap-1">
-                    <Play className="w-2.5 h-2.5 fill-white" />
-                    Join
+                  <div className="p-4">
+                    <h3 className="font-bold text-white truncate group-hover:text-accent transition-colors">{room.title}</h3>
+                    <p className="mt-1 text-sm text-white/40">by {room.host_name}</p>
+                    <p className="mt-3 flex items-center gap-2 text-xs text-white/40">
+                      <Users className="h-3.5 w-3.5" />
+                      <span>{room.participant_count} watching</span>
+                      <span className="text-white/20">•</span>
+                      <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-green-400/60 animate-pulse" /> Live</span>
+                    </p>
                   </div>
-                </div>
-                <div className="relative p-4 z-10">
-                  <h3 className="line-clamp-1 font-bold text-white group-hover:text-accent transition-colors">{room.title}</h3>
-                  <p className="mt-1 text-sm text-white/40">by {room.host_name}</p>
-                  <p className="mt-3 flex items-center gap-2 text-xs text-white/40">
-                    <Users className="h-3.5 w-3.5" />
-                    <span>{room.participant_count} watching</span>
-                    <span className="text-white/20">•</span>
-                    <span className="flex items-center gap-1">
-                      <div className="w-1 h-1 rounded-full bg-green-400/60 animate-pulse" />
-                      Live
-                    </span>
-                  </p>
-                </div>
-              </motion.button>
+                </motion.button>
+              ))}
+            </div>
+          </motion.section>
+        )}
+      </div>
+    );
+  }
+
+  if (mode === "join") {
+    return (
+      <div className="max-w-lg mx-auto space-y-6 animate-fade-in">
+        <button onClick={() => setMode("choose")} className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors">
+          <X className="w-4 h-4" /> Back
+        </button>
+
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-white/[0.06] bg-[#0c0c14] p-8">
+          <div className="text-center mb-6">
+            <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-3">
+              <DoorOpen className="w-6 h-6 text-accent" />
+            </div>
+            <h2 className="text-xl font-bold text-white">Enter Room Code</h2>
+            <p className="text-sm text-white/40 mt-1">Ask the host for the 6-digit code</p>
+          </div>
+
+          <div ref={codeInputsRef} className="flex gap-2.5 justify-center mb-6" dir="ltr">
+            {code.map((digit, i) => (
+              <input
+                key={i}
+                ref={(el) => { codeRefs.current[i] = el; }}
+                value={digit}
+                onChange={(e) => handleCodeChange(i, e.target.value)}
+                onKeyDown={(e) => handleCodeKeyDown(i, e)}
+                onFocus={(e) => e.target.select()}
+                inputMode="numeric"
+                maxLength={6}
+                className="w-12 h-14 md:w-14 md:h-16 rounded-xl border border-white/[0.08] bg-black/40 text-center text-2xl font-black text-white outline-none transition-all focus:border-accent/60 focus:shadow-lg focus:shadow-accent/10"
+                style={{ caretColor: "transparent" }}
+              />
             ))}
           </div>
-        )}
-      </motion.section>
-    </div>
-  );
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (mode === "name") {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative w-full max-w-sm rounded-2xl border border-white/[0.08] bg-[#0c0c14] p-6 shadow-2xl"
+        >
+          <div className="text-center mb-6">
+            <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-3">
+              <UserRound className="w-6 h-6 text-accent" />
+            </div>
+            <h2 className="text-lg font-bold text-white">Enter your name</h2>
+            <p className="text-sm text-white/40 mt-1">This is how others will see you in the room</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-3 focus-within:border-accent/40 transition-all">
+                <UserRound className="h-4 w-4 text-white/20 flex-shrink-0" />
+                <input
+                  ref={nameInputRef}
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && joinRoom()}
+                  className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/20"
+                  placeholder={accountName || "Your display name"}
+                  maxLength={24}
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="rounded-xl border border-red-500/20 bg-red-500/8 px-3.5 py-2.5 text-sm text-red-200 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-400/60 flex-shrink-0" />
+                {error}
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setMode("join"); setError(""); }}
+                className="flex-1 rounded-xl border border-white/[0.08] py-3 text-sm font-semibold text-white/50 hover:text-white hover:bg-white/[0.04] transition-all"
+              >
+                Back
+              </button>
+              <button
+                onClick={joinRoom}
+                disabled={!displayName.trim() && !accountName}
+                className="flex-1 rounded-xl bg-accent py-3 text-sm font-bold text-white hover:bg-accent-hover transition-all disabled:opacity-50"
+              >
+                Join Room
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (mode === "create") {
+    return (
+      <div className="max-w-lg mx-auto space-y-6 animate-fade-in">
+        <button onClick={() => { setMode("choose"); setSelectedMovie(null); setSearchQuery(""); }} className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors">
+          <X className="w-4 h-4" /> Back
+        </button>
+
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-white/[0.06] bg-[#0c0c14] p-6">
+          <div className="text-center mb-6">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-3">
+              <Plus className="w-6 h-6 text-emerald-400" />
+            </div>
+            <h2 className="text-xl font-bold text-white">Create a Room</h2>
+            <p className="text-sm text-white/40 mt-1">Search for a movie or show to watch together</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-3 focus-within:border-accent/40 transition-all">
+                <Search className="h-4 w-4 text-white/20 flex-shrink-0" />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/20"
+                  placeholder="Search movies and shows..."
+                />
+                {searching && <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin flex-shrink-0" />}
+              </div>
+            </div>
+
+            {selectedMovie ? (
+              <div className="flex items-center gap-3 rounded-xl bg-accent/5 border border-accent/20 p-3">
+                <div className="w-10 h-14 rounded-lg overflow-hidden bg-white/[0.04] flex-shrink-0">
+                  {selectedMovie.poster_path ? (
+                    <img src={getImageUrl(selectedMovie.poster_path, "w92")} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center"><Film className="w-4 h-4 text-white/20" /></div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-white truncate">{selectedMovie.title}</p>
+                  <p className="text-xs text-white/40">Selected</p>
+                </div>
+                <button onClick={() => { setSelectedMovie(null); setSearchQuery(""); }} className="p-1.5 rounded-lg hover:bg-white/10 text-white/30 hover:text-white transition-all">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : searchResults.length > 0 ? (
+              <div className="space-y-1 max-h-64 overflow-y-auto">
+                {searchResults.map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => { setSelectedMovie(m); setSearchResults([]); }}
+                    className="flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-white/[0.04] transition-all text-left"
+                  >
+                    <div className="w-8 h-12 rounded-lg overflow-hidden bg-white/[0.04] flex-shrink-0">
+                      {m.poster_path ? (
+                        <img src={getImageUrl(m.poster_path, "w92")} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center"><Film className="w-3 h-3 text-white/20" /></div>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{m.title}</p>
+                      <p className="text-xs text-white/30">{m.media_type === "tv" ? "TV Show" : "Movie"}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : searchQuery.length >= 2 && !searching ? (
+              <p className="text-sm text-white/30 text-center py-4">No results found</p>
+            ) : null}
+
+            {/* Name input */}
+            <div className="relative">
+              <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-3 focus-within:border-accent/40 transition-all">
+                <UserRound className="h-4 w-4 text-white/20 flex-shrink-0" />
+                <input
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/20"
+                  placeholder={accountName || "Your display name (host)"}
+                  maxLength={24}
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="rounded-xl border border-red-500/20 bg-red-500/8 px-3.5 py-2.5 text-sm text-red-200 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-400/60 flex-shrink-0" />
+                {error}
+              </div>
+            )}
+
+            <button
+              onClick={createRoom}
+              disabled={!selectedMovie || creating}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 py-3 text-sm font-bold text-white hover:from-emerald-400 hover:to-emerald-500 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20"
+            >
+              {creating ? (
+                <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Creating...</>
+              ) : (
+                <><Plus className="w-4 h-4" /> Create Room</>
+              )}
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return null;
 }
