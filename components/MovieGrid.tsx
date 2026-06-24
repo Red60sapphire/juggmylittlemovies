@@ -2,10 +2,12 @@
 
 import { motion } from "framer-motion";
 import MovieCard from "./MovieCard";
+import { GridSkeleton } from "./skeletons";
 import type { Movie } from "@/types";
 
 interface Props {
   movies: Movie[];
+  loading?: boolean;
 }
 
 const container = {
@@ -20,7 +22,9 @@ const item = {
   visible: { opacity: 1, y: 0 },
 };
 
-export default function MovieGrid({ movies }: Props) {
+export default function MovieGrid({ movies, loading }: Props) {
+  if (loading) return <GridSkeleton />;
+
   return (
     <motion.div
       variants={container}

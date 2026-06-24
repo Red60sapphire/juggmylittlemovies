@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import type { MangaTitle, MangaChapter, MangaVolume } from "@/lib/mangadex";
+import type { MangaTitle, MangaChapter } from "@/lib/mangadex";
 import { BookOpen, ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -16,10 +16,14 @@ export default function MangaDetailPage({ params }: { params: Promise<{ id: stri
   const [viewerOpen, setViewerOpen] = useState(false);
   const [currentChapter, setCurrentChapter] = useState<MangaChapter | null>(null);
   const [pages, setPages] = useState<string[]>([]);
+  const [pagesDataSaver, setPagesDataSaver] = useState<string[]>([]);
+  const [failedPages, setFailedPages] = useState<Set<number>>(new Set());
   const [viewerLoading, setViewerLoading] = useState(false);
+  const [coverError, setCoverError] = useState(false);
 
   useEffect(() => {
     setLoading(true);
+    setCoverError(false);
     Promise.all([
       fetch(`/api/manga?id=${id}`).then((r) => r.json()),
       fetch(`/api/manga/chapters?mangaId=${id}`).then((r) => r.json()),
@@ -36,12 +40,15 @@ export default function MangaDetailPage({ params }: { params: Promise<{ id: stri
     setCurrentChapter(chapter);
     setViewerLoading(true);
     setViewerOpen(true);
+    setFailedPages(new Set());
     try {
       const res = await fetch(`/api/manga/pages?chapterId=${chapter.id}`);
       const data = await res.json();
       setPages(data.pages || []);
+      setPagesDataSaver(data.pagesDataSaver || []);
     } catch {
       setPages([]);
+      setPagesDataSaver([]);
     }
     setViewerLoading(false);
   };
@@ -80,7 +87,7 @@ export default function MangaDetailPage({ params }: { params: Promise<{ id: stri
         {/* Reader Header */}
         <div className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-black/90 backdrop-blur-sm border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
-            <button onClick={() => { setViewerOpen(false); setPages([]); }} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+            <button onClick={() => { setViewerOpen(false); setPages([]); setPagesDataSaver([]); setFailedPages(new Set()); }} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
               <ArrowLeft className="w-5 h-5 text-white/70" />
             </button>
             <span className="text-sm text-white/70 truncate max-w-[200px] sm:max-w-md">{manga.title}</span>
@@ -112,15 +119,24 @@ export default function MangaDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           ) : pages.length > 0 ? (
             <div className="flex flex-col items-center">
-              {pages.map((url, i) => (
-                <img
-                  key={i}
-                  src={url}
-                  alt={`Page ${i + 1}`}
-                  className="w-full h-auto"
-                  loading="lazy"
-                />
-              ))}
+              {pages.map((url, i) => {
+                const isFailed = failedPages.has(i);
+                const dsUrl = pagesDataSaver[i];
+                return (
+                  <img
+                    key={i}
+                    src={isFailed && dsUrl ? dsUrl : url}
+                    alt={`Page ${i + 1}`}
+                    className="w-full h-auto"
+                    loading="lazy"
+                    onError={() => {
+                      if (!isFailed && dsUrl) {
+                        setFailedPages((prev) => new Set(prev).add(i));
+                      }
+                    }}
+                  />
+                );
+              })}
               <div className="flex items-center gap-4 py-6">
                 <button
                   onClick={() => navigateChapter("prev")}
@@ -160,8 +176,8 @@ export default function MangaDetailPage({ params }: { params: Promise<{ id: stri
       <div className="flex flex-col md:flex-row gap-6 mb-8">
         <div className="w-[200px] flex-shrink-0 mx-auto md:mx-0">
           <div className="rounded-xl overflow-hidden ring-1 ring-white/[0.08] shadow-2xl shadow-black/50">
-            {manga.coverUrl ? (
-              <img src={manga.coverUrl} alt={manga.title} className="w-full" loading="lazy" />
+            {manga.coverUrl && !coverError ? (
+              <img src={manga.coverUrl} alt={manga.title} className="w-full" loading="lazy" onError={() => setCoverError(true)} />
             ) : (
               <div className="aspect-[2/3] flex items-center justify-center bg-surface">
                 <BookOpen className="w-10 h-10 text-white/20" />

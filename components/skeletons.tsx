@@ -1,68 +1,49 @@
-export function CardSkeleton() {
+const shimmer = "relative overflow-hidden bg-white/[0.03] before:absolute before:inset-0 before:-translate-x-full before:animate-shimmer before:bg-gradient-to-r before:from-transparent before:via-white/[0.04] before:to-transparent";
+
+export function PosterSkeleton({ className = "" }: { className?: string }) {
   return (
-    <div className="flex-shrink-0 w-[220px] sm:w-[160px] snap-start">
-      <div className="aspect-[2/3] rounded-xl overflow-hidden bg-[#1B1B1B] animate-pulse" />
-      <div className="h-3 bg-[#1B1B1B] rounded-md mt-1.5 w-3/4 animate-pulse" />
+    <div className={`flex-shrink-0 w-[200px] sm:w-[150px] ${className}`}>
+      <div className={`aspect-[2/3] rounded-xl ${shimmer}`} />
+      <div className="h-3 rounded-md mt-1.5 w-3/4 bg-white/[0.03] relative overflow-hidden">
+        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.04] to-transparent" />
+      </div>
     </div>
+  );
+}
+
+export function CardSkeleton({ className = "" }: { className?: string }) {
+  return (
+    <div className={`aspect-[2/3] rounded-xl ${shimmer} ${className}`} />
   );
 }
 
 export function HeroSkeleton() {
   return (
-    <div className="relative w-full h-[60vh] min-h-[480px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] rounded-none md:rounded-2xl overflow-hidden bg-[#1B1B1B] animate-pulse" />
+    <div className={`relative w-full h-[55vh] min-h-[420px] md:min-h-[400px] md:h-[52vh] md:max-h-[600px] rounded-none md:rounded-2xl overflow-hidden ${shimmer}`} />
   );
 }
 
-export function RowSkeleton() {
+export function RowSkeleton({ count = 6 }: { count?: number }) {
   return (
     <div className="mb-8 md:mb-6">
-      <div className="h-6 bg-[#1B1B1B] rounded-lg w-48 mb-4 animate-pulse" />
-      <div className="flex gap-4 md:gap-2">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <CardSkeleton key={i} />
+      <div className="h-5 w-40 rounded-lg mb-4 bg-white/[0.03] relative overflow-hidden">
+        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/[0.04] to-transparent" />
+      </div>
+      <div className="flex gap-4">
+        {Array.from({ length: count }).map((_, i) => (
+          <PosterSkeleton key={i} />
         ))}
       </div>
     </div>
   );
 }
 
-export function CollectionSkeleton() {
+export function GridSkeleton({ count = 24 }: { count?: number }) {
   return (
-    <div className="mb-8 md:mb-6">
-      <div className="h-6 bg-[#1B1B1B] rounded-lg w-36 mb-4 animate-pulse" />
-      <div className="flex gap-4 md:gap-2">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex-shrink-0 w-[300px] sm:w-[240px] h-[160px] sm:h-[120px] rounded-2xl bg-[#1B1B1B] animate-pulse" />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function StudioSkeleton() {
-  return (
-    <div className="mb-8 md:mb-6">
-      {/* Mobile skeleton */}
-      <div className="md:hidden">
-        <div className="h-6 bg-[#1B1B1B] rounded-lg w-24 mb-4 animate-pulse" />
-        <div className="flex gap-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex-shrink-0 w-[220px] snap-start">
-              <div className="aspect-[2/3] rounded-xl bg-[#e5e5e5] animate-pulse" />
-              <div className="h-3 bg-[#1B1B1B] rounded-md mt-1.5 w-3/4 animate-pulse" />
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* Desktop skeleton */}
-      <div className="hidden md:block">
-        <div className="h-6 bg-[#1B1B1B] rounded-lg w-24 mb-4 animate-pulse" />
-        <div className="grid grid-cols-4 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-[170px] rounded-2xl bg-white/[0.03] border border-white/[0.06] animate-pulse" />
-          ))}
-        </div>
-      </div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <CardSkeleton key={i} />
+      ))}
     </div>
   );
 }

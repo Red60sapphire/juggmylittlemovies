@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getMangaList, getMangaById } from "@/lib/mangadex";
+import { getCoverWithFallback } from "@/lib/cover-fallback";
 import { rateLimit } from "@/lib/rate-limit";
 
-function toFrontend(m: any) {
+function toFrontend(m: any, coverFallback?: string | null) {
   return {
     id: m.id,
     title: m.title,
-    coverUrl: m.coverUrl,
+    coverUrl: coverFallback || m.coverUrl,
     coverColor: null,
     description: m.description,
     rating: m.rating,
@@ -34,12 +35,16 @@ export async function GET(request: NextRequest) {
   try {
     if (id) {
       const manga = await getMangaById(id);
-      return NextResponse.json({ manga: manga ? toFrontend(manga) : null });
+      if (!manga) return NextResponse.json({ manga: null });
+      const fallbackCover = manga.coverUrl
+        ? null
+        : await getCoverWithFallback(manga.title, null);
+      return NextResponse.json({ manga: toFrontend(manga, fallbackCover) });
     }
 
     const result = await getMangaList(offset, 50, query);
     return NextResponse.json({
-      manga: result.manga.map(toFrontend),
+      manga: result.manga.map((m: any) => toFrontend(m)),
       total: result.total || 0,
     });
   } catch {

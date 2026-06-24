@@ -37,6 +37,8 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="bg-background text-foreground antialiased">
+        <div className="fixed inset-x-0 top-0 z-[100] h-[2px] bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600/20" />
+        <div className="fixed inset-0 z-[-1] pointer-events-none bg-noise opacity-[0.025]" />
         {children}
       </body>
     </html>

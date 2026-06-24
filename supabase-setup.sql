@@ -88,7 +88,16 @@ create table if not exists public.watch_party_kicks (
   created_at timestamptz default now()
 );
 
--- 8. VIEW: public rooms (for listing)
+-- 8. WATCH PARTY SYNC STATE (persisted playback position for late joiners)
+create table if not exists public.watch_party_sync_state (
+  id uuid primary key default gen_random_uuid(),
+  room_id uuid not null references public.watch_party_rooms(id) on delete cascade unique,
+  state text not null default 'pause',
+  position float not null default 0,
+  updated_at timestamptz default now()
+);
+
+-- 9. VIEW: public rooms (for listing)
 create or replace view public.watch_party_public_rooms
 with (security_invoker=true) as
 select
@@ -110,6 +119,7 @@ create index if not exists idx_wp_rooms_code on public.watch_party_rooms(code);
 create index if not exists idx_wp_rooms_active on public.watch_party_rooms(active);
 create index if not exists idx_wp_participants_room on public.watch_party_participants(room_id);
 create index if not exists idx_wp_messages_room on public.watch_party_messages(room_id);
+create index if not exists idx_wp_sync_room on public.watch_party_sync_state(room_id);
 
 -- ============================================================
 -- RLS POLICIES — allow all operations since auth is handled
@@ -151,6 +161,12 @@ drop policy if exists "wp_kicks_all" on public.watch_party_kicks;
 create policy "wp_kicks_all" on public.watch_party_kicks
   for all using (true) with check (true);
 
+-- WATCH PARTY SYNC STATE: anyone can read/write
+drop policy if exists "wp_sync_all" on public.watch_party_sync_state;
+create policy "wp_sync_all" on public.watch_party_sync_state
+  for all using (true) with check (true);
+alter table if exists public.watch_party_sync_state enable row level security;
+
 -- ============================================================
 -- NOTE: This app uses custom auth (username/password with
 -- session cookies), NOT Supabase Auth. All authorization is
@@ -158,3 +174,19 @@ create policy "wp_kicks_all" on public.watch_party_kicks
 -- permissive RLS policies are safe. The anon key is used
 -- directly for all database operations.
 -- ============================================================
+
+-- ============================================================
+-- ENABLE REALTIME (run after table creation)
+-- ============================================================
+-- In Supabase Dashboard: Go to Database → Replication and
+-- enable the "supabase_realtime" publication for these tables:
+--   watch_party_rooms, watch_party_participants,
+--   watch_party_messages, watch_party_sync_state
+--
+-- Or run:
+--   drop publication if exists supabase_realtime;
+--   create publication supabase_realtime for table
+--     watch_party_rooms,
+--     watch_party_participants,
+--     watch_party_messages,
+--     watch_party_sync_state;
