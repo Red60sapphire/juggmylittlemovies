@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
   const genreId = validateNumber(request.nextUrl.searchParams.get("id") || "0", 1, 10000);
   const page = validateNumber(request.nextUrl.searchParams.get("page") || "1", 1, 500);
   const allPages = request.nextUrl.searchParams.get("all") === "true";
+  const animeOnly = request.nextUrl.searchParams.get("anime") === "true";
 
   if (!genreId) {
     return NextResponse.json({ error: "Missing genre id" }, { status: 400 });
@@ -20,8 +21,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const data = allPages
-      ? await discoverByGenreMultiPage(mediaType as "movie" | "tv", genreId)
-      : await discoverByGenre(mediaType as "movie" | "tv", genreId, page);
+      ? await discoverByGenreMultiPage(mediaType as "movie" | "tv", genreId, 5, animeOnly)
+      : await discoverByGenre(mediaType as "movie" | "tv", genreId, page, animeOnly);
     return NextResponse.json(data);
   } catch {
     return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });

@@ -232,13 +232,14 @@ export async function getDiscoverMultiPage(maxPages = 5) {
   return fetchAllPages((p) => getDiscover(p), maxPages);
 }
 
-export async function discoverByGenre(mediaType: "movie" | "tv", genreId: number, page = 1) {
+export async function discoverByGenre(mediaType: "movie" | "tv", genreId: number, page = 1, animeOnly = false) {
   const path = mediaType === "movie" ? "/discover/movie" : "/discover/tv";
-  return tmdbFetch(path, `&with_genres=${genreId}&sort_by=popularity.desc&page=${page}`);
+  const anime = animeOnly ? "&with_original_language=ja&with_genres=16" : "";
+  return tmdbFetch(path, `&with_genres=${genreId}${anime}&sort_by=popularity.desc&page=${page}`);
 }
 
-export async function discoverByGenreMultiPage(mediaType: "movie" | "tv", genreId: number, maxPages = 5) {
-  return fetchAllPages((p) => discoverByGenre(mediaType, genreId, p), maxPages);
+export async function discoverByGenreMultiPage(mediaType: "movie" | "tv", genreId: number, maxPages = 5, animeOnly = false) {
+  return fetchAllPages((p) => discoverByGenre(mediaType, genreId, p, animeOnly), maxPages);
 }
 
 const STUDIOS = [
