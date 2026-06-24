@@ -22,7 +22,7 @@ const browseItems = [
   { label: "TV Shows", href: "/tv-shows", icon: Tv, glow: "group-hover:text-[#8B5CF6]" },
   { label: "Anime", href: "/anime", icon: Ghost, glow: "group-hover:text-[#EC4899]" },
   { label: "Manga", href: "/manga", icon: BookOpen, glow: "group-hover:text-[#10B981]" },
-  { label: "Live Sports", href: "/search?q=sports", icon: Trophy, glow: "group-hover:text-[#F59E0B]" },
+  { label: "Live Sports", href: "/live-sports", icon: Trophy, glow: "group-hover:text-[#F59E0B]" },
 ];
 
 const libraryItems = [
