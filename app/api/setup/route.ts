@@ -81,9 +81,18 @@ order by r.created_at desc;
 
 export async function POST() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  let serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  if (!serviceKey) serviceKey = process.env.SUPABASE_SERVICE_KEY || "";
+  if (!serviceKey) serviceKey = process.env.SERVICE_ROLE_KEY || "";
+
+  const diagnostics = {
+    hasUrl: !!url,
+    hasServiceKey: !!serviceKey,
+    keyName: serviceKey ? (process.env.SUPABASE_SERVICE_ROLE_KEY ? "SUPABASE_SERVICE_ROLE_KEY" : process.env.SUPABASE_SERVICE_KEY ? "SUPABASE_SERVICE_KEY" : "SERVICE_ROLE_KEY") : null,
+  };
+
   if (!url || !serviceKey) {
-    return NextResponse.json({ ok: false, error: "Supabase not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Supabase not configured.", diagnostics }, { status: 400 });
   }
 
   try {

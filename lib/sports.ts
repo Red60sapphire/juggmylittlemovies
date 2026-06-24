@@ -4,6 +4,68 @@ export interface SportChannel {
   category: string;
   logo?: string;
   embedUrls: string[];
+  season?: string;
+}
+
+function getCurrentSeason(months: number[]): boolean {
+  const m = new Date().getMonth();
+  return months.includes(m);
+}
+
+function isNFLSeason(): boolean {
+  return getCurrentSeason([8, 9, 10, 11, 0, 1]); // Sep-Feb
+}
+
+function isNBASeason(): boolean {
+  return getCurrentSeason([9, 10, 11, 0, 1, 2, 3, 4, 5]); // Oct-Jun
+}
+
+function isMLBSeason(): boolean {
+  return getCurrentSeason([2, 3, 4, 5, 6, 7, 8, 9]); // Mar-Oct
+}
+
+function isNHLSeason(): boolean {
+  return getCurrentSeason([9, 10, 11, 0, 1, 2, 3, 4, 5]); // Oct-Jun
+}
+
+function isCollegeFBSeason(): boolean {
+  return getCurrentSeason([7, 8, 9, 10, 11, 0]); // Aug-Jan
+}
+
+function isCollegeBBSeason(): boolean {
+  return getCurrentSeason([10, 11, 0, 1, 2, 3]); // Nov-Apr
+}
+
+function isSoccerSeason(): boolean {
+  return true; // Soccer runs year-round
+}
+
+function isTennisSeason(): boolean {
+  return getCurrentSeason([0, 1, 2, 3, 4, 5, 6, 7, 8]); // Jan-Sep (major tournaments)
+}
+
+function isMotorsportSeason(): boolean {
+  return getCurrentSeason([2, 3, 4, 5, 6, 7, 8, 9, 10, 11]); // Mar-Dec
+}
+
+function isUFCSeason(): boolean {
+  return true; // UFC runs year-round
+}
+
+export function isSportInSeason(categoryId: string): boolean {
+  switch (categoryId) {
+    case "nfl": return isNFLSeason();
+    case "nba": return isNBASeason();
+    case "mlb": return isMLBSeason();
+    case "nhl": return isNHLSeason();
+    case "ufc": return isUFCSeason();
+    case "soccer": return isSoccerSeason();
+    case "f1": return isMotorsportSeason();
+    case "tennis": return isTennisSeason();
+    case "college": return isCollegeFBSeason() || isCollegeBBSeason();
+    case "other": return true;
+    default: return true;
+  }
 }
 
 export interface SportCategory {

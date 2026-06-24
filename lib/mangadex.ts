@@ -53,10 +53,9 @@ async function mdFetch(path: string, params = ""): Promise<any> {
   }
 }
 
-function getCoverUrl(mangaId: string, fileName: string | null, size: "256" | "512" = "256"): string | null {
+function getCoverUrl(mangaId: string, fileName: string | null): string | null {
   if (!fileName) return null;
-  const base = fileName.includes(".") ? fileName.slice(0, fileName.lastIndexOf(".")) : fileName;
-  return `https://uploads.mangadex.org/covers/${mangaId}/${base}.${size}.jpg`;
+  return `https://uploads.mangadex.org/covers/${mangaId}/${fileName}`;
 }
 
 function extractTitle(attrs: any): string {
@@ -123,7 +122,7 @@ export async function getMangaById(id: string): Promise<MangaTitle | null> {
     title: extractTitle(attrs),
     altTitles: (attrs.altTitles || []).map((t: any) => Object.values(t)[0] as string),
     description: extractDescription(attrs),
-    coverUrl: getCoverUrl(item.id, coverFile, "512"),
+    coverUrl: getCoverUrl(item.id, coverFile),
     rating: attrs.rating?.average || 0,
     year: attrs.year || null,
     status: attrs.status || "unknown",
