@@ -114,16 +114,10 @@ function MangaCard({ manga, index }: { manga: MangaItem; index?: number }) {
 }
 
 function RankedMangaCard({ manga, rank }: { manga: MangaItem; rank: number }) {
-  const trophyColor = rank === 1 ? "text-yellow-400" : rank === 2 ? "text-gray-300" : rank === 3 ? "text-amber-600" : "text-white/[0.07]";
-  const trophyIcon = rank <= 3;
-
   return (
     <Link href={`/manga/${manga.id}`} className="group flex items-end gap-3 min-w-[280px]">
-      <div className="relative w-14 flex-shrink-0 text-center">
-        {trophyIcon ? (
-          <Trophy className={`w-8 h-8 mx-auto ${trophyColor} drop-shadow-lg`} />
-        ) : null}
-        <span className={`block text-5xl md:text-6xl font-black leading-none select-none transition-colors ${!trophyIcon ? trophyColor : "text-white/[0.07] group-hover:text-accent/30"}`}>
+      <div className="flex-shrink-0 w-12 text-center">
+        <span className="block text-4xl md:text-5xl font-black leading-none text-white/10 group-hover:text-accent/30 transition-colors select-none">
           {rank}
         </span>
       </div>

@@ -5,18 +5,14 @@ import { motion } from "framer-motion";
 import MovieCard from "@/components/MovieCard";
 import type { Movie } from "@/types";
 import { getImageUrl, formatRating } from "@/lib/utils";
-import { TrendingUp, Star, Trophy, Award, Medal } from "lucide-react";
+import { TrendingUp, Star } from "lucide-react";
 import Link from "next/link";
 
-const rankColors = [
-  "text-yellow-400", "text-gray-300", "text-amber-600",
-];
-
-const rankIcon = (rank: number) => {
-  if (rank === 1) return <Trophy className="w-5 h-5 text-yellow-400" />;
-  if (rank === 2) return <Medal className="w-5 h-5 text-gray-300" />;
-  if (rank === 3) return <Medal className="w-5 h-5 text-amber-600" />;
-  return null;
+const rankClass = (rank: number) => {
+  if (rank === 1) return "text-yellow-400";
+  if (rank === 2) return "text-gray-300";
+  if (rank === 3) return "text-amber-600";
+  return "text-white/20 group-hover:text-white/40";
 };
 
 export default function TrendingPage() {
@@ -100,11 +96,9 @@ export default function TrendingPage() {
                   className="flex items-center gap-4 px-3 py-2.5 rounded-xl hover:bg-white/[0.03] transition-all group -mx-3"
                 >
                   <div className="w-10 flex-shrink-0 text-center">
-                    {rankIcon(rank) || (
-                      <span className={`text-lg font-black ${rank <= 3 ? rankColors[rank - 1] : "text-white/20 group-hover:text-white/40 transition-colors"}`}>
-                        {rank}
-                      </span>
-                    )}
+                    <span className={`text-lg font-black ${rankClass(rank)} transition-colors`}>
+                      {rank}
+                    </span>
                   </div>
                   <div className="w-14 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-surface ring-1 ring-white/[0.06] group-hover:ring-accent/40 transition-all">
                     <img

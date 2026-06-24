@@ -9,6 +9,28 @@ import { MOVIE_GENRES } from "@/lib/tmdb";
 import { ArrowUpRight, Film, TrendingUp, Star, Sparkles } from "lucide-react";
 import Link from "next/link";
 
+const GENRE_ACCENTS: Record<string, string> = {
+  Action: "bg-accent-rose",
+  Adventure: "bg-accent-amber",
+  Animation: "bg-accent",
+  Comedy: "bg-accent-amber",
+  Crime: "bg-accent-cyan",
+  Documentary: "bg-accent-emerald",
+  Drama: "bg-accent",
+  Family: "bg-accent-pink",
+  Fantasy: "bg-accent",
+  History: "bg-accent-amber",
+  Horror: "bg-accent-rose",
+  Music: "bg-accent-pink",
+  Mystery: "bg-accent-cyan",
+  Romance: "bg-accent-pink",
+  "Science Fiction": "bg-accent-cyan",
+  "TV Movie": "bg-accent-amber",
+  Thriller: "bg-accent-rose",
+  War: "bg-accent-rose",
+  Western: "bg-accent-amber",
+};
+
 function GenreRow({ genreId, genreName }: { genreId: number; genreName: string }) {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +49,7 @@ function GenreRow({ genreId, genreName }: { genreId: number; genreName: string }
     <HorizontalSlider
       title={genreName}
       items={movies}
+      accentColor={GENRE_ACCENTS[genreName] || "bg-accent"}
       renderCard={(movie, i) => <MovieCard movie={movie} index={i} />}
     />
   );
@@ -117,9 +140,10 @@ export default function MoviesPage() {
             <Link
               key={genre.id}
               href={`/search?genre=${genre.id}&type=movie`}
-              className="group relative overflow-hidden rounded-xl bg-white/[0.02] border border-border hover:border-accent/40 transition-all duration-300"
+              className="group relative overflow-hidden rounded-xl transition-all duration-300 hover:scale-[1.02]"
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${VIBRANT_GENRE_COLORS[genre.name] || "from-accent/10 to-transparent"} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+              <div className="absolute inset-0 bg-white/[0.02] border border-border group-hover:border-accent/40 rounded-xl transition-colors" />
+              <div className={`absolute inset-0 bg-gradient-to-br ${VIBRANT_GENRE_COLORS[genre.name] || "from-accent/10 to-transparent"} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl`} />
               <div className="relative flex items-center justify-between px-4 py-3.5">
                 <span className="text-sm font-semibold text-white/50 group-hover:text-white transition-colors">
                   {genre.name}

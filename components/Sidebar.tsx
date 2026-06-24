@@ -12,23 +12,23 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { label: "Home", href: "/", icon: Home },
-  { label: "Search", href: "/search", icon: Search },
-  { label: "Trending", href: "/trending", icon: TrendingUp },
+  { label: "Home", href: "/", icon: Home, glow: "group-hover:text-[#8B5CF6]" },
+  { label: "Search", href: "/search", icon: Search, glow: "group-hover:text-[#06B6D4]" },
+  { label: "Trending", href: "/trending", icon: TrendingUp, glow: "group-hover:text-[#F43F5E]" },
 ];
 
 const browseItems = [
-  { label: "Movies", href: "/movies", icon: Film },
-  { label: "TV Shows", href: "/tv-shows", icon: Tv },
-  { label: "Anime", href: "/anime", icon: Ghost },
-  { label: "Manga", href: "/manga", icon: BookOpen },
-  { label: "Live Sports", href: "/search?q=sports", icon: Trophy },
+  { label: "Movies", href: "/movies", icon: Film, glow: "group-hover:text-[#3B82F6]" },
+  { label: "TV Shows", href: "/tv-shows", icon: Tv, glow: "group-hover:text-[#8B5CF6]" },
+  { label: "Anime", href: "/anime", icon: Ghost, glow: "group-hover:text-[#EC4899]" },
+  { label: "Manga", href: "/manga", icon: BookOpen, glow: "group-hover:text-[#10B981]" },
+  { label: "Live Sports", href: "/search?q=sports", icon: Trophy, glow: "group-hover:text-[#F59E0B]" },
 ];
 
 const libraryItems = [
-  { label: "Watchlist", href: "/watchlist", icon: Bookmark },
-  { label: "History", href: "/history", icon: History },
-  { label: "Watch Party", href: "/watch-party", icon: Users },
+  { label: "Watchlist", href: "/watchlist", icon: Bookmark, glow: "group-hover:text-[#8B5CF6]" },
+  { label: "History", href: "/history", icon: History, glow: "group-hover:text-[#06B6D4]" },
+  { label: "Watch Party", href: "/watch-party", icon: Users, glow: "group-hover:text-[#10B981]" },
 ];
 
 const bottomNavItems = [
@@ -63,7 +63,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
     return pathname.startsWith(href);
   };
 
-  const NavLink = ({ item }: { item: { label: string; href: string; icon: any } }) => {
+  const NavLink = ({ item }: { item: { label: string; href: string; icon: any; glow?: string } }) => {
     const Icon = item.icon;
     const active = isActive(item.href);
     return (
@@ -78,9 +78,9 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
         title={collapsed ? item.label : undefined}
       >
         {active && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-accent rounded-full" />
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-gradient-to-b from-accent to-accent/50" />
         )}
-        <Icon className={cn("w-5 h-5 flex-shrink-0", active && "text-accent")} />
+        <Icon className={cn("w-5 h-5 flex-shrink-0 transition-colors", active ? "text-accent" : item.glow)} />
         {!collapsed && <span className="truncate">{item.label}</span>}
       </Link>
     );
