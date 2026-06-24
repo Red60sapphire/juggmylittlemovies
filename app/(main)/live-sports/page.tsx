@@ -4,9 +4,10 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Trophy, Search, ChevronRight, Tv, Wifi } from "lucide-react";
-import { SPORT_CATEGORIES, SPORTS_CHANNELS, type SportChannel } from "@/lib/sports";
+import { SPORT_CATEGORIES, SPORTS_CHANNELS, isSportInSeason, type SportChannel } from "@/lib/sports";
 
 function SportChannelCard({ channel, index }: { channel: SportChannel; index: number }) {
+  const inSeason = isSportInSeason(channel.category);
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -22,10 +23,14 @@ function SportChannelCard({ channel, index }: { channel: SportChannel; index: nu
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-white/70 group-hover:text-white transition-colors truncate">{channel.name}</p>
-          <p className="text-[10px] text-white/30 mt-0.5">Live stream</p>
+          <p className="text-[10px] mt-0.5">{inSeason ? "In season" : "Off season"}</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 animate-pulse" />
+          {inSeason ? (
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60 animate-pulse" />
+          ) : (
+            <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+          )}
           <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-white/50 transition-all group-hover:translate-x-0.5" />
         </div>
       </Link>
