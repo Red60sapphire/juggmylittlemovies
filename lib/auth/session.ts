@@ -10,7 +10,7 @@ export interface AppSession {
 }
 
 function getSecret() {
-  return process.env.AUTH_SESSION_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || "dev-session-secret-change-me";
+  return process.env.AUTH_SESSION_SECRET || "stremer-dev-fallback-secret-not-for-production";
 }
 
 function base64url(input: string | Buffer) {

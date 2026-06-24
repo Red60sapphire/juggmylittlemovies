@@ -7,7 +7,6 @@ import { getServersForTV } from "@/lib/servers";
 import { getImageUrl, formatRating, formatDate, cn } from "@/lib/utils";
 import { addToLocalHistory } from "@/lib/localHistory";
 import { isInLocalWatchlist } from "@/lib/local-storage";
-import WatchPartyUI from "@/components/WatchPartyUI";
 import type { VideoSource, MovieDetails, CastMember, Trailer } from "@/types";
 import {
   Play, SkipForward, Plus, Share2, Download, Star, ChevronRight,
@@ -15,14 +14,14 @@ import {
   List, Grid3X3, ChevronDown,
 } from "lucide-react";
 
-const LOAD_TIMEOUT = 10000;
+const LOAD_TIMEOUT = 7000;
 
 const serverIcons: Record<string, any> = {
-  Juggmylittlemovies: Film, Core: Monitor,
-  VidSrc: Tv, ZxcStream: Monitor,
-  CinemaOS: Tv, Vid2: Monitor, Peach: Film, Mapi: Server,
-  VidPlays: Tv, VidEasy: Film, ScreenScape: Monitor,
-  French: Globe, Spanish: Globe, Italian: Globe,
+  VidLink: Film, "Embed.su": Tv, MultiEmbed: Server,
+  SuperEmbed: Monitor, VidBinge: Tv, VidSrc: Monitor,
+  "VidSrc 2": Monitor, "VidSrc 3": Monitor, "VidSrc.icu": Monitor,
+  "2Embed": Monitor, AutoEmbed: Monitor, VidKing: Tv,
+  "API Player": Server, SmashyStream: Monitor,
 };
 
 interface SeasonInfo {
@@ -400,15 +399,6 @@ export default function TvWatchPage() {
             </div>
           </div>
 
-          <WatchPartyUI
-            movieId={tvId}
-            movieTitle={(tvShow as any)?.name || (tvShow as any)?.title || "TV Show"}
-            posterPath={tvShow?.poster_path || null}
-            backdropPath={tvShow?.backdrop_path || null}
-            isTv
-            seasonNumber={seasonNum}
-            episodeNumber={episodeNum}
-          />
         </div>
 
         <div className="w-full xl:w-[340px] flex-shrink-0">
