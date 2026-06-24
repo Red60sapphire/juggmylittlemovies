@@ -58,7 +58,11 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error || !profile) {
-    return NextResponse.json({ error: `Could not create account: ${error?.message || "Unknown database error. Ensure your Supabase tables exist by running supabase-setup.sql in the SQL editor."}` }, { status: 500 });
+    const msg = error?.message || "";
+    if (msg.includes("does not exist") || msg.includes("relation") || msg.includes("schema cache")) {
+      return NextResponse.json({ error: "Database not set up. Please visit /api/setup to initialize it, or use the 'Set up database' button below." }, { status: 500 });
+    }
+    return NextResponse.json({ error: `Could not create account: ${msg || "Unknown error."}` }, { status: 500 });
   }
 
   // Stremer deliberately uses username/password accounts without Supabase email auth.
