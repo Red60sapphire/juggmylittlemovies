@@ -257,7 +257,7 @@ function AnimeGenreRow({ genreId, genreName }: { genreId: number; genreName: str
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/tmdb/genre?type=tv&id=${genreId}&all=true`)
+    fetch(`/api/tmdb/genre?type=tv&id=${genreId}&all=true&anime=true`)
       .then((r) => r.json())
       .then((data) => setMovies(data.results || []))
       .catch(() => setMovies([]))
