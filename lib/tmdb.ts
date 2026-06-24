@@ -152,6 +152,14 @@ export async function getTVDetails(id: number) {
   return tmdbFetch(`/tv/${id}`, "&append_to_response=credits,videos,similar");
 }
 
+export async function getTVSeasonDetails(tvId: number, season: number) {
+  return tmdbFetch(`/tv/${tvId}/season/${season}`);
+}
+
+export async function getTVEpisodeDetails(tvId: number, season: number, episodeNumber: number) {
+  return tmdbFetch(`/tv/${tvId}/season/${season}/episode/${episodeNumber}`);
+}
+
 export async function getAnime(page = 1) {
   return tmdbFetch(
     "/discover/tv",

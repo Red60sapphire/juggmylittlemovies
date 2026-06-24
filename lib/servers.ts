@@ -14,18 +14,6 @@ export const VIDEO_SERVERS: ServerConfig[] = [
     type: "embed",
   },
   {
-    name: "API Player",
-    buildUrl: (id, s, e) =>
-      s && e ? `https://apiplayer.ru/embed/tv/${id}/${s}/${e}` : `https://apiplayer.ru/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
-    name: "VidSrc 2",
-    buildUrl: (id, s, e) =>
-      s && e ? `https://vidsrc.to/embed/tv/${id}/${s}/${e}` : `https://vidsrc.to/embed/movie/${id}`,
-    type: "embed",
-  },
-  {
     name: "Embed.su",
     buildUrl: (id, s, e) =>
       s && e ? `https://embed.su/embed/tv/${id}/${s}/${e}` : `https://embed.su/embed/movie/${id}`,
@@ -38,9 +26,9 @@ export const VIDEO_SERVERS: ServerConfig[] = [
     type: "embed",
   },
   {
-    name: "AutoEmbed",
+    name: "SuperEmbed",
     buildUrl: (id, s, e) =>
-      s && e ? `https://autoembed.cc/embed/tv/${id}/${s}/${e}` : `https://autoembed.cc/embed/movie/${id}`,
+      s && e ? `https://multiembed.mov/?video_id=${id}&s=${s}&e=${e}` : `https://multiembed.mov/?video_id=${id}&tmdb=1`,
     type: "embed",
   },
   {
@@ -56,9 +44,9 @@ export const VIDEO_SERVERS: ServerConfig[] = [
     type: "embed",
   },
   {
-    name: "2Embed",
+    name: "VidSrc 2",
     buildUrl: (id, s, e) =>
-      s && e ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` : `https://www.2embed.cc/embed/${id}`,
+      s && e ? `https://vidsrc.to/embed/tv/${id}/${s}/${e}` : `https://vidsrc.to/embed/movie/${id}`,
     type: "embed",
   },
   {
@@ -68,9 +56,39 @@ export const VIDEO_SERVERS: ServerConfig[] = [
     type: "embed",
   },
   {
+    name: "VidSrc.icu",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://vidsrc.icu/embed/tv/${id}/${s}/${e}` : `https://vidsrc.icu/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "2Embed",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` : `https://www.2embed.cc/embed/${id}`,
+    type: "embed",
+  },
+  {
+    name: "AutoEmbed",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://autoembed.cc/embed/tv/${id}/${s}/${e}` : `https://autoembed.cc/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
     name: "VidKing",
     buildUrl: (id, s, e) =>
       s && e ? `https://www.vidking.net/embed/tv/${id}/${s}/${e}` : `https://www.vidking.net/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "API Player",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://apiplayer.ru/embed/tv/${id}/${s}/${e}` : `https://apiplayer.ru/embed/movie/${id}`,
+    type: "embed",
+  },
+  {
+    name: "SmashyStream",
+    buildUrl: (id, s, e) =>
+      s && e ? `https://embed.smashystream.com/playere/?tmdb=${id}&s=${s}&e=${e}` : `https://embed.smashystream.com/playere/?tmdb=${id}`,
     type: "embed",
   },
 ];

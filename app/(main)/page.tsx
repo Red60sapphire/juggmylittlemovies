@@ -157,22 +157,26 @@ function QuickLinks() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
       {[
-        { href: "/movies", label: "Movies", icon: Film, color: "from-blue-600/20 to-blue-900/10" },
-        { href: "/tv-shows", label: "TV Shows", icon: Tv, color: "from-purple-600/20 to-purple-900/10" },
-        { href: "/anime", label: "Anime", icon: Sparkles, color: "from-pink-600/20 to-pink-900/10" },
-        { href: "/manga", label: "Manga", icon: TrendingUp, color: "from-green-600/20 to-green-900/10" },
+        { href: "/movies", label: "Movies", icon: Film, gradient: "from-blue-600 via-indigo-600 to-purple-700", shadow: "shadow-blue-600/20" },
+        { href: "/tv-shows", label: "TV Shows", icon: Tv, gradient: "from-purple-600 via-pink-600 to-rose-700", shadow: "shadow-purple-600/20" },
+        { href: "/anime", label: "Anime", icon: Sparkles, gradient: "from-pink-500 via-rose-500 to-red-600", shadow: "shadow-pink-600/20" },
+        { href: "/manga", label: "Manga", icon: TrendingUp, gradient: "from-emerald-500 via-teal-500 to-cyan-600", shadow: "shadow-emerald-600/20" },
       ].map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          className="group relative overflow-hidden rounded-2xl glass glass-border p-5 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+          className={`group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] ${item.shadow} hover:shadow-xl`}
         >
-          <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-60 group-hover:opacity-100 transition-opacity`} />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] to-white/[0.01] ring-1 ring-white/[0.06] rounded-2xl" />
+          <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-2xl`} />
+          <div className="absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br ${item.gradient} opacity-10 blur-2xl rounded-full group-hover:opacity-25 transition-opacity" />
           <div className="relative z-10">
-            <item.icon className="w-6 h-6 text-white/60 group-hover:text-white transition-colors mb-2" />
-            <h3 className="text-sm font-bold text-white/80 group-hover:text-white transition-colors">{item.label}</h3>
-            <div className="flex items-center gap-1 mt-1 text-[10px] text-white/40 group-hover:text-accent transition-colors">
-              Browse <ChevronRight className="w-3 h-3" />
+            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center mb-3 shadow-lg`}>
+              <item.icon className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-base font-bold text-white group-hover:text-white transition-colors">{item.label}</h3>
+            <div className="flex items-center gap-1 mt-1 text-xs text-white/40 group-hover:text-white/70 transition-colors">
+              Browse now <ChevronRight className="w-3.5 h-3.5" />
             </div>
           </div>
         </Link>
@@ -181,7 +185,7 @@ function QuickLinks() {
   );
 }
 
-function DataRow({ title, fetchFn }: { title: string; fetchFn: () => Promise<Movie[]> }) {
+function DataRow({ title, fetchFn, accentColor }: { title: string; fetchFn: () => Promise<Movie[]>; accentColor?: string }) {
   const [items, setItems] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -208,6 +212,7 @@ function DataRow({ title, fetchFn }: { title: string; fetchFn: () => Promise<Mov
     <HorizontalSlider
       title={title}
       items={items}
+      accentColor={accentColor}
       renderCard={(movie, i) => <MovieCard movie={movie} index={i} />}
     />
   );
@@ -230,6 +235,7 @@ export default function HomePage() {
 
       <DataRow
         title="Trending Now"
+        accentColor="bg-accent-pink"
         fetchFn={useCallback(async () => {
           const r = await fetch("/api/tmdb/trending?all=true");
           const d = await r.json();
@@ -239,6 +245,7 @@ export default function HomePage() {
 
       <DataRow
         title="Popular Movies"
+        accentColor="bg-accent-amber"
         fetchFn={useCallback(async () => {
           const r = await fetch("/api/tmdb/trending?type=popular&all=true");
           const d = await r.json();
@@ -248,6 +255,7 @@ export default function HomePage() {
 
       <DataRow
         title="Top Rated"
+        accentColor="bg-accent-rose"
         fetchFn={useCallback(async () => {
           const r = await fetch("/api/tmdb/trending?type=top_rated");
           const d = await r.json();
@@ -257,6 +265,7 @@ export default function HomePage() {
 
       <DataRow
         title="Popular TV Shows"
+        accentColor="bg-accent-cyan"
         fetchFn={useCallback(async () => {
           const r = await fetch("/api/tmdb/trending?type=trending_tv&all=true");
           const d = await r.json();
@@ -264,12 +273,14 @@ export default function HomePage() {
         }, [])}
       />
 
-      <section className="mt-6 mb-4">
+      <section className="mt-8 mb-4">
         <Link
           href="/trending"
-          className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl glass glass-border hover:bg-white/[0.06] text-sm font-semibold text-white/60 hover:text-white transition-all group"
+          className="group relative flex items-center justify-center gap-2 w-full py-4 rounded-2xl overflow-hidden text-sm font-semibold transition-all"
         >
-          View All Trending <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          <div className="absolute inset-0 bg-gradient-to-r from-accent-rose/10 via-accent/10 to-accent-cyan/10 ring-1 ring-white/[0.06] rounded-2xl group-hover:from-accent-rose/20 group-hover:via-accent/20 group-hover:to-accent-cyan/20 transition-all duration-500" />
+          <span className="relative text-white/70 group-hover:text-white transition-colors">View All Trending</span>
+          <ChevronRight className="relative w-4 h-4 text-white/50 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
         </Link>
       </section>
     </div>

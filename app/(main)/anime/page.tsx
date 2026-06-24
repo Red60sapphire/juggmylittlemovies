@@ -217,20 +217,17 @@ function RankedCard({ movie, rank }: { movie: Movie; rank: number }) {
   const year = (movie.release_date || movie.first_air_date || "").split("-")[0];
   return (
     <Link href={`/watch/${movie.id}`} className="group flex items-end gap-3 min-w-[280px]">
-      <motion.span
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        className="text-7xl md:text-8xl font-black text-white/[0.07] group-hover:text-accent/15 transition-colors leading-none select-none"
-      >
-        {rank}
-      </motion.span>
+      <div className="flex-shrink-0 w-12 text-center">
+        <span className="block text-4xl md:text-5xl font-black leading-none text-white/10 group-hover:text-accent/30 transition-colors select-none">
+          {rank}
+        </span>
+      </div>
       <div className="relative w-[130px] flex-shrink-0">
         <div className="aspect-[2/3] rounded-xl overflow-hidden bg-surface ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-accent/40 group-hover:-translate-y-1.5 group-hover:shadow-xl group-hover:shadow-accent/10">
           <img
             src={getImageUrl(movie.poster_path, "w185") || "/placeholder.svg"}
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
           />
         </div>

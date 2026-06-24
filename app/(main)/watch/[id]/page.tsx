@@ -8,7 +8,6 @@ import { getServersForMovie } from "@/lib/servers";
 import { getImageUrl, formatRating, formatDate, cn } from "@/lib/utils";
 import { addToLocalHistory } from "@/lib/localHistory";
 import { isInLocalWatchlist } from "@/lib/local-storage";
-import WatchPartyUI from "@/components/WatchPartyUI";
 import type { VideoSource, MovieDetails, CastMember, Trailer } from "@/types";
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, Maximize, Settings,
@@ -16,12 +15,14 @@ import {
   Wifi, RefreshCw, AlertTriangle, Server, Tv, Film, Monitor, Users,
 } from "lucide-react";
 
-const LOAD_TIMEOUT = 10000;
+const LOAD_TIMEOUT = 7000;
 
 const serverIcons: Record<string, any> = {
-  VidLink: Film, "API Player": Server, "VidSrc 2": Monitor,
-  "Embed.su": Tv, MultiEmbed: Server, AutoEmbed: Monitor,
-  VidBinge: Tv, VidSrc: Monitor, "2Embed": Monitor, "VidSrc 3": Monitor,
+  VidLink: Film, "Embed.su": Tv, MultiEmbed: Server,
+  SuperEmbed: Monitor, VidBinge: Tv, VidSrc: Monitor,
+  "VidSrc 2": Monitor, "VidSrc 3": Monitor, "VidSrc.icu": Monitor,
+  "2Embed": Monitor, AutoEmbed: Monitor, VidKing: Tv,
+  "API Player": Server, SmashyStream: Monitor,
 };
 
 export default function WatchPage() {
@@ -408,12 +409,6 @@ export default function WatchPage() {
             </div>
           </div>
 
-          <WatchPartyUI
-            movieId={movieId}
-            movieTitle={movie?.title || "Movie"}
-            posterPath={movie?.poster_path || null}
-            backdropPath={movie?.backdrop_path || null}
-          />
         </div>
 
         <div className="w-full xl:w-[340px] flex-shrink-0">

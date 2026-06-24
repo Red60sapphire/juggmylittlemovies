@@ -9,9 +9,12 @@ interface Props<T> {
   items: T[];
   renderCard: (item: T, index: number) => React.ReactNode;
   className?: string;
+  accentColor?: string;
 }
 
-export default function HorizontalSlider<T>({ title, items, renderCard, className = "" }: Props<T>) {
+const ACCENT_COLORS = ["bg-accent", "bg-accent-rose", "bg-accent-amber", "bg-accent-emerald", "bg-accent-cyan", "bg-accent-pink"];
+
+export default function HorizontalSlider<T>({ title, items, renderCard, className = "", accentColor }: Props<T>) {
   const rowRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
@@ -44,7 +47,7 @@ export default function HorizontalSlider<T>({ title, items, renderCard, classNam
       className={`group/slider mb-8 md:mb-6 ${className}`}
     >
       <div className="flex items-center mb-3 md:mb-2.5 px-0.5">
-        <div className="w-0.5 h-4 bg-accent rounded-full mr-2.5 flex-shrink-0" />
+        <div className={`w-0.5 h-4 ${accentColor || "bg-accent"} rounded-full mr-2.5 flex-shrink-0 transition-colors`} />
         <h2 className="text-lg md:text-base font-bold text-white tracking-tight">{title}</h2>
       </div>
 
