@@ -20,20 +20,20 @@ export default function MovieCard({ movie, index = 0, priority }: Props) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.3) }}
+      transition={{ duration: 0.4, delay: Math.min(index * 0.03, 0.3), ease: [0.16, 1, 0.3, 1] }}
       className="w-[200px] sm:w-[150px]"
     >
       <Link href={`/watch/${movie.id}`} className="group block">
-        <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-surface mb-1.5 ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-accent/40 group-hover:shadow-xl group-hover:shadow-accent/15 group-hover:-translate-y-1">
+        <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-surface ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-accent/50 group-hover:shadow-xl group-hover:shadow-accent/10 group-hover:-translate-y-1.5 img-zoom">
           <img
             src={getImageUrl(movie.poster_path, "w342") || "/placeholder.svg"}
             alt={title}
             loading={priority ? "eager" : "lazy"}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-            <div className="w-11 h-11 rounded-full bg-accent flex items-center justify-center shadow-lg shadow-accent/25">
+            <div className="w-11 h-11 rounded-full bg-accent flex items-center justify-center shadow-lg shadow-accent/25 group-hover:scale-110 transition-transform duration-300">
               <Play className="w-4.5 h-4.5 fill-white text-white ml-0.5" />
             </div>
           </div>
@@ -47,7 +47,7 @@ export default function MovieCard({ movie, index = 0, priority }: Props) {
             </div>
           )}
         </div>
-        <h3 className="text-xs font-medium text-white/70 group-hover:text-white transition-colors truncate px-0.5 leading-snug">
+        <h3 className="text-xs font-medium text-white/70 group-hover:text-white transition-colors truncate px-0.5 mt-1.5 leading-snug">
           {title}
         </h3>
       </Link>
