@@ -1,118 +1,80 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-const SQL = `
-create table if not exists public.profiles (
-  id uuid primary key default gen_random_uuid(),
-  username text unique not null,
-  password_hash text not null,
-  settings jsonb default '{}'::jsonb,
-  created_at timestamptz default now()
-);
-create index if not exists idx_profiles_username on public.profiles(username);
-alter table if exists public.profiles enable row level security;
-drop policy if exists "profiles_all" on public.profiles;
-create policy "profiles_all" on public.profiles for all using (true) with check (true);
-
-create table if not exists public.watch_party_rooms (
-  id uuid primary key default gen_random_uuid(),
-  code text unique not null,
-  movie_id integer,
-  title text not null,
-  poster_path text,
-  backdrop_path text,
-  host_user_id uuid references public.profiles(id) on delete set null,
-  host_key text not null,
-  host_name text not null,
-  is_public boolean default true,
-  active boolean default true,
-  created_at timestamptz default now()
-);
-alter table if exists public.watch_party_rooms enable row level security;
-drop policy if exists "rooms_all" on public.watch_party_rooms;
-create policy "rooms_all" on public.watch_party_rooms for all using (true) with check (true);
-
-create table if not exists public.watch_party_participants (
-  id uuid primary key default gen_random_uuid(),
-  room_id uuid not null references public.watch_party_rooms(id) on delete cascade,
-  user_id uuid references public.profiles(id) on delete set null,
-  display_name text not null,
-  role text not null default 'viewer',
-  joined_at timestamptz default now(),
-  last_seen_at timestamptz default now()
-);
-alter table if exists public.watch_party_participants enable row level security;
-drop policy if exists "participants_all" on public.watch_party_participants;
-create policy "participants_all" on public.watch_party_participants for all using (true) with check (true);
-
-create table if not exists public.watch_party_messages (
-  id uuid primary key default gen_random_uuid(),
-  room_id uuid not null references public.watch_party_rooms(id) on delete cascade,
-  user_id uuid references public.profiles(id) on delete set null,
-  display_name text not null,
-  body text not null,
-  created_at timestamptz default now()
-);
-alter table if exists public.watch_party_messages enable row level security;
-drop policy if exists "messages_all" on public.watch_party_messages;
-create policy "messages_all" on public.watch_party_messages for all using (true) with check (true);
-
-create table if not exists public.watch_party_kicks (
-  id uuid primary key default gen_random_uuid(),
-  room_id uuid not null references public.watch_party_rooms(id) on delete cascade,
-  display_name text not null,
-  created_at timestamptz default now()
-);
-alter table if exists public.watch_party_kicks enable row level security;
-drop policy if exists "kicks_all" on public.watch_party_kicks;
-create policy "kicks_all" on public.watch_party_kicks for all using (true) with check (true);
-
-create or replace view public.watch_party_public_rooms with (security_invoker=true) as
-select r.id, r.code, r.movie_id, r.title, r.poster_path, r.backdrop_path, r.host_name, r.created_at,
-  coalesce(p.count, 0) as participant_count
-from public.watch_party_rooms r
-left join (
-  select room_id, count(*) as count
-  from public.watch_party_participants
-  group by room_id
-) p on p.room_id = r.id
-where r.is_public = true and r.active = true
-order by r.created_at desc;
-`;
+const REQUIRED_TABLES = [
+  "profiles",
+  "watch_history",
+  "watchlist",
+  "watch_party_rooms",
+  "watch_party_participants",
+  "watch_party_messages",
+  "watch_party_kicks",
+];
 
 export async function POST() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  let serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-  if (!serviceKey) serviceKey = process.env.SUPABASE_SERVICE_KEY || "";
-  if (!serviceKey) serviceKey = process.env.SERVICE_ROLE_KEY || "";
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  const diagnostics = {
-    hasUrl: !!url,
-    hasServiceKey: !!serviceKey,
-    keyName: serviceKey ? (process.env.SUPABASE_SERVICE_ROLE_KEY ? "SUPABASE_SERVICE_ROLE_KEY" : process.env.SUPABASE_SERVICE_KEY ? "SUPABASE_SERVICE_KEY" : "SERVICE_ROLE_KEY") : null,
-  };
-
-  if (!url || !serviceKey) {
-    return NextResponse.json({ ok: false, error: "Supabase not configured.", diagnostics }, { status: 400 });
+  if (!url || !anonKey) {
+    return NextResponse.json({
+      ok: false,
+      error: "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set.",
+      tables: [],
+    }, { status: 400 });
   }
 
-  try {
-    const res = await fetch(`${url.replace(/\/$/, "")}/rest/v1/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/sql",
-        "apikey": serviceKey,
-        "Authorization": `Bearer ${serviceKey}`,
-      },
-      body: SQL,
-    });
+  const client = createClient(url, anonKey);
 
-    if (!res.ok) {
-      const text = await res.text();
-      return NextResponse.json({ ok: false, error: `SQL exec failed (${res.status}): ${text.slice(0, 500)}` }, { status: 500 });
+  const tableStatus: Record<string, boolean> = {};
+  for (const table of REQUIRED_TABLES) {
+    try {
+      const { error } = await client.from(table).select("id", { count: "exact", head: true }).limit(0);
+      tableStatus[table] = !error;
+    } catch {
+      tableStatus[table] = false;
     }
-
-    return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message || "Unknown error" }, { status: 500 });
   }
+
+  const allExist = Object.values(tableStatus).every(Boolean);
+
+  if (!allExist && serviceKey) {
+    const admin = createClient(url, serviceKey);
+    let sqlOk = false;
+    let sqlError = "";
+    try {
+      const res = await fetch(`${url}/rest/v1/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/sql",
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+        },
+        body: [
+          REQUIRED_TABLES.map((t) => `create table if not exists public.${t} (id uuid primary key default gen_random_uuid());`).join("\n"),
+          `alter table if exists public.profiles add column if not exists username text;`,
+          `alter table if exists public.profiles add column if not exists password_hash text;`,
+        ].join("\n"),
+      });
+      if (!res.ok) sqlError = `SQL exec failed (${res.status})`;
+      else sqlOk = true;
+    } catch (e: any) {
+      sqlError = e?.message || "Unknown error";
+    }
+    if (sqlOk) {
+      return NextResponse.json({ ok: true, tables: tableStatus, created: true });
+    }
+  }
+
+  const missing = REQUIRED_TABLES.filter((t) => !tableStatus[t]);
+  return NextResponse.json({
+    ok: allExist,
+    tables: tableStatus,
+    missing: missing.length > 0 ? missing : undefined,
+    message: allExist
+      ? "All tables exist."
+      : serviceKey
+        ? "Attempted creation but some tables may still be missing. Run supabase-setup.sql in the Supabase SQL Editor."
+        : "Missing tables. Set SUPABASE_SERVICE_ROLE_KEY env var for auto-setup, or run supabase-setup.sql in Supabase SQL Editor.",
+  }, { status: allExist ? 200 : 400 });
 }

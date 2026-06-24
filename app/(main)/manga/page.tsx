@@ -146,7 +146,7 @@ function MangaHero({ manga }: { manga: MangaItem[] }) {
           className="absolute inset-0"
         >
           {item.coverUrl ? (
-            <img src={item.coverUrl.replace("large", "extraLarge").replace("256", "512")} alt="" className="w-full h-full object-cover" />
+            <img src={item.coverUrl} alt="" className="w-full h-full object-cover" />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${getGradient(current)}`} />
           )}
