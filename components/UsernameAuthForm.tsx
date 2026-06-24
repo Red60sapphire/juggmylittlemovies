@@ -121,7 +121,7 @@ export default function UsernameAuthForm({ mode }: UsernameAuthFormProps) {
               </div>
             </div>
 
-            {error && (
+              {error && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -131,6 +131,25 @@ export default function UsernameAuthForm({ mode }: UsernameAuthFormProps) {
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400/60 flex-shrink-0" />
                   {error}
                 </div>
+                {(error.toLowerCase().includes("table") || error.toLowerCase().includes("relation")) && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setLoading(true);
+                      const res = await fetch("/api/setup", { method: "POST" });
+                      const data = await res.json();
+                      setLoading(false);
+                      if (data.ok) {
+                        setError("Database set up! Try signing up again.");
+                      } else {
+                        setError("Setup failed: " + (data.error || "Unknown error. Ensure SUPABASE_SERVICE_ROLE_KEY is set in your environment variables."));
+                      }
+                    }}
+                    className="mt-2 w-full rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-semibold text-accent hover:bg-accent/20 transition-all"
+                  >
+                    Set up database (one click)
+                  </button>
+                )}
               </motion.div>
             )}
 

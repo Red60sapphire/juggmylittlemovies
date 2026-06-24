@@ -63,6 +63,7 @@ export default function TvWatchPage() {
   const [timedOut, setTimedOut] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [autoAdvancing, setAutoAdvancing] = useState(false);
+  const [switchingSource, setSwitchingSource] = useState(false);
   const [workingServers, setWorkingServers] = useState<Set<string>>(new Set());
   const [isBlocked, setIsBlocked] = useState(false);
   const [episodes, setEpisodes] = useState<EpisodeInfo[]>([]);
@@ -293,7 +294,8 @@ export default function TvWatchPage() {
     <main id="main-content" className="max-w-[1600px] mx-auto">
       <div className="flex flex-col xl:flex-row gap-4 md:gap-6">
         <div className="flex-1 min-w-0">
-          <div className="relative rounded-2xl overflow-hidden bg-black border border-[#2A2A2A] group/player shadow-2xl">
+          <div className="relative rounded-2xl overflow-hidden bg-black border border-white/[0.06] group/player shadow-2xl shadow-black/50">
+            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-accent via-blue-500 to-accent/20 z-10" />
             <div className="relative aspect-video bg-black">
               {currentServer && (
                 <>
@@ -304,36 +306,118 @@ export default function TvWatchPage() {
                     allowFullScreen
                     referrerPolicy="no-referrer"
                     allow="autoplay; fullscreen"
-                    sandbox={currentServer.sandbox ? "allow-scripts allow-same-origin allow-forms allow-popups" : undefined}
                     onLoad={handleIframeLoad}
                     onError={() => { setIframeError(true); clearTimeout_(); }}
                   />
+
                   {!iframeLoaded && !iframeError && !timedOut && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#0B0B0B]">
-                      <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                      <p className="text-sm text-[#9CA3AF]">Loading stream...</p>
-                      <p className="text-xs text-[#555]">{currentServer.name}</p>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/90 backdrop-blur-sm">
+                      <div className="relative">
+                        <div className="w-14 h-14 border-2 border-accent/20 border-t-accent rounded-full animate-spin" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-4 h-4 rounded-full bg-accent/30 animate-pulse" />
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-white/70">
+                          {switchingSource ? "Switching source..." : "Loading stream..."}
+                        </p>
+                        <p className="text-xs text-white/30 mt-1">{currentServer.name}</p>
+                      </div>
                     </div>
                   )}
+
+                  {switchingSource && (
+                    <div className="absolute top-3 left-3 z-20 px-3 py-1.5 bg-black/70 backdrop-blur-md rounded-lg text-xs font-medium text-white/70 flex items-center gap-2 border border-white/10">
+                      <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                      Auto-switching...
+                    </div>
+                  )}
+
                   {timedOut && !iframeLoaded && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#0B0B0B] p-8 text-center">
-                      <div className="w-14 h-14 rounded-xl bg-[#1B1B1B] border border-[#2A2A2A] flex items-center justify-center">
-                        <AlertTriangle className="w-6 h-6 text-[#9CA3AF]" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/90 backdrop-blur-sm p-8 text-center">
+                      <div className="w-14 h-14 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                        <AlertTriangle className="w-6 h-6 text-yellow-400/60" />
                       </div>
-                      <p className="text-white font-medium">Server not responding</p>
-                      <p className="text-sm text-[#9CA3AF] max-w-xs">{currentServer.name} is taking too long. Trying next...</p>
+                      <div className="text-center">
+                        <p className="text-white font-semibold">Timed out</p>
+                        <p className="text-sm text-white/40 mt-1">{currentServer.name} took too long</p>
+                      </div>
+                      <div className="flex gap-2 mt-1">
+                        <button onClick={autoAdvance} className="flex items-center gap-2 px-5 py-2.5 bg-white text-black text-sm font-semibold rounded-xl hover:bg-white/90 active:scale-95 transition-all">
+                          <SkipForward className="w-4 h-4" />
+                          Next
+                        </button>
+                        <button onClick={() => tryServer(serverIndex)} className="flex items-center gap-2 px-5 py-2.5 bg-white/5 text-white/70 text-sm font-semibold rounded-xl border border-white/10 hover:bg-white/10 active:scale-95 transition-all">
+                          <RefreshCw className="w-4 h-4" />
+                          Retry
+                        </button>
+                      </div>
                     </div>
                   )}
+
                   {iframeError && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#0B0B0B] p-8 text-center">
-                      <div className="w-14 h-14 rounded-xl bg-[#1B1B1B] border border-[#2A2A2A] flex items-center justify-center">
-                        <AlertTriangle className="w-6 h-6 text-[#9CA3AF]" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/90 backdrop-blur-sm p-8 text-center">
+                      <div className="w-14 h-14 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                        <AlertTriangle className="w-6 h-6 text-red-400/60" />
                       </div>
-                      <p className="text-white font-medium">Failed to load</p>
-                      <p className="text-sm text-[#9CA3AF] max-w-xs">{currentServer.name} couldn&apos;t be reached. Trying next...</p>
+                      <div className="text-center">
+                        <p className="text-white font-semibold">Failed to load</p>
+                        <p className="text-sm text-white/40 mt-1">{currentServer.name} refused connection</p>
+                      </div>
+                      <div className="flex gap-2 mt-1">
+                        <button onClick={autoAdvance} className="flex items-center gap-2 px-5 py-2.5 bg-white text-black text-sm font-semibold rounded-xl hover:bg-white/90 active:scale-95 transition-all">
+                          <SkipForward className="w-4 h-4" />
+                          Next
+                        </button>
+                        <button onClick={() => tryServer(0)} className="flex items-center gap-2 px-5 py-2.5 bg-white/5 text-white/70 text-sm font-semibold rounded-xl border border-white/10 hover:bg-white/10 active:scale-95 transition-all">
+                          <RefreshCw className="w-4 h-4" />
+                          Start Over
+                        </button>
+                      </div>
                     </div>
                   )}
                 </>
+              )}
+
+              {!currentServer && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black p-8 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                    <Play className="w-6 h-6 text-white/30" />
+                  </div>
+                  <p className="text-sm text-white/40">No sources available. Try another title.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3 px-4 py-2.5 bg-[#0a0a0f] border-t border-white/[0.04]">
+              {currentServer && iframeLoaded && (
+                <div className="flex items-center gap-2 text-xs text-emerald-400/60">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Live
+                </div>
+              )}
+              <div className="flex items-center gap-1.5 text-xs text-white/30">
+                {currentServer ? (
+                  <><span className="w-1 h-1 rounded-full bg-white/20" />{currentServer.name}</>
+                ) : (
+                  "No server selected"
+                )}
+              </div>
+              <div className="flex-1" />
+              {serverIndex > 0 && servers.length > 1 && (
+                <div className="flex items-center gap-1.5 text-[10px] text-white/20">
+                  {serverIndex + 1} / {servers.length}
+                </div>
+              )}
+              {iframeLoaded && currentServer && (
+                <button
+                  onClick={autoAdvance}
+                  className="p-1.5 rounded-lg hover:bg-white/5 text-white/30 hover:text-white/60 transition-all"
+                  title="Try next server"
+                >
+                  <SkipForward className="w-3.5 h-3.5" />
+                </button>
               )}
             </div>
           </div>
@@ -372,33 +456,41 @@ export default function TvWatchPage() {
               </div>
             </div>
             <div className="mb-3">
-              <h3 className="text-sm font-semibold text-white/70 mb-3">Servers</h3>
-              <p className="text-xs text-[#9CA3AF] mb-3">🚀 Please try different servers if one isn&apos;t working, and consider using ad blockers or the Brave browser.</p>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-white/70">
+                  Servers <span className="text-white/20 font-normal">({servers.length})</span>
+                </h3>
+                {iframeLoaded && currentServer && (
+                  <span className="text-[10px] text-emerald-400/50 flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                    {currentServer.name}
+                  </span>
+                )}
+              </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 md:gap-2">
                 {servers.map((server) => {
                   const Icon = getServerIcon(server.name);
                   const isActive = currentServer?.name === server.name;
+                  const isWorking = workingServers.has(server.name);
                   return (
                     <button
                       key={server.name}
                       onClick={() => handleServerChange(server)}
                       className={cn(
-                        "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all border",
-                        isActive ? "bg-white/10 border-white/30 text-white" : "bg-[#1B1B1B] border-[#2A2A2A] text-[#9CA3AF] hover:bg-[#2A2A2A] hover:text-white"
+                        "flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium transition-all border relative",
+                        isActive
+                          ? "bg-white/8 border-white/20 text-white shadow-sm"
+                          : "bg-white/[0.02] border-white/[0.06] text-white/40 hover:bg-white/[0.06] hover:border-white/20 hover:text-white/70"
                       )}
                     >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <Icon className="w-3.5 h-3.5 flex-shrink-0 opacity-60" />
                       <span className="truncate">{server.name}</span>
+                      {isWorking && <span className="w-1 h-1 rounded-full bg-emerald-400/60 flex-shrink-0 ml-auto" />}
+                      {isActive && <span className="absolute inset-x-2 -bottom-px h-px bg-gradient-to-r from-accent/40 to-transparent" />}
                     </button>
                   );
                 })}
               </div>
-              {iframeLoaded && (
-                <p className="text-xs text-green-500/60 mt-2 flex items-center gap-1">
-                  <Wifi className="w-3 h-3" />
-                  Connected via {currentServer?.name}
-                </p>
-              )}
             </div>
           </div>
 

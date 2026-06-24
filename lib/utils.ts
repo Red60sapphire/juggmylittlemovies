@@ -16,7 +16,7 @@ export function getBackdropUrl(path: string | null) {
 }
 
 export function formatRating(vote: number) {
-  return (vote / 2).toFixed(1);
+  return `${(vote / 2).toFixed(1)} / 5`;
 }
 
 export function formatTime(seconds: number) {
