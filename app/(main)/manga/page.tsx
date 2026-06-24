@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Search, BookOpen, Star, ChevronRight, Ghost, TrendingUp, Trophy, Sparkles, ChevronDown, Globe, BookMarked } from "lucide-react";
+import { Search, BookOpen, ChevronRight, Ghost, TrendingUp, Sparkles, BookMarked } from "lucide-react";
 
 interface MangaItem {
   id: string;
@@ -86,15 +86,6 @@ function MangaCard({ manga, index }: { manga: MangaItem; index?: number }) {
         <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-surface mb-1.5 ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-accent/50 group-hover:shadow-xl group-hover:shadow-accent/20 group-hover:-translate-y-1">
           <CoverImage manga={manga} index={index} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/60 backdrop-blur-sm rounded-md text-[10px] font-bold text-yellow-400 flex items-center gap-0.5 shadow-lg">
-            <Star className="w-2.5 h-2.5 fill-yellow-400" />
-            {typeof manga.rating === "number" ? manga.rating.toFixed(1) : "?"}
-          </div>
-          {manga.source && (
-            <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 backdrop-blur-sm rounded-md text-[9px] font-medium text-white/50 uppercase tracking-wider shadow-lg">
-              {manga.source}
-            </div>
-          )}
         </div>
         <h3 className="text-xs font-semibold text-white/70 group-hover:text-white transition-colors truncate px-0.5 leading-snug">
           {manga.title}
@@ -124,10 +115,6 @@ function RankedMangaCard({ manga, rank }: { manga: MangaItem; rank: number }) {
       <div className="relative w-[120px] flex-shrink-0">
         <div className="aspect-[2/3] rounded-xl overflow-hidden bg-surface ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-accent/50 group-hover:-translate-y-1.5 group-hover:shadow-xl group-hover:shadow-accent/15">
           <CoverImage manga={manga} index={rank} />
-        </div>
-        <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 bg-black/60 backdrop-blur-sm rounded-md text-[10px] font-bold text-yellow-400 flex items-center gap-0.5 shadow-lg">
-          <Star className="w-2.5 h-2.5 fill-yellow-400" />
-          {typeof manga.rating === "number" ? manga.rating.toFixed(1) : "?"}
         </div>
       </div>
       <div className="min-w-0 pb-2">
@@ -185,13 +172,7 @@ function MangaHero({ manga }: { manga: MangaItem[] }) {
             <span className="px-2.5 py-0.5 bg-accent text-white text-[10px] font-bold rounded-full tracking-wider uppercase shadow-lg shadow-accent/20">
               Popular Manga
             </span>
-            {item.rating > 0 && (
-              <span className="flex items-center gap-1 text-yellow-400 text-xs font-semibold">
-                <Star className="w-3 h-3 fill-yellow-400" />{(item.rating).toFixed(1)}
-              </span>
-            )}
             {item.year && <span className="text-white/40 text-xs">{item.year}</span>}
-            {item.source && <span className="px-1.5 py-0.5 bg-white/10 rounded text-[9px] text-white/50 uppercase">{item.source}</span>}
           </motion.div>
 
           <motion.h1
