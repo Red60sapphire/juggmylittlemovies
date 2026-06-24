@@ -161,7 +161,7 @@ export default function MangaDetailPage({ params }: { params: Promise<{ id: stri
         <div className="w-[200px] flex-shrink-0 mx-auto md:mx-0">
           <div className="rounded-xl overflow-hidden ring-1 ring-white/[0.08] shadow-2xl shadow-black/50">
             {manga.coverUrl ? (
-              <img src={manga.coverUrl.replace(".256.", ".512.")} alt={manga.title} className="w-full" loading="lazy" />
+              <img src={manga.coverUrl} alt={manga.title} className="w-full" loading="lazy" />
             ) : (
               <div className="aspect-[2/3] flex items-center justify-center bg-surface">
                 <BookOpen className="w-10 h-10 text-white/20" />

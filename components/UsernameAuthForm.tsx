@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -131,25 +131,32 @@ export default function UsernameAuthForm({ mode }: UsernameAuthFormProps) {
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400/60 flex-shrink-0" />
                   {error}
                 </div>
-                {(error.toLowerCase().includes("table") || error.toLowerCase().includes("relation")) && (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      setLoading(true);
-                      const res = await fetch("/api/setup", { method: "POST" });
-                      const data = await res.json();
-                      setLoading(false);
-                      if (data.ok) {
-                        setError("Database set up! Try signing up again.");
-                      } else {
-                        setError("Setup failed: " + (data.error || "Unknown error. Ensure SUPABASE_SERVICE_ROLE_KEY is set in your environment variables."));
-                      }
-                    }}
-                    className="mt-2 w-full rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-semibold text-accent hover:bg-accent/20 transition-all"
-                  >
-                    Set up database (one click)
-                  </button>
-                )}
+                {error.toLowerCase().includes("table") || error.toLowerCase().includes("relation") || error.toLowerCase().includes("not exist") || error.toLowerCase().includes("set up") ? (
+                  <div className="space-y-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setLoading(true);
+                        const res = await fetch("/api/setup", { method: "POST" });
+                        const data = await res.json();
+                        setLoading(false);
+                        if (data.ok) {
+                          setError("Database ready! Try signing up again.");
+                        } else if (data.message) {
+                          setError(data.message);
+                        } else {
+                          setError("Setup failed: " + (data.error || "Ensure env vars are set."));
+                        }
+                      }}
+                      className="w-full rounded-xl border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-semibold text-accent hover:bg-accent/20 transition-all"
+                    >
+                      Check database & retry
+                    </button>
+                      <p className="text-[11px] text-white/30 text-center leading-relaxed">
+                        Tables are created via Supabase SQL Editor if auto-setup is unavailable.
+                      </p>
+                  </div>
+                ) : null}
               </motion.div>
             )}
 
