@@ -35,7 +35,7 @@ export const TV_GENRES = [
   { id: 53, name: "Thriller" },
 ];
 
-async function tmdbFetch(path: string, params = "") {
+export async function tmdbFetch(path: string, params = "") {
   const token = process.env.TMDB_ACCESS_TOKEN;
   if (!token || token === "placeholder") {
     return { results: [], page: 1, total_pages: 0, total_results: 0 };

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchMulti, searchMultiAllPages, searchMovies } from "@/lib/tmdb";
+import { searchMulti, searchMultiAllPages, searchMovies, tmdbFetch } from "@/lib/tmdb";
 import { rateLimit, sanitizeInput } from "@/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
@@ -18,12 +18,29 @@ export async function GET(request: NextRequest) {
   const genresParam = request.nextUrl.searchParams.get("genres") || "";
   const mediaType = request.nextUrl.searchParams.get("mediaType") || "";
   const sortBy = request.nextUrl.searchParams.get("sortBy") || "popularity";
+  const discover = request.nextUrl.searchParams.get("discover") === "true";
 
-  if (!query && !genresParam && !mediaType) {
+  if (!query && !genresParam && !mediaType && !discover) {
     return NextResponse.json({ error: "Missing query or filters" }, { status: 400 });
   }
 
   try {
+    // Discover mode for genre filtering
+    if (discover) {
+      const withGenres = request.nextUrl.searchParams.get("with_genres") || "";
+      const mediaTypeParam = mediaType || request.nextUrl.searchParams.get("type") || "movie";
+      const endpoint =
+        mediaTypeParam === "tv"
+          ? `/discover/tv?with_genres=${withGenres}&sort_by=popularity.desc&page=${page}`
+          : `/discover/movie?with_genres=${withGenres}&sort_by=popularity.desc&page=${page}`;
+      if (yearFrom) {
+        const dateField = mediaTypeParam === "tv" ? "first_air_date" : "release_date";
+        const suffix = `&${dateField}.gte=${yearFrom}-01-01`;
+      }
+      const data = await tmdbFetch(endpoint);
+      return NextResponse.json(data || { results: [] });
+    }
+
     let data;
     if (allPages && query) {
       data = await searchMultiAllPages(query);

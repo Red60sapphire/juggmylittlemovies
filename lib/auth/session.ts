@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-export const SESSION_COOKIE = "stremer_session";
+export const SESSION_COOKIE = "juggmylittlemovies_session";
 
 export interface AppSession {
   userId: string;
@@ -10,7 +10,7 @@ export interface AppSession {
 }
 
 function getSecret() {
-  return process.env.AUTH_SESSION_SECRET || "stremer-dev-fallback-secret-not-for-production";
+  return process.env.AUTH_SESSION_SECRET || "juggmylittlemovies-dev-fallback-secret-not-for-production";
 }
 
 function base64url(input: string | Buffer) {

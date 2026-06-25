@@ -7,7 +7,7 @@ import type { UserSettings } from "@/lib/settings";
 import Link from "next/link";
 import { Check, Wifi, WifiOff } from "lucide-react";
 
-const LOCAL_KEY = "stremer_settings";
+const LOCAL_KEY = "juggmylittlemovies_settings";
 
 const ACCENTS = [
   { name: "Purple", class: "bg-[#8b5cf6]", ring: "ring-[#8b5cf6]" },

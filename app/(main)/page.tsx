@@ -19,7 +19,7 @@ function HeroBannerFallback() {
           transition={{ duration: 0.6 }}
           className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight"
         >
-          Welcome to Stremer
+          Welcome to juggmylittlemovies
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 10 }}

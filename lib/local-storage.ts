@@ -1,4 +1,4 @@
-const WATCHLIST_KEY = "damovies_watchlist";
+const WATCHLIST_KEY = "juggmylittlemovies_watchlist";
 
 export function isInLocalWatchlist(movie_id: number): boolean {
   if (typeof window === "undefined") return false;
