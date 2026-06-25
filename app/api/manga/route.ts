@@ -36,9 +36,8 @@ export async function GET(request: NextRequest) {
     if (id) {
       const manga = await getMangaById(id);
       if (!manga) return NextResponse.json({ manga: null });
-      const fallbackCover = manga.coverUrl
-        ? null
-        : await getCoverWithFallback(manga.title, null);
+      const cover = await getCoverWithFallback(manga.title, null);
+      const fallbackCover = cover || manga.coverUrl;
       return NextResponse.json({ manga: toFrontend(manga, fallbackCover) });
     }
 

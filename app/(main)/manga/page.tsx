@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { proxyMangaImage } from "@/lib/utils";
 import { Search, BookOpen, ChevronRight, Ghost, TrendingUp, Sparkles, BookMarked } from "lucide-react";
 
 interface MangaItem {
@@ -54,10 +55,10 @@ function CoverImage({ manga, index, className = "" }: { manga: MangaItem; index?
   if (manga.coverUrl && !error) {
     return (
       <img
-        src={manga.coverUrl}
+        src={proxyMangaImage(manga.coverUrl)!}
         alt={manga.title}
         loading="lazy"
-        onError={() => setError(true)}
+        onError={(e) => { setError(true); (e.target as HTMLImageElement).src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"; }}
         className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${className}`}
       />
     );
@@ -146,7 +147,7 @@ function MangaHero({ manga }: { manga: MangaItem[] }) {
           className="absolute inset-0"
         >
           {item.coverUrl ? (
-            <img src={item.coverUrl} alt="" className="w-full h-full object-cover" />
+            <img src={proxyMangaImage(item.coverUrl)!} alt="" className="w-full h-full object-cover" onError={(e) => (e.target as HTMLImageElement).src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"} />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${getGradient(current)}`} />
           )}

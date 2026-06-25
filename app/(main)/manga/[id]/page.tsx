@@ -4,6 +4,7 @@ import { useState, useEffect, use, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import type { MangaTitle, MangaChapter } from "@/lib/mangadex";
+import { proxyMangaImage } from "@/lib/utils";
 import { BookOpen, ChevronLeft, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -119,24 +120,26 @@ export default function MangaDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           ) : pages.length > 0 ? (
             <div className="flex flex-col items-center">
-              {pages.map((url, i) => {
-                const isFailed = failedPages.has(i);
-                const dsUrl = pagesDataSaver[i];
-                return (
-                  <img
-                    key={i}
-                    src={isFailed && dsUrl ? dsUrl : url}
-                    alt={`Page ${i + 1}`}
-                    className="w-full h-auto"
-                    loading="lazy"
-                    onError={() => {
-                      if (!isFailed && dsUrl) {
-                        setFailedPages((prev) => new Set(prev).add(i));
-                      }
-                    }}
-                  />
-                );
-              })}
+                {pages.map((url, i) => {
+                  const isFailed = failedPages.has(i);
+                  const dsUrl = pagesDataSaver[i];
+                  const imgUrl = isFailed && dsUrl ? dsUrl : url;
+                  return (
+                    <img
+                      key={i}
+                      src={proxyMangaImage(imgUrl)!}
+                      alt={`Page ${i + 1}`}
+                      className="w-full h-auto"
+                      loading="lazy"
+                      onError={(e) => {
+                        if (!isFailed && dsUrl) {
+                          setFailedPages((prev) => new Set(prev).add(i));
+                        }
+                        (e.target as HTMLImageElement).src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+                      }}
+                    />
+                  );
+                })}
               <div className="flex items-center gap-4 py-6">
                 <button
                   onClick={() => navigateChapter("prev")}
@@ -177,7 +180,7 @@ export default function MangaDetailPage({ params }: { params: Promise<{ id: stri
         <div className="w-[200px] flex-shrink-0 mx-auto md:mx-0">
           <div className="rounded-xl overflow-hidden ring-1 ring-white/[0.08] shadow-2xl shadow-black/50">
             {manga.coverUrl && !coverError ? (
-              <img src={manga.coverUrl} alt={manga.title} className="w-full" loading="lazy" onError={() => setCoverError(true)} />
+              <img src={proxyMangaImage(manga.coverUrl)!} alt={manga.title} className="w-full" loading="lazy" onError={(e) => { setCoverError(true); (e.target as HTMLImageElement).src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"; }} />
             ) : (
               <div className="aspect-[2/3] flex items-center justify-center bg-surface">
                 <BookOpen className="w-10 h-10 text-white/20" />
