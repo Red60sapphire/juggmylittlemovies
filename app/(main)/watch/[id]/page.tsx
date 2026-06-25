@@ -15,7 +15,8 @@ import {
   Wifi, RefreshCw, AlertTriangle, Server, Tv, Film, Monitor, Users,
 } from "lucide-react";
 
-const LOAD_TIMEOUT = 7000;
+const LOAD_TIMEOUT = 5000;
+const SETTLE_DELAY = 3000;
 
 function getServerIcon(name: string): any {
   const lower = name.toLowerCase();
@@ -40,79 +41,76 @@ export default function WatchPage() {
   const [timedOut, setTimedOut] = useState(false);
   const [autoAdvancing, setAutoAdvancing] = useState(false);
   const [switchingSource, setSwitchingSource] = useState(false);
-  const [autoRetryCount, setAutoRetryCount] = useState(0);
+  const [settled, setSettled] = useState(false);
   const [workingServers, setWorkingServers] = useState<Set<string>>(new Set());
   const [isPlaying, setIsPlaying] = useState(false);
   const [partyError, setPartyError] = useState("");
   const [shareCopied, setShareCopied] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const timeoutRef = useRef<any>(null);
+  const settleRef = useRef<any>(null);
+  const currentServerRef = useRef<VideoSource | null>(null);
 
   const showToast = (msg: string) => { setToastMsg(msg); setTimeout(() => setToastMsg(""), 2500); };
-  const autoRetryRef = useRef<any>(null);
 
   const movieId = parseInt(params.id as string);
 
   const clearTimeout_ = () => {
     if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
-    if (autoRetryRef.current) { clearTimeout(autoRetryRef.current); autoRetryRef.current = null; }
+    if (settleRef.current) { clearTimeout(settleRef.current); settleRef.current = null; }
   };
 
   const tryServer = useCallback((index: number) => {
-    if (index >= servers.length) { setIframeError(true); setAutoAdvancing(false); setSwitchingSource(false); return; }
+    if (servers.length === 0) { setIframeError(true); setAutoAdvancing(false); setSwitchingSource(false); return; }
+    const safeIndex = index % servers.length;
     clearTimeout_();
-    setServerIndex(index);
-    setCurrentServer(servers[index]);
+    setSettled(false);
+    setServerIndex(safeIndex);
+    setCurrentServer(servers[safeIndex]);
+    currentServerRef.current = servers[safeIndex];
     setIframeLoaded(false);
     setIframeError(false);
     setTimedOut(false);
     setIsPlaying(false);
     setAutoAdvancing(false);
+    setSwitchingSource(false);
     timeoutRef.current = setTimeout(() => setTimedOut(true), LOAD_TIMEOUT);
   }, [servers]);
 
-  // Auto-retry: when timed out, try next server after 3s
+  // Auto-advance on timeout: try next server with wrap-around
   useEffect(() => {
-    if (timedOut && !iframeLoaded && serverIndex < servers.length - 1) {
-      setAutoRetryCount((c) => c + 1);
-      autoRetryRef.current = setTimeout(() => {
-        setSwitchingSource(true);
-        tryServer(serverIndex + 1);
-      }, 3000);
-      return () => { if (autoRetryRef.current) clearTimeout(autoRetryRef.current); };
+    if (timedOut && !autoAdvancing) {
+      setSwitchingSource(true);
+      tryServer(serverIndex + 1);
     }
-  }, [timedOut, iframeLoaded, serverIndex, servers.length]);
+  }, [timedOut, autoAdvancing, serverIndex, tryServer]);
 
-  // Auto-retry: when iframe errors, try next server after 1.5s
+  // Auto-advance on iframe error: try next server with wrap-around
   useEffect(() => {
-    if (iframeError && !iframeLoaded && serverIndex < servers.length - 1) {
-      autoRetryRef.current = setTimeout(() => {
-        setSwitchingSource(true);
-        tryServer(serverIndex + 1);
-      }, 1500);
-      return () => { if (autoRetryRef.current) clearTimeout(autoRetryRef.current); };
+    if (iframeError && !autoAdvancing) {
+      setSwitchingSource(true);
+      tryServer(serverIndex + 1);
     }
-  }, [iframeError, iframeLoaded, serverIndex, servers.length]);
+  }, [iframeError, autoAdvancing, serverIndex, tryServer]);
 
   useEffect(() => {
-    const availableServers = getServersForMovie(movieId);
-    const saved = sessionStorage.getItem("working_servers");
-    const working = saved ? new Set<string>(JSON.parse(saved)) : new Set<string>();
-    const sorted = [...availableServers].sort((a, b) => {
-      const aW = working.has(a.name) ? 0 : 1;
-      const bW = working.has(b.name) ? 0 : 1;
-      return aW - bW;
-    });
-    setServers(sorted);
-    setWorkingServers(working);
-    const idx = sorted.findIndex((s) => working.has(s.name));
-    tryServer(idx >= 0 ? idx : 0);
-
     fetch(`/api/tmdb/movie/${movieId}`)
       .then((r) => r.json())
       .then((data) => {
         setMovie(data);
         addToLocalHistory(movieId, data.title || data.name || "Unknown", data.poster_path, data.backdrop_path);
+        const availableServers = getServersForMovie(movieId, data.imdb_id);
+        const saved = sessionStorage.getItem("working_servers");
+        const working = saved ? new Set<string>(JSON.parse(saved)) : new Set<string>();
+        const sorted = [...availableServers].sort((a, b) => {
+          const aW = working.has(a.name) ? 0 : 1;
+          const bW = working.has(b.name) ? 0 : 1;
+          return aW - bW;
+        });
+        setServers(sorted);
+        setWorkingServers(working);
+        const idx = sorted.findIndex((s) => working.has(s.name));
+        tryServer(idx >= 0 ? idx : 0);
       })
       .catch(() => {});
 
@@ -129,17 +127,25 @@ export default function WatchPage() {
     setIframeLoaded(true);
     setIframeError(false);
     setAutoAdvancing(false);
-    if (currentServer) {
-      const updated = new Set(workingServers);
-      updated.add(currentServer.name);
-      setWorkingServers(updated);
-      sessionStorage.setItem("working_servers", JSON.stringify([...updated]));
-    }
+    // Don't mark as working yet — wait for settle period
+    settleRef.current = setTimeout(() => {
+      setSettled(true);
+      const server = currentServerRef.current;
+      if (server) {
+        setWorkingServers((prev) => {
+          const updated = new Set(prev);
+          updated.add(server.name);
+          sessionStorage.setItem("working_servers", JSON.stringify([...updated]));
+          return updated;
+        });
+      }
+    }, SETTLE_DELAY);
   };
 
   const autoAdvance = () => {
     if (autoAdvancing) return;
     setAutoAdvancing(true);
+    clearTimeout_();
     tryServer(serverIndex + 1);
   };
 
@@ -229,6 +235,10 @@ export default function WatchPage() {
                         </p>
                         <p className="text-xs text-white/30 mt-1">{currentServer.name}</p>
                       </div>
+                      <button onClick={autoAdvance} className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white/60 text-xs font-semibold rounded-xl hover:bg-white/20 active:scale-95 transition-all border border-white/10">
+                        <SkipForward className="w-3 h-3" />
+                        Skip
+                      </button>
                     </div>
                   )}
 
@@ -282,6 +292,18 @@ export default function WatchPage() {
                       </div>
                     </div>
                   )}
+
+                  {iframeLoaded && !settled && !timedOut && !iframeError && (
+                    <div className="absolute bottom-3 right-3 z-20 flex items-center gap-2">
+                      <div className="px-3 py-1.5 bg-black/70 backdrop-blur-md rounded-lg text-xs font-medium text-white/50 flex items-center gap-2 border border-white/10">
+                        <div className="w-2 h-2 rounded-full bg-yellow-400/60 animate-pulse" />
+                        Verifying...
+                      </div>
+                      <button onClick={autoAdvance} className="px-3 py-1.5 bg-white/10 text-white/70 text-xs font-semibold rounded-lg hover:bg-white/20 active:scale-95 transition-all border border-white/10">
+                        Skip
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
 
@@ -296,7 +318,7 @@ export default function WatchPage() {
             </div>
 
             <div className="flex items-center gap-3 px-4 py-2.5 bg-[#0a0a0f] border-t border-white/[0.04]">
-              {currentServer && iframeLoaded && (
+              {currentServer && iframeLoaded && settled && (
                 <div className="flex items-center gap-2 text-xs text-emerald-400/60">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   Live
@@ -350,10 +372,10 @@ export default function WatchPage() {
                 <button
                   onClick={() => {
                     if (typeof window !== "undefined") {
-                      const wl = JSON.parse(localStorage.getItem("stremer_watchlist") || "[]");
+                      const wl = JSON.parse(localStorage.getItem("juggmylittlemovies_watchlist") || "[]");
                       if (!wl.includes(movieId)) {
                         wl.push(movieId);
-                        localStorage.setItem("stremer_watchlist", JSON.stringify(wl));
+                        localStorage.setItem("juggmylittlemovies_watchlist", JSON.stringify(wl));
                         showToast("Added to watchlist");
                       } else {
                         showToast("Already in watchlist");

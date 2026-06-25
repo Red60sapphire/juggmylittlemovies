@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Could not create account: ${msg || "Unknown error."}` }, { status: 500 });
   }
 
-  // Stremer deliberately uses username/password accounts without Supabase email auth.
+  // juggmylittlemovies deliberately uses username/password accounts without Supabase email auth.
   // This signed cookie is verified by Route Handlers, which then use the service role
   // client with explicit user_id checks instead of depending on auth.uid() RLS.
   await setSession({ userId: profile.id, username: profile.username, issuedAt: Date.now() });

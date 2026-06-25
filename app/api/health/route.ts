@@ -8,6 +8,7 @@ const REQUIRED_TABLES = [
   "watch_party_participants",
   "watch_party_messages",
   "watch_party_kicks",
+  "watch_party_sync_state",
 ];
 
 export async function GET() {

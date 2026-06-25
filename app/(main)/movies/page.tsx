@@ -1,35 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import HorizontalSlider from "@/components/HorizontalSlider";
 import MovieCard from "@/components/MovieCard";
 import type { Movie } from "@/types";
 import { MOVIE_GENRES } from "@/lib/tmdb";
-import { ArrowUpRight, Film, TrendingUp, Star, Sparkles } from "lucide-react";
 import Link from "next/link";
-
-const GENRE_ACCENTS: Record<string, string> = {
-  Action: "bg-accent-rose",
-  Adventure: "bg-accent-amber",
-  Animation: "bg-accent",
-  Comedy: "bg-accent-amber",
-  Crime: "bg-accent-cyan",
-  Documentary: "bg-accent-emerald",
-  Drama: "bg-accent",
-  Family: "bg-accent-pink",
-  Fantasy: "bg-accent",
-  History: "bg-accent-amber",
-  Horror: "bg-accent-rose",
-  Music: "bg-accent-pink",
-  Mystery: "bg-accent-cyan",
-  Romance: "bg-accent-pink",
-  "Science Fiction": "bg-accent-cyan",
-  "TV Movie": "bg-accent-amber",
-  Thriller: "bg-accent-rose",
-  War: "bg-accent-rose",
-  Western: "bg-accent-amber",
-};
 
 function GenreRow({ genreId, genreName }: { genreId: number; genreName: string }) {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -49,28 +25,10 @@ function GenreRow({ genreId, genreName }: { genreId: number; genreName: string }
     <HorizontalSlider
       title={genreName}
       items={movies}
-      accentColor={GENRE_ACCENTS[genreName] || "bg-accent"}
       renderCard={(movie, i) => <MovieCard movie={movie} index={i} />}
     />
   );
 }
-
-const VIBRANT_GENRE_COLORS: Record<string, string> = {
-  Action: "from-red-600/20 via-red-800/10 to-transparent",
-  Adventure: "from-amber-600/20 via-amber-800/10 to-transparent",
-  Animation: "from-blue-600/20 via-blue-800/10 to-transparent",
-  Comedy: "from-yellow-600/20 via-yellow-800/10 to-transparent",
-  Crime: "from-slate-600/20 via-slate-800/10 to-transparent",
-  Documentary: "from-emerald-600/20 via-emerald-800/10 to-transparent",
-  Drama: "from-violet-600/20 via-violet-800/10 to-transparent",
-  Family: "from-pink-600/20 via-pink-800/10 to-transparent",
-  Fantasy: "from-purple-600/20 via-purple-800/10 to-transparent",
-  Horror: "from-rose-900/30 via-rose-800/10 to-transparent",
-  Mystery: "from-indigo-600/20 via-indigo-800/10 to-transparent",
-  Romance: "from-pink-500/20 via-pink-700/10 to-transparent",
-  "Sci-Fi": "from-cyan-600/20 via-cyan-800/10 to-transparent",
-  Thriller: "from-orange-600/20 via-orange-800/10 to-transparent",
-};
 
 export default function MoviesPage() {
   const [trending, setTrending] = useState<Movie[]>([]);
@@ -83,73 +41,35 @@ export default function MoviesPage() {
   }, []);
 
   return (
-    <div className="space-y-0.5 animate-fade-in">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-3 mb-6"
-      >
-        <div className="w-1 h-6 bg-accent rounded-full" />
-        <Film className="w-5 h-5 text-accent" />
-        <h1 className="text-xl font-bold text-white tracking-tight">Movies</h1>
-        <Sparkles className="w-4 h-4 text-yellow-400/60" />
-      </motion.div>
+    <div className="space-y-6 animate-fade-in">
+      <h1 className="text-xl font-bold text-white">Movies</h1>
 
-      {/* Trending row */}
       {trending.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          <HorizontalSlider
-            title="Trending Movies"
-            items={trending}
-            renderCard={(movie, i) => <MovieCard movie={movie} index={i} />}
-          />
-        </motion.div>
+        <HorizontalSlider
+          title="Trending"
+          items={trending}
+          renderCard={(movie, i) => <MovieCard movie={movie} index={i} />}
+        />
       )}
 
-      {/* Genre rows with vibrant headers */}
-      <div className="space-y-0.5">
+      <div className="space-y-4">
         {MOVIE_GENRES.map((genre) => (
-          <motion.div
-            key={genre.id}
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.4 }}
-          >
-            <GenreRow genreId={genre.id} genreName={genre.name} />
-          </motion.div>
+          <GenreRow key={genre.id} genreId={genre.id} genreName={genre.name} />
         ))}
       </div>
 
-      <div className="mx-3 my-6 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+      <div className="h-px bg-border/50" />
 
-      {/* Genre grid */}
-      <section className="mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-1 h-5 bg-accent rounded-full" />
-          <TrendingUp className="w-4 h-4 text-accent" />
-          <h2 className="text-lg font-bold text-white tracking-tight">Browse by Genre</h2>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <section>
+        <h2 className="text-base font-bold text-white mb-3">All Genres</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
           {MOVIE_GENRES.map((genre) => (
             <Link
               key={genre.id}
               href={`/search?genre=${genre.id}&type=movie`}
-              className="group relative overflow-hidden rounded-xl transition-all duration-300 hover:scale-[1.02]"
+              className="block px-4 py-3 rounded-lg bg-white/[0.03] border border-border hover:border-white/30 hover:bg-white/[0.06] transition-all text-sm font-medium text-muted hover:text-white"
             >
-              <div className="absolute inset-0 bg-white/[0.02] border border-border group-hover:border-accent/40 rounded-xl transition-colors" />
-              <div className={`absolute inset-0 bg-gradient-to-br ${VIBRANT_GENRE_COLORS[genre.name] || "from-accent/10 to-transparent"} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl`} />
-              <div className="relative flex items-center justify-between px-4 py-3.5">
-                <span className="text-sm font-semibold text-white/50 group-hover:text-white transition-colors">
-                  {genre.name}
-                </span>
-                <ArrowUpRight className="w-4 h-4 text-white/15 group-hover:text-accent transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </div>
+              {genre.name}
             </Link>
           ))}
         </div>

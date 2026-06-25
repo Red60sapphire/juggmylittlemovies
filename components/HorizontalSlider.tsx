@@ -3,6 +3,7 @@
 import { useRef, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { RowSkeleton } from "./skeletons";
 
 interface Props<T> {
   title: string;
@@ -10,11 +11,12 @@ interface Props<T> {
   renderCard: (item: T, index: number) => React.ReactNode;
   className?: string;
   accentColor?: string;
+  loading?: boolean;
 }
 
 const ACCENT_COLORS = ["bg-accent", "bg-accent-rose", "bg-accent-amber", "bg-accent-emerald", "bg-accent-cyan", "bg-accent-pink"];
 
-export default function HorizontalSlider<T>({ title, items, renderCard, className = "", accentColor }: Props<T>) {
+export default function HorizontalSlider<T>({ title, items, renderCard, className = "", accentColor, loading }: Props<T>) {
   const rowRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
@@ -35,6 +37,8 @@ export default function HorizontalSlider<T>({ title, items, renderCard, classNam
     el.scrollBy({ left: dir === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
     setTimeout(updateArrows, 350);
   };
+
+  if (loading) return <RowSkeleton />;
 
   if (!items.length) return null;
 

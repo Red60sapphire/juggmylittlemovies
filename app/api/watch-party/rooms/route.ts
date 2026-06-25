@@ -90,5 +90,10 @@ export async function POST(request: NextRequest) {
     role: "host",
   });
 
+  await supabase.from("watch_party_sync_state").upsert(
+    { room_id: room.id, state: "pause", position: 0, updated_at: new Date().toISOString() },
+    { onConflict: "room_id", ignoreDuplicates: false }
+  );
+
   return NextResponse.json({ roomId: room.id, code: room.code, displayName: hostName, hostKey });
 }

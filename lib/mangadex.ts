@@ -154,7 +154,14 @@ export async function getMangaChapters(mangaId: string, offset = 0, limit = 100)
   return { chapters, total: data.total };
 }
 
-export async function getChapterPages(chapterId: string): Promise<{ pages: string[]; baseUrl: string } | null> {
+export interface ChapterPagesResult {
+  pages: string[];
+  pagesDataSaver: string[];
+  baseUrl: string;
+  hash: string;
+}
+
+export async function getChapterPages(chapterId: string): Promise<ChapterPagesResult | null> {
   const data = await mdFetch(`/at-home/server/${chapterId}`);
   if (!data) return null;
 
@@ -163,11 +170,14 @@ export async function getChapterPages(chapterId: string): Promise<{ pages: strin
   if (!chapter) return null;
 
   const hash = chapter.hash;
-  const pages: string[] = (chapter.data || []).map(
+  const pages = (chapter.data || []).map(
     (f: string) => `${baseUrl}/data/${hash}/${f}`
   );
+  const pagesDataSaver = (chapter.dataSaver || []).map(
+    (f: string) => `${baseUrl}/data-saver/${hash}/${f}`
+  );
 
-  return { pages, baseUrl };
+  return { pages, pagesDataSaver, baseUrl, hash };
 }
 
 export const MANGA_GENRES = [

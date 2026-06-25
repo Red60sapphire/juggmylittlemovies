@@ -14,7 +14,8 @@ import {
   List, Grid3X3, ChevronDown,
 } from "lucide-react";
 
-const LOAD_TIMEOUT = 7000;
+const LOAD_TIMEOUT = 5000;
+const SETTLE_DELAY = 3000;
 
 function getServerIcon(name: string): any {
   const lower = name.toLowerCase();
@@ -64,6 +65,7 @@ export default function TvWatchPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [autoAdvancing, setAutoAdvancing] = useState(false);
   const [switchingSource, setSwitchingSource] = useState(false);
+  const [settled, setSettled] = useState(false);
   const [workingServers, setWorkingServers] = useState<Set<string>>(new Set());
   const [isBlocked, setIsBlocked] = useState(false);
   const [episodes, setEpisodes] = useState<EpisodeInfo[]>([]);
@@ -73,27 +75,35 @@ export default function TvWatchPage() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [showSeasonDropdown, setShowSeasonDropdown] = useState(false);
   const timeoutRef = useRef<any>(null);
+  const settleRef = useRef<any>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const imdbIdRef = useRef<string | undefined>(undefined);
+  const currentServerRef = useRef<VideoSource | null>(null);
 
   const clearTimeout_ = () => {
     if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
+    if (settleRef.current) { clearTimeout(settleRef.current); settleRef.current = null; }
   };
 
   const tryServer = useCallback((index: number) => {
     if (servers.length === 0) { setIframeError(true); setAutoAdvancing(false); return; }
     const safeIndex = index % servers.length;
     clearTimeout_();
+    setSettled(false);
     setServerIndex(safeIndex);
     setCurrentServer(servers[safeIndex]);
+    currentServerRef.current = servers[safeIndex];
     setIframeLoaded(false);
     setIframeError(false);
     setTimedOut(false);
+    setSwitchingSource(false);
     timeoutRef.current = setTimeout(() => setTimedOut(true), LOAD_TIMEOUT);
   }, [servers]);
 
   const loadEpisode = useCallback((season: number, episode: number) => {
     setSelectedSeason(season);
     setActiveEpisode(episode);
+    setSettled(false);
     setIframeLoaded(false);
     setIframeError(false);
     setTimedOut(false);
@@ -102,20 +112,20 @@ export default function TvWatchPage() {
 
     window.history.replaceState({}, '', `/watch/tv/${tvId}/${season}/${episode}`);
 
-    const availableServers = getServersForTV(tvId, season, episode);
+    const availableServers = getServersForTV(tvId, season, episode, imdbIdRef.current);
     const saved = sessionStorage.getItem("working_servers");
     const working = saved ? new Set<string>(JSON.parse(saved)) : new Set<string>();
     const sorted = [...availableServers].sort((a, b) => {
-      const aZynema = a.name === "Juggmylittlemovies" ? 0 : 1;
-      const bZynema = b.name === "Juggmylittlemovies" ? 0 : 1;
-      if (aZynema !== bZynema) return aZynema - bZynema;
+      const aPrimary = a.name.toLowerCase().includes("juggmylittlemovies") ? 0 : 1;
+      const bPrimary = b.name.toLowerCase().includes("juggmylittlemovies") ? 0 : 1;
+      if (aPrimary !== bPrimary) return aPrimary - bPrimary;
       const aW = working.has(a.name) ? 0 : 1;
       const bW = working.has(b.name) ? 0 : 1;
       return aW - bW;
     });
     setServers(sorted);
     setWorkingServers(working);
-    const idx = sorted.findIndex((s) => s.name === "Juggmylittlemovies" || working.has(s.name));
+    const idx = sorted.findIndex((s) => s.name.toLowerCase().includes("juggmylittlemovies") || working.has(s.name));
     const initialIndex = idx >= 0 ? idx : 0;
 
     clearTimeout_();
@@ -157,6 +167,7 @@ export default function TvWatchPage() {
       .then((r) => r.json())
       .then((data) => {
         setTvShow(data);
+        imdbIdRef.current = data.imdb_id || undefined;
         if (data.seasons) {
           setSeasons(data.seasons.filter((s: SeasonInfo) => s.season_number > 0));
         }
@@ -193,17 +204,24 @@ export default function TvWatchPage() {
     setIframeLoaded(true);
     setIframeError(false);
     setAutoAdvancing(false);
-    if (currentServer) {
-      const updated = new Set(workingServers);
-      updated.add(currentServer.name);
-      setWorkingServers(updated);
-      sessionStorage.setItem("working_servers", JSON.stringify([...updated]));
-    }
+    settleRef.current = setTimeout(() => {
+      setSettled(true);
+      const server = currentServerRef.current;
+      if (server) {
+        setWorkingServers((prev) => {
+          const updated = new Set(prev);
+          updated.add(server.name);
+          sessionStorage.setItem("working_servers", JSON.stringify([...updated]));
+          return updated;
+        });
+      }
+    }, SETTLE_DELAY);
   };
 
   const autoAdvance = () => {
     if (autoAdvancing) return;
     setAutoAdvancing(true);
+    clearTimeout_();
     tryServer(serverIndex + 1);
   };
 
@@ -221,10 +239,10 @@ export default function TvWatchPage() {
   };
 
   useEffect(() => {
-    if ((timedOut || iframeError) && !autoAdvancing && currentServer) {
+    if ((timedOut || iframeError) && !autoAdvancing) {
       autoAdvance();
     }
-  }, [timedOut, iframeError, autoAdvancing, currentServer]);
+  }, [timedOut, iframeError, autoAdvancing]);
 
   const [inWatchlist, setInWatchlist] = useState(false);
   const [shareToast, setShareToast] = useState(false);
@@ -324,6 +342,10 @@ export default function TvWatchPage() {
                         </p>
                         <p className="text-xs text-white/30 mt-1">{currentServer.name}</p>
                       </div>
+                      <button onClick={autoAdvance} className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white/60 text-xs font-semibold rounded-xl hover:bg-white/20 active:scale-95 transition-all border border-white/10">
+                        <SkipForward className="w-3 h-3" />
+                        Skip
+                      </button>
                     </div>
                   )}
 
@@ -377,6 +399,18 @@ export default function TvWatchPage() {
                       </div>
                     </div>
                   )}
+
+                  {iframeLoaded && !settled && !timedOut && !iframeError && (
+                    <div className="absolute bottom-3 right-3 z-20 flex items-center gap-2">
+                      <div className="px-3 py-1.5 bg-black/70 backdrop-blur-md rounded-lg text-xs font-medium text-white/50 flex items-center gap-2 border border-white/10">
+                        <div className="w-2 h-2 rounded-full bg-yellow-400/60 animate-pulse" />
+                        Verifying...
+                      </div>
+                      <button onClick={autoAdvance} className="px-3 py-1.5 bg-white/10 text-white/70 text-xs font-semibold rounded-lg hover:bg-white/20 active:scale-95 transition-all border border-white/10">
+                        Skip
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
 
@@ -391,7 +425,7 @@ export default function TvWatchPage() {
             </div>
 
             <div className="flex items-center gap-3 px-4 py-2.5 bg-[#0a0a0f] border-t border-white/[0.04]">
-              {currentServer && iframeLoaded && (
+              {currentServer && iframeLoaded && settled && (
                 <div className="flex items-center gap-2 text-xs text-emerald-400/60">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   Live

@@ -2,40 +2,40 @@ const TMDB_BASE = "https://api.themoviedb.org/3";
 
 export const SIMPLE_GENRES = [
   { id: 28, name: "Action" },
-  { id: 12, name: "Adventure" },
-  { id: 16, name: "Animation" },
   { id: 35, name: "Comedy" },
-  { id: 80, name: "Crime" },
-  { id: 99, name: "Documentary" },
-  { id: 18, name: "Drama" },
-  { id: 10751, name: "Family" },
-  { id: 14, name: "Fantasy" },
   { id: 27, name: "Horror" },
-  { id: 9648, name: "Mystery" },
-  { id: 10749, name: "Romance" },
   { id: 878, name: "Sci-Fi" },
   { id: 53, name: "Thriller" },
+  { id: 14, name: "Fantasy" },
+  { id: 10749, name: "Romance" },
+  { id: 12, name: "Adventure" },
+  { id: 80, name: "Crime" },
+  { id: 9648, name: "Mystery" },
+  { id: 10751, name: "Family" },
+  { id: 16, name: "Animation" },
+  { id: 18, name: "Drama" },
+  { id: 99, name: "Documentary" },
 ];
 
 export const MOVIE_GENRES = SIMPLE_GENRES;
 
 export const TV_GENRES = [
   { id: 10759, name: "Action & Adventure" },
-  { id: 16, name: "Animation" },
   { id: 35, name: "Comedy" },
-  { id: 80, name: "Crime" },
-  { id: 99, name: "Documentary" },
-  { id: 18, name: "Drama" },
-  { id: 10751, name: "Family" },
-  { id: 14, name: "Fantasy" },
   { id: 27, name: "Horror" },
-  { id: 9648, name: "Mystery" },
-  { id: 10749, name: "Romance" },
   { id: 878, name: "Sci-Fi" },
   { id: 53, name: "Thriller" },
+  { id: 80, name: "Crime" },
+  { id: 14, name: "Fantasy" },
+  { id: 9648, name: "Mystery" },
+  { id: 10749, name: "Romance" },
+  { id: 10751, name: "Family" },
+  { id: 16, name: "Animation" },
+  { id: 18, name: "Drama" },
+  { id: 99, name: "Documentary" },
 ];
 
-async function tmdbFetch(path: string, params = "") {
+export async function tmdbFetch(path: string, params = "") {
   const token = process.env.TMDB_ACCESS_TOKEN;
   if (!token || token === "placeholder") {
     return { results: [], page: 1, total_pages: 0, total_results: 0 };

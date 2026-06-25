@@ -5,7 +5,6 @@ import HorizontalSlider from "@/components/HorizontalSlider";
 import MovieCard from "@/components/MovieCard";
 import type { Movie } from "@/types";
 import { TV_GENRES } from "@/lib/tmdb";
-import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 function GenreRow({ genreId, genreName }: { genreId: number; genreName: string }) {
@@ -33,38 +32,27 @@ function GenreRow({ genreId, genreName }: { genreId: number; genreName: string }
 
 export default function TVShowsPage() {
   return (
-    <div className="space-y-0.5 animate-fade-in">
-      <div className="flex items-center gap-2 mb-5">
-        <div className="w-0.5 h-5 bg-accent rounded-full" />
-        <h1 className="text-xl font-bold text-white tracking-tight">TV Shows</h1>
-      </div>
+    <div className="space-y-6 animate-fade-in">
+      <h1 className="text-xl font-bold text-white">TV Shows</h1>
 
-      <div className="space-y-0.5">
+      <div className="space-y-4">
         {TV_GENRES.map((genre) => (
-          <div key={genre.id}>
-            <GenreRow genreId={genre.id} genreName={genre.name} />
-          </div>
+          <GenreRow key={genre.id} genreId={genre.id} genreName={genre.name} />
         ))}
       </div>
 
-      <div className="mx-3 my-4 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+      <div className="h-px bg-border/50" />
 
-      <section className="mb-6">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-0.5 h-4 bg-accent rounded-full" />
-          <h2 className="text-base font-bold text-white tracking-tight">All Genres</h2>
-        </div>
+      <section>
+        <h2 className="text-base font-bold text-white mb-3">All Genres</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
           {TV_GENRES.map((genre) => (
             <Link
               key={genre.id}
               href={`/search?genre=${genre.id}&type=tv`}
-              className="flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-white/[0.03] border border-border hover:border-accent/30 hover:bg-accent-muted transition-all group"
+              className="block px-4 py-3 rounded-lg bg-white/[0.03] border border-border hover:border-white/30 hover:bg-white/[0.06] transition-all text-sm font-medium text-muted hover:text-white"
             >
-              <span className="text-sm font-medium text-muted group-hover:text-white transition-colors">
-                {genre.name}
-              </span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-white/15 group-hover:text-accent transition-colors" />
+              {genre.name}
             </Link>
           ))}
         </div>

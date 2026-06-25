@@ -26,6 +26,13 @@ export function formatTime(seconds: number) {
   return `${m}m`;
 }
 
+export function proxyMangaImage(url: string | null): string | null {
+  if (!url) return null;
+  if (url.startsWith("/api/")) return url;
+  if (!url.includes("mangadex")) return url;
+  return `/api/manga/proxy?url=${encodeURIComponent(url)}`;
+}
+
 export function formatDate(dateStr?: string) {
   if (!dateStr) return "";
   return new Date(dateStr).toLocaleDateString("en-US", {

@@ -97,6 +97,7 @@ export interface MovieDetails {
   runtime?: number;
   genres?: { id: number; name: string }[];
   status?: string;
+  imdb_id?: string;
   production_companies?: { id: number; name: string; logo_path: string | null }[];
   credits?: { cast: CastMember[] };
   videos?: { results: Trailer[] };

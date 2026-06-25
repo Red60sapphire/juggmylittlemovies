@@ -29,7 +29,17 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
     .order("created_at", { ascending: true })
     .limit(100);
 
+  const { data: syncState } = await supabase
+    .from("watch_party_sync_state")
+    .select("state, position, updated_at")
+    .eq("room_id", id)
+    .maybeSingle();
+
   const session = await getSession();
   const isHost = Boolean(session?.userId && session.userId === room.host_user_id);
-  return NextResponse.json({ room, participants: participants || [], messages: messages || [], isHost, user: session });
+  return NextResponse.json({
+    room, sync: syncState || null,
+    participants: participants || [], messages: messages || [],
+    isHost, user: session,
+  });
 }

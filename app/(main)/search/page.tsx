@@ -203,6 +203,8 @@ function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get("q") || "";
+  const genreParam = searchParams.get("genre") || "";
+  const typeParam = searchParams.get("type") || "";
 
   const [inputValue, setInputValue] = useState(query);
   const [results, setResults] = useState<Movie[]>([]);
@@ -211,20 +213,34 @@ function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
-  const [appliedFilters, setAppliedFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
+  const [appliedFilters, setAppliedFilters] = useState<SearchFilters>({
+    ...DEFAULT_FILTERS,
+    mediaType: typeParam,
+    genres: genreParam ? [parseInt(genreParam)].filter(n => !isNaN(n)) : [],
+  });
   const debouncedInput = useDebounce(inputValue, 350);
   const initialLoadDone = useRef(false);
+
+  const genreName = genreParam ? SIMPLE_GENRES.find(g => g.id === parseInt(genreParam))?.name || "" : "";
 
   const buildSearchUrl = useCallback((q: string, f: SearchFilters) => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (f.yearFrom) params.set("yearFrom", f.yearFrom);
     if (f.yearTo) params.set("yearTo", f.yearTo);
-    if (f.genres.length) params.set("genres", f.genres.join(","));
+    if (f.genres.length) {
+      params.set("genres", f.genres.join(","));
+      params.set("with_genres", f.genres.join(","));
+    }
     if (f.minRating) params.set("minRating", f.minRating);
-    if (f.mediaType) params.set("mediaType", f.mediaType);
+    if (f.mediaType) {
+      params.set("mediaType", f.mediaType);
+      params.set("type", f.mediaType);
+    }
     if (f.sortBy && f.sortBy !== "popularity") params.set("sortBy", f.sortBy);
-    return `/api/tmdb/search?all=true&${params.toString()}`;
+    if (params.has("with_genres")) params.set("sort_by", "popularity.desc");
+    const suffix = params.has("with_genres") ? "&discover=true" : "";
+    return `/api/tmdb/search?all=true&${params.toString()}${suffix}`;
   }, []);
 
   useEffect(() => {
