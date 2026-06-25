@@ -85,3 +85,24 @@ export async function getCoverWithFallback(
 
   return null;
 }
+
+// ── Batch cover map for list pages ───────────────────────────────────────────
+export async function getBatchCoverMap(
+  items: { id: string; title: string }[]
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+
+  const results = await Promise.allSettled(
+    items.map(item =>
+      fromAniList(item.title).then(cover => ({ id: item.id, cover }))
+    )
+  );
+
+  for (const result of results) {
+    if (result.status === "fulfilled" && result.value.cover) {
+      map.set(result.value.id, result.value.cover);
+    }
+  }
+
+  return map;
+}

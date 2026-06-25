@@ -222,7 +222,7 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
           <div className={cn(
             "mx-2 mt-6 rounded-xl overflow-hidden",
             collapsed ? "px-0" : "p-3",
-            "bg-white/[0.03] border border-border/60"
+            "bg-white/[0.03] border border-white/[0.06]"
           )}>
             {!collapsed && (
               <>
@@ -232,14 +232,14 @@ export default function Sidebar({ collapsed, onToggle, mobile }: Props) {
                 </div>
                 <Link
                   href="/login"
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group border border-border hover:border-accent/40 hover:bg-accent-muted text-muted hover:text-white mb-1.5"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/20 text-white/50 hover:text-white mb-1.5"
                 >
-                  <LogIn className="w-5 h-5 flex-shrink-0 group-hover:text-accent transition-colors" />
+                  <LogIn className="w-5 h-5 flex-shrink-0" />
                   <span className="truncate">Log in</span>
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 bg-accent hover:bg-accent-hover text-white"
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 hover:border-accent/60"
                 >
                   <UserPlus className="w-5 h-5 flex-shrink-0" />
                   <span>Sign up</span>
