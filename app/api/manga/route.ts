@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getMangaList, getMangaById } from "@/lib/mangadex";
-import { getCoverWithFallback } from "@/lib/cover-fallback";
+import { getCoverWithFallback, getBatchCoverMap } from "@/lib/cover-fallback";
 import { rateLimit } from "@/lib/rate-limit";
 
 function toFrontend(m: any, coverFallback?: string | null) {
@@ -42,8 +42,18 @@ export async function GET(request: NextRequest) {
     }
 
     const result = await getMangaList(offset, 50, query);
+    const mangaList = result.manga;
+
+    const coverMap = await getBatchCoverMap(
+      mangaList.map((m: any) => ({ id: m.id, title: m.title }))
+    );
+
+    const enriched = mangaList.map((m: any) =>
+      toFrontend(m, coverMap.get(m.id))
+    );
+
     return NextResponse.json({
-      manga: result.manga.map((m: any) => toFrontend(m)),
+      manga: enriched,
       total: result.total || 0,
     });
   } catch {

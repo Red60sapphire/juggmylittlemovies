@@ -93,6 +93,9 @@ const SPORTS_EMBED_PROVIDERS = [
   { name: "VidSrc 3", build: (q: string) => `https://vidsrc.xyz/embed/sport/${q}` },
   { name: "Embed.su", build: (q: string) => `https://embed.su/embed/sport/${q}` },
   { name: "VidBinge", build: (q: string) => `https://vidbinge.dev/embed/sport/${q}` },
+  { name: "VidSrc CC", build: (q: string) => `https://vidsrc.cc/embed/sport/${q}` },
+  { name: "Smashy", build: (q: string) => `https://player.smashy.stream/embed/sport/${q}` },
+  { name: "2Embed", build: (q: string) => `https://www.2embed.cc/embed/sport/${q}` },
 ];
 
 export function getSportEmbedUrls(query: string): string[] {
