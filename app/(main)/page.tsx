@@ -123,13 +123,13 @@ function TrendingHero({ movies }: { movies: Movie[] }) {
             className="flex items-center gap-3"
           >
             <Link
-              href={`/watch/${movie.id}`}
+              href={`/watch/movie/${movie.id}`}
               className="flex items-center gap-2 px-6 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-bold rounded-xl transition-all hover:shadow-xl hover:shadow-accent/25 active:scale-95"
             >
               <Play className="w-4 h-4 fill-white" /> Watch Now
             </Link>
             <Link
-              href={`/movie/${movie.id}`}
+              href={`/watch/movie/${movie.id}`}
               className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white text-sm font-semibold rounded-xl border border-white/10 transition-all active:scale-95"
             >
               <Info className="w-4 h-4" /> Details

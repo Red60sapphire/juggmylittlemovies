@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DEFAULT_SETTINGS } from "@/lib/settings";
 import type { UserSettings } from "@/lib/settings";
+import { useTheme, THEME_CONFIG } from "@/components/ThemeProvider";
 import Link from "next/link";
-import { Check, Wifi, WifiOff } from "lucide-react";
+import { Check, Wifi } from "lucide-react";
 
 const LOCAL_KEY = "juggmylittlemovies_settings";
 
@@ -57,15 +58,14 @@ function Select({ value, onChange, options, label }: { value: string; onChange: 
   );
 }
 
-function Card({ title, children, icon }: { title: string; children: React.ReactNode; icon?: React.ReactNode }) {
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl border border-border bg-surface p-5"
     >
-      <h2 className="flex items-center gap-2 text-sm font-bold text-white mb-4 pb-3 border-b border-border/60">
-        {icon && <span className="text-accent">{icon}</span>}
+      <h2 className="text-sm font-bold text-white mb-4 pb-3 border-b border-border/60">
         {title}
       </h2>
       <div className="space-y-1">{children}</div>
@@ -78,6 +78,7 @@ export default function SettingsPage() {
   const [synced, setSynced] = useState(false);
   const [username, setUsername] = useState("");
   const [toast, setToast] = useState("");
+  const { theme, setTheme, themes } = useTheme();
 
   useEffect(() => {
     const local = localStorage.getItem(LOCAL_KEY);
@@ -123,8 +124,36 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Theme">
+          <p className="text-sm text-white/50 mb-3">Choose a pre-built color theme</p>
+          <div className="grid grid-cols-3 gap-2">
+            {themes.map((t) => {
+              const cfg = THEME_CONFIG[t];
+              const active = theme === t;
+              return (
+                <button
+                  key={t}
+                  onClick={() => setTheme(t)}
+                  className={`flex items-center gap-2.5 p-2.5 rounded-lg text-sm transition-all border ${
+                    active
+                      ? "border-accent/50 bg-white/[0.06]"
+                      : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
+                  }`}
+                >
+                  <span
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: cfg.dot }}
+                  />
+                  <span className="text-white/70 text-xs">{cfg.name}</span>
+                  {active && <Check className="w-3 h-3 text-accent ml-auto flex-shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+        </Card>
+
         {/* Playback */}
-        <Card title="Playback" icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}>
+        <Card title="Playback">
           <Select label="Default server" value={settings.defaultServer} onChange={(v) => update({ defaultServer: v })} options={["Auto", ...SERVERS]} />
           <div className="border-t border-border/40 my-2" />
           <Toggle label="Autoplay next episode" checked={settings.autoplayNext} onChange={(v) => update({ autoplayNext: v })} />
@@ -136,7 +165,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Appearance */}
-        <Card title="Appearance" icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>}>
+        <Card title="Appearance">
           <span className="text-sm text-white/50 mb-2 block">Accent color</span>
           <div className="flex gap-2.5 mb-3">
             {ACCENTS.map((c) => (
@@ -154,13 +183,13 @@ export default function SettingsPage() {
         </Card>
 
         {/* Default Landing Tab */}
-        <Card title="Default Tab" icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>}>
+        <Card title="Default Tab">
           <Select label="Landing page after login" value={settings.defaultTab} onChange={(v) => update({ defaultTab: v })} options={DEFAULT_TABS} />
           <p className="text-xs text-muted mt-2">Controls which page opens by default when you visit the site.</p>
         </Card>
 
         {/* Content Providers */}
-        <Card title="Content Providers" icon={<Wifi className="w-4 h-4" />}>
+        <Card title="Content Providers">
           <Select label="Manga provider" value={settings.mangaProvider} onChange={(v) => update({ mangaProvider: v })} options={["MangaDex", "Consumet", "Manga Hook"]} />
           <div className="border-t border-border/40 my-2" />
           <span className="text-sm text-white/50 mb-2 block">Streaming server priority</span>
@@ -176,13 +205,13 @@ export default function SettingsPage() {
         </Card>
 
         {/* Watch Party */}
-        <Card title="Watch Party" icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>}>
+        <Card title="Watch Party">
           <Toggle label="Show chat by default" checked={settings.watchPartyChatOpen} onChange={(v) => update({ watchPartyChatOpen: v })} />
           <Toggle label="Chat notification sound" checked={settings.chatSound} onChange={(v) => update({ chatSound: v })} />
         </Card>
 
         {/* Account */}
-        <Card title="Account" icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}>
+        <Card title="Account">
           {username ? (
             <div className="space-y-3">
               <div className="flex items-center gap-3 py-1">

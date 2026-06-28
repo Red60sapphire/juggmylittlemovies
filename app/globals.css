@@ -1,26 +1,6 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #08080e;
-  --color-foreground: #ffffff;
-  --color-sidebar: #0d0d14;
-  --color-surface: #12121a;
-  --color-card: #16161f;
-  --color-elevated: #1c1c27;
-  --color-border: #1e1e2a;
-  --color-border-hover: #2a2a3a;
-  --color-accent: #8b5cf6;
-  --color-accent-hover: #a78bfa;
-  --color-accent-muted: rgba(139, 92, 246, 0.15);
-  --color-muted: #a0a0b0;
-  --color-subtle: #6b6b7b;
-
-  --color-accent-rose: #f43f5e;
-  --color-accent-amber: #f59e0b;
-  --color-accent-emerald: #10b981;
-  --color-accent-cyan: #06b6d4;
-  --color-accent-pink: #ec4899;
-
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
   --text-base: 0.9375rem;
@@ -30,10 +10,84 @@
   --text-3xl: 2.25rem;
 }
 
+:root,
+[data-theme="zinc"] {
+  --bg: #09090b;
+  --surface: #18181b;
+  --accent: #a78bfa;
+  --text: #ffffff;
+  --muted: #a0a0b0;
+  --border: #27272a;
+}
+[data-theme="slate"] {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --accent: #7c3aed;
+  --text: #ffffff;
+  --muted: #94a3b8;
+  --border: #334155;
+}
+[data-theme="stone"] {
+  --bg: #0c0a09;
+  --surface: #1c1917;
+  --accent: #d97706;
+  --text: #ffffff;
+  --muted: #a8a29e;
+  --border: #292524;
+}
+[data-theme="neutral"] {
+  --bg: #0a0a0a;
+  --surface: #171717;
+  --accent: #6366f1;
+  --text: #ffffff;
+  --muted: #a3a3a3;
+  --border: #262626;
+}
+[data-theme="midnight"] {
+  --bg: #020617;
+  --surface: #0f1629;
+  --accent: #818cf8;
+  --text: #ffffff;
+  --muted: #94a3b8;
+  --border: #1e293b;
+}
+[data-theme="violet"] {
+  --bg: #0d0514;
+  --surface: #160a24;
+  --accent: #c084fc;
+  --text: #ffffff;
+  --muted: #a78bfa;
+  --border: #2e1065;
+}
+[data-theme="rose"] {
+  --bg: #0f0508;
+  --surface: #1f0a0f;
+  --accent: #f43f5e;
+  --text: #ffffff;
+  --muted: #fb7185;
+  --border: #3b0a12;
+}
+[data-theme="ocean"] {
+  --bg: #01090f;
+  --surface: #071625;
+  --accent: #06b6d4;
+  --text: #ffffff;
+  --muted: #7dd3fc;
+  --border: #0c2233;
+}
+[data-theme="obsidian"] {
+  --bg: #070708;
+  --surface: #111113;
+  --accent: #8b8cf8;
+  --text: #ffffff;
+  --muted: #a0a0b0;
+  --border: #1c1c1e;
+}
+
 body {
-  background: #08080e;
-  color: #ffffff;
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -52,56 +106,27 @@ body {
 .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
 img { transition: opacity 0.3s; }
-img[loading="lazy"] { background: #12121a; }
+img[loading="lazy"] { background: var(--surface); }
 img[loading="lazy"][src]:not([src=""]) { opacity: 1; background: transparent; }
 .content-vis-auto { content-visibility: auto; contain-intrinsic-size: 300px; contain-intrinsic-width: auto; }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-@keyframes pulse-glow { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-.animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
-.animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+.animate-fade-in { animation: fadeIn 0.22s ease-out forwards; }
 .animate-shimmer { background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-.animate-scale-in { animation: scaleIn 0.3s ease-out forwards; }
 
-::selection { background: rgba(139, 92, 246, 0.3); color: #ffffff; }
+::selection { background: rgba(var(--accent-rgb, 139, 92, 246), 0.3); color: #ffffff; }
 
-/* Glass utility */
-.glass { background: rgba(12, 12, 20, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-.glass-border { border: 1px solid rgba(255,255,255,0.06); }
+.glass { background: rgba(0,0,0,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.glass-border { border: 1px solid var(--border); }
 
-/* Card hover shine */
-.shine { position: relative; overflow: hidden; }
-.shine::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.03) 55%, transparent 60%); background-size: 200% 100%; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-.shine:hover::after { opacity: 1; animation: shimmer 2s infinite; }
-
-/* Glow utilities */
-.glow-accent { box-shadow: 0 0 20px rgba(139, 92, 246, 0.15); }
-.glow-rose { box-shadow: 0 0 20px rgba(244, 63, 94, 0.15); }
-.glow-amber { box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); }
-.glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
-.glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.15); }
-
-/* Card scale on hover */
-.card-hover { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease; }
-.card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
-
-/* Image zoom on container hover */
-.img-zoom { overflow: hidden; }
-.img-zoom img { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-.img-zoom:hover img { transform: scale(1.08); }
-
-/* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
 
-/* Gradient overlays */
-.gradient-overlay { background: linear-gradient(180deg, transparent 40%, rgba(8,8,14,0.9) 100%); }
+.gradient-overlay { background: linear-gradient(180deg, transparent 40%, var(--bg) 100%); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

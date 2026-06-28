@@ -1,5 +1,14 @@
 const TMDB_BASE = "https://api.themoviedb.org/3";
 
+const ANIME_GENRE_ID = 16;
+
+function excludeAnime(results: any[]): any[] {
+  return (results || []).filter((r: any) => {
+    const gids: number[] = r.genre_ids || [];
+    return !gids.includes(ANIME_GENRE_ID);
+  });
+}
+
 export const SIMPLE_GENRES = [
   { id: 28, name: "Action" },
   { id: 35, name: "Comedy" },
@@ -30,7 +39,6 @@ export const TV_GENRES = [
   { id: 9648, name: "Mystery" },
   { id: 10749, name: "Romance" },
   { id: 10751, name: "Family" },
-  { id: 16, name: "Animation" },
   { id: 18, name: "Drama" },
   { id: 99, name: "Documentary" },
 ];
@@ -105,11 +113,13 @@ export async function getUpcoming() {
 }
 
 export async function getTrendingTV() {
-  return tmdbFetch("/trending/tv/week");
+  const data = await tmdbFetch("/trending/tv/week");
+  return { ...data, results: excludeAnime(data.results || []) };
 }
 
 export async function getTrendingTVMultiPage(maxPages = 5) {
-  return fetchAllPages((p) => tmdbFetch("/trending/tv/week", `&page=${p}`), maxPages);
+  const data = await fetchAllPages((p) => tmdbFetch("/trending/tv/week", `&page=${p}`), maxPages);
+  return { ...data, results: excludeAnime(data.results || []) };
 }
 
 export async function searchMulti(query: string, page = 1) {
