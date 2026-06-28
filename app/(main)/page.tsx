@@ -5,152 +5,23 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import HorizontalSlider from "@/components/HorizontalSlider";
 import MovieCard from "@/components/MovieCard";
+import HeroCarousel from "@/components/HeroCarousel";
 import { getImageUrl, formatRating } from "@/lib/utils";
-import { Play, Info, Star, TrendingUp, Film, Tv, Sparkles, ChevronRight } from "lucide-react";
+import { TrendingUp, Film, Tv, Sparkles, ChevronRight } from "lucide-react";
 import type { Movie } from "@/types";
+import type { HeroItem } from "@/components/HeroCarousel";
 
-function HeroBannerFallback() {
-  return (
-    <div className="relative w-full h-[60vh] min-h-[480px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] rounded-none md:rounded-2xl overflow-hidden bg-gradient-to-br from-accent/10 via-background to-background flex items-center justify-center">
-      <div className="text-center px-6">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight"
-        >
-          Welcome to juggmylittlemovies
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="text-white/50 text-lg max-w-md mx-auto mb-8"
-        >
-          Stream movies, TV shows, anime, and manga
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex items-center justify-center gap-3 flex-wrap"
-        >
-          <Link href="/trending" className="px-8 py-3 bg-accent hover:bg-accent-hover text-white font-bold rounded-xl transition-all hover:shadow-xl hover:shadow-accent/25 active:scale-95">
-            Explore Trending
-          </Link>
-          <Link href="/anime" className="px-8 py-3 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-semibold rounded-xl border border-white/10 transition-all active:scale-95">
-            Browse Anime
-          </Link>
-        </motion.div>
-      </div>
-    </div>
-  );
-}
-
-function TrendingHero({ movies }: { movies: Movie[] }) {
-  const [current, setCurrent] = useState(0);
-  const movie = movies[current];
-
-  useEffect(() => {
-    if (!movies.length) return;
-    const t = setInterval(() => setCurrent((c) => (c + 1) % Math.min(movies.length, 5)), 7000);
-    return () => clearInterval(t);
-  }, [movies.length]);
-
-  if (!movies.length) return <HeroBannerFallback />;
-
-  return (
-    <section className="relative w-full h-[60vh] min-h-[480px] md:min-h-[400px] md:h-[55vh] md:max-h-[650px] overflow-hidden rounded-none md:rounded-2xl mb-8 md:mb-6 shadow-2xl shadow-black/30">
-      {movies.slice(0, 5).map((m, i) => (
-        <div
-          key={m.id}
-          className={`absolute inset-0 transition-all duration-[1200ms] ${i === current ? "opacity-100 scale-100" : "opacity-0 scale-105"}`}
-        >
-          <img src={getImageUrl(m.backdrop_path, "original") || ""} alt="" className="w-full h-full object-cover" />
-        </div>
-      ))}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/20 to-transparent" />
-
-      <motion.div
-        key={movie.id}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 md:p-10"
-      >
-        <div className="max-w-2xl">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-            className="flex items-center gap-2 mb-3"
-          >
-            <span className="px-2.5 py-0.5 bg-accent/90 text-white text-[10px] font-bold rounded-full tracking-wider uppercase shadow-lg shadow-accent/20">
-              Trending Now
-            </span>
-            <div className="flex items-center gap-1 text-yellow-400 text-xs font-semibold">
-              <Star className="w-3 h-3 fill-yellow-400" />
-              {formatRating(movie.vote_average)}
-            </div>
-            {(movie.release_date || movie.first_air_date) && (
-              <span className="text-white/40 text-xs">{(movie.release_date || movie.first_air_date || "").split("-")[0]}</span>
-            )}
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.35 }}
-            className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight drop-shadow-2xl"
-          >
-            {movie.title || movie.name || "Untitled"}
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="text-white/50 text-sm line-clamp-2 mb-4 max-w-xl"
-          >
-            {movie.overview}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.6 }}
-            className="flex items-center gap-3"
-          >
-            <Link
-              href={`/watch/${movie.id}`}
-              className="flex items-center gap-2 px-6 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-bold rounded-xl transition-all hover:shadow-xl hover:shadow-accent/25 active:scale-95"
-            >
-              <Play className="w-4 h-4 fill-white" /> Watch Now
-            </Link>
-            <Link
-              href={`/movie/${movie.id}`}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white text-sm font-semibold rounded-xl border border-white/10 transition-all active:scale-95"
-            >
-              <Info className="w-4 h-4" /> Details
-            </Link>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      <div className="absolute bottom-4 right-4 md:bottom-6 md:right-8 flex gap-2 z-10">
-        {movies.slice(0, 5).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`h-2 rounded-full transition-all duration-500 ${
-              i === current ? "w-8 bg-accent shadow-lg shadow-accent/40" : "w-2 bg-white/30 hover:bg-white/50"
-            }`}
-          />
-        ))}
-      </div>
-    </section>
-  );
+function toHeroItems(movies: Movie[]): HeroItem[] {
+  return movies.map((m) => ({
+    id: m.id,
+    title: m.title || m.name || "Untitled",
+    image: getImageUrl(m.backdrop_path, "original") || "",
+    rating: formatRating(m.vote_average || 0),
+    year: (m.release_date || m.first_air_date || "").split("-")[0],
+    badge: "Trending Now",
+    description: m.overview,
+    href: `/watch/movie/${m.id}`,
+  }));
 }
 
 function QuickLinks() {
@@ -228,9 +99,28 @@ export default function HomePage() {
       .catch(() => {});
   }, []);
 
+  const heroItems = toHeroItems(trending);
+
   return (
     <div className="space-y-1 md:space-y-0 animate-fade-in">
-      <TrendingHero movies={trending} />
+      {heroItems.length > 0 ? (
+        <HeroCarousel items={heroItems} />
+      ) : (
+        <section className="relative w-full h-[60vh] min-h-[480px] md:h-[55vh] md:max-h-[650px] rounded-none md:rounded-2xl overflow-hidden bg-gradient-to-br from-accent/10 via-background to-background flex items-center justify-center mb-8 md:mb-6">
+          <div className="text-center px-6">
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">
+              Welcome to juggmylittlemovies
+            </motion.h1>
+            <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }} className="text-white/50 text-lg max-w-md mx-auto mb-8">
+              Stream movies, TV shows, anime, and manga
+            </motion.p>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex items-center justify-center gap-3 flex-wrap">
+              <Link href="/trending" className="px-8 py-3 bg-accent hover:bg-accent-hover text-white font-bold rounded-xl transition-all hover:shadow-xl hover:shadow-accent/25 active:scale-95">Explore Trending</Link>
+              <Link href="/anime" className="px-8 py-3 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-semibold rounded-xl border border-white/10 transition-all active:scale-95">Browse Anime</Link>
+            </motion.div>
+          </div>
+        </section>
+      )}
       <QuickLinks />
 
       <DataRow

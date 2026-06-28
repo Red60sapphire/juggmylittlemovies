@@ -4,11 +4,6 @@ const REQUIRED_TABLES = [
   "profiles",
   "watch_history",
   "watchlist",
-  "watch_party_rooms",
-  "watch_party_participants",
-  "watch_party_messages",
-  "watch_party_kicks",
-  "watch_party_sync_state",
 ];
 
 export async function GET() {
@@ -23,6 +18,7 @@ export async function GET() {
   const modules: Record<string, boolean> = {
     tmdb: !!process.env.TMDB_ACCESS_TOKEN,
     auth: !!key,
+    ws: !!process.env.NEXT_PUBLIC_WS_URL,
   };
 
   for (const table of REQUIRED_TABLES) {
@@ -40,7 +36,7 @@ export async function GET() {
 
   return NextResponse.json({
     ok: missing.length === 0,
-    env: { url: !!url, key: !!key, service_role: !!process.env.SUPABASE_SERVICE_ROLE_KEY, tmdb: modules.tmdb },
+    env: { url: !!url, key: !!key, service_role: !!process.env.SUPABASE_SERVICE_ROLE_KEY, tmdb: modules.tmdb, ws: modules.ws },
     tables,
     missing: missing.length > 0 ? missing : undefined,
     message: missing.length === 0 ? "All systems operational." : `Missing tables: ${missing.join(", ")}`,

@@ -3,18 +3,35 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { getImageUrl, formatRating } from "@/lib/utils";
-import type { Movie } from "@/types";
 import { Play, Star } from "lucide-react";
 
 interface Props {
-  movie: Movie;
+  movie: {
+    id: number;
+    title?: string;
+    name?: string;
+    poster_path?: string | null;
+    vote_average?: number;
+    release_date?: string;
+    first_air_date?: string;
+    media_type?: string;
+    genre_ids?: number[];
+  };
   index?: number;
   priority?: boolean;
+  mediaType?: "movie" | "tv" | "anime";
 }
 
-export default function MovieCard({ movie, index = 0, priority }: Props) {
+export default function MovieCard({ movie, index = 0, priority, mediaType }: Props) {
   const title = movie.title || movie.name || "Untitled";
   const year = (movie.release_date || movie.first_air_date || "").split("-")[0];
+  const type = mediaType || movie.media_type || "movie";
+
+  const href = type === "movie"
+    ? `/watch/movie/${movie.id}`
+    : type === "tv"
+      ? `/watch/tv/${movie.id}/1/1`
+      : `/watch/movie/${movie.id}`;
 
   return (
     <motion.div
@@ -23,10 +40,10 @@ export default function MovieCard({ movie, index = 0, priority }: Props) {
       transition={{ duration: 0.4, delay: Math.min(index * 0.03, 0.3), ease: [0.16, 1, 0.3, 1] }}
       className="w-[200px] sm:w-[150px]"
     >
-      <Link href={`/watch/${movie.id}`} className="group block">
-        <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-surface ring-1 ring-white/[0.06] transition-all duration-300 group-hover:ring-accent/50 group-hover:shadow-xl group-hover:shadow-accent/10 group-hover:-translate-y-1.5 img-zoom">
+      <Link href={href} className="group block">
+        <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-surface ring-1 ring-white/[0.06] transition-all duration-150 group-hover:ring-accent/50 group-hover:scale-[1.03] img-zoom">
           <img
-            src={getImageUrl(movie.poster_path, "w342") || "/placeholder.svg"}
+            src={getImageUrl(movie.poster_path ?? null, "w342") || "/placeholder.svg"}
             alt={title}
             loading={priority ? "eager" : "lazy"}
             className="w-full h-full object-cover"
@@ -37,9 +54,14 @@ export default function MovieCard({ movie, index = 0, priority }: Props) {
               <Play className="w-4.5 h-4.5 fill-white text-white ml-0.5" />
             </div>
           </div>
+          {type && (
+            <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded-md text-[9px] font-bold text-white/80 uppercase tracking-wider">
+              {type}
+            </div>
+          )}
           <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 bg-black/60 backdrop-blur-sm rounded-md text-[10px] font-bold text-yellow-400 flex items-center gap-0.5">
             <Star className="w-2.5 h-2.5 fill-yellow-400" />
-            {formatRating(movie.vote_average)}
+            {formatRating(movie.vote_average || 0)}
           </div>
           {year && (
             <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 bg-black/60 backdrop-blur-sm rounded-md text-[10px] text-white/60 font-medium">

@@ -3,9 +3,25 @@
 import { useState, useEffect } from "react";
 import HorizontalSlider from "@/components/HorizontalSlider";
 import MovieCard from "@/components/MovieCard";
+import HeroCarousel from "@/components/HeroCarousel";
 import type { Movie } from "@/types";
+import { getImageUrl, formatRating } from "@/lib/utils";
+import type { HeroItem } from "@/components/HeroCarousel";
 import { MOVIE_GENRES } from "@/lib/tmdb";
 import Link from "next/link";
+
+function toHeroItems(movies: Movie[]): HeroItem[] {
+  return movies.map((m) => ({
+    id: m.id,
+    title: m.title || m.name || "Untitled",
+    image: getImageUrl(m.backdrop_path, "original") || "",
+    rating: formatRating(m.vote_average || 0),
+    year: (m.release_date || "").split("-")[0],
+    badge: "Trending",
+    description: m.overview,
+    href: `/watch/movie/${m.id}`,
+  }));
+}
 
 function GenreRow({ genreId, genreName }: { genreId: number; genreName: string }) {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -40,8 +56,12 @@ export default function MoviesPage() {
       .catch(() => {});
   }, []);
 
+  const heroItems = toHeroItems(trending.slice(0, 5));
+
   return (
     <div className="space-y-6 animate-fade-in">
+      {heroItems.length > 0 && <HeroCarousel items={heroItems} />}
+
       <h1 className="text-xl font-bold text-white">Movies</h1>
 
       {trending.length > 0 && (

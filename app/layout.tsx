@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import "./globals.css";
+import { ThemeScript, ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "juggmylittlemovies - Watch Movies & TV Shows",
@@ -18,28 +18,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" />
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-1WM87HQVQ3"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-1WM87HQVQ3');
-          `}
-        </Script>
+        <ThemeScript />
       </head>
-      <body className="bg-background text-foreground antialiased">
-        <div className="fixed inset-x-0 top-0 z-[100] h-[2px] bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600/20" />
+      <body className="antialiased" style={{ background: "var(--bg)", color: "var(--text)" }}>
         <div className="fixed inset-0 z-[-1] pointer-events-none bg-noise opacity-[0.025]" />
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
