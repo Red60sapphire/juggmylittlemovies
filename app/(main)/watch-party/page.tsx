@@ -1,23 +1,14 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { getImageUrl } from "@/lib/utils";
+import { useWatchParty } from "@/hooks/useWatchParty";
 import {
   DoorOpen, Users, Hash, Globe, Play, Plus, Search, X,
-  Film, ArrowRight, UserRound, AlertCircle, Settings,
+  Film, ArrowRight, UserRound, Wifi, WifiOff,
 } from "lucide-react";
-import Link from "next/link";
-
-interface PublicRoom {
-  id: string;
-  code: string;
-  title: string;
-  poster_path: string | null;
-  host_name: string;
-  participant_count: number;
-}
 
 interface MovieResult {
   id: number;
@@ -28,8 +19,7 @@ interface MovieResult {
 
 export default function WatchPartyPage() {
   const router = useRouter();
-  const [configured, setConfigured] = useState(true);
-  const [rooms, setRooms] = useState<PublicRoom[]>([]);
+  const { connected, rooms, createRoom, joinRoom, getRooms, setOnRoomCreated } = useWatchParty();
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -44,6 +34,7 @@ export default function WatchPartyPage() {
   const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const searchTimeout = useRef<any>(null);
+  const joinNameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     codeRefs.current = codeRefs.current.slice(0, 6);
@@ -54,14 +45,19 @@ export default function WatchPartyPage() {
       .then((r) => r.json())
       .then((d: { user: { username: string } | null }) => setAccountName(d.user?.username || ""))
       .catch(() => {});
-    fetch("/api/watch-party/rooms")
-      .then((r) => r.json())
-      .then((d: { configured: boolean; rooms: PublicRoom[] }) => {
-        setConfigured(d.configured);
-        setRooms(d.rooms || []);
-      })
-      .catch(() => setConfigured(false));
   }, []);
+
+  useEffect(() => {
+    getRooms();
+    const interval = setInterval(getRooms, 10000);
+    return () => clearInterval(interval);
+  }, [getRooms]);
+
+  useEffect(() => {
+    setOnRoomCreated((code: string) => {
+      router.push(`/watch-party/${code}`);
+    });
+  }, [setOnRoomCreated, router]);
 
   useEffect(() => {
     if (!searchQuery.trim() || searchQuery.length < 2) {
@@ -75,9 +71,7 @@ export default function WatchPartyPage() {
         const res = await fetch(`/api/tmdb/search?q=${encodeURIComponent(searchQuery)}&page=1`);
         const data = await res.json();
         setSearchResults((data.results || []).slice(0, 8));
-      } catch {
-        setSearchResults([]);
-      }
+      } catch { setSearchResults([]); }
       setSearching(false);
     }, 400);
     return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current); };
@@ -85,20 +79,20 @@ export default function WatchPartyPage() {
 
   const handleCodeChange = (index: number, value: string) => {
     if (value.length > 1) {
-      const pasted = value.replace(/\D/g, "").slice(0, 6).split("");
+      const pasted = value.replace(/\s/g, "").slice(0, 6).toUpperCase().split("");
       const newCode = [...code];
       pasted.forEach((char, i) => { if (i < 6) newCode[i] = char; });
       setCode(newCode);
       const next = pasted.length < 6 ? pasted.length : 5;
       codeRefs.current[next]?.focus();
-      if (pasted.length === 6) setTimeout(() => setShowJoin(false), 300);
+      if (pasted.length === 6) setTimeout(() => handleJoinSubmit(), 300);
       return;
     }
-    const digit = value.replace(/\D/g, "").slice(0, 1);
+    const char = value.replace(/[^A-Za-z0-9]/g, "").slice(0, 1).toUpperCase();
     const newCode = [...code];
-    newCode[index] = digit;
+    newCode[index] = char;
     setCode(newCode);
-    if (digit && index < 5) codeRefs.current[index + 1]?.focus();
+    if (char && index < 5) codeRefs.current[index + 1]?.focus();
   };
 
   const handleCodeKeyDown = (index: number, e: React.KeyboardEvent) => {
@@ -107,61 +101,36 @@ export default function WatchPartyPage() {
     }
   };
 
-  const joinRoom = async () => {
-    setError("");
+  const handleJoinSubmit = () => {
     const fullCode = code.join("");
-    if (fullCode.length !== 6) { setError("Enter a valid 6-digit code."); return; }
-    if (!displayName.trim()) { setError("Enter a display name."); return; }
-    const res = await fetch("/api/watch-party/join", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: fullCode, displayName: displayName.trim() }),
-    });
-    const data = (await res.json()) as { roomId?: string; error?: string };
-    if (!res.ok || !data.roomId) { setError(data.error || "Could not join room."); return; }
-    sessionStorage.setItem(`watch-party-name:${data.roomId}`, displayName.trim());
-    router.push(`/watch-party/${data.roomId}`);
-  };
-
-  const joinPublicRoom = async (roomId: string) => {
-    setError("");
+    if (fullCode.length !== 6) { setError("Enter a valid 6-character code."); return; }
     const name = displayName || accountName || "Guest";
-    const res = await fetch("/api/watch-party/join", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roomId, displayName: name }),
-    });
-    const data = (await res.json()) as { roomId?: string; error?: string };
-    if (!res.ok || !data.roomId) { setError(data.error || "Could not join room."); return; }
-    sessionStorage.setItem(`watch-party-name:${data.roomId}`, name);
-    router.push(`/watch-party/${data.roomId}`);
+    joinRoom(fullCode, name);
+    sessionStorage.setItem(`watch-party-name:${fullCode}`, name);
+    router.push(`/watch-party/${fullCode}`);
   };
 
-  const createRoom = async () => {
+  const joinPublicRoom = (roomCode: string) => {
+    const name = accountName || "Guest";
+    joinRoom(roomCode, name);
+    sessionStorage.setItem(`watch-party-name:${roomCode}`, name);
+    router.push(`/watch-party/${roomCode}`);
+  };
+
+  const handleCreateRoom = () => {
     if (!selectedMovie) return;
     setCreating(true);
     setError("");
     const name = displayName || accountName || "Host";
-    try {
-      const res = await fetch("/api/watch-party/rooms", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          movieId: selectedMovie.id,
-          title: selectedMovie.title,
-          posterPath: selectedMovie.poster_path,
-          displayName: name,
-        }),
-      });
-      const data = (await res.json()) as { roomId?: string; displayName?: string; hostKey?: string; error?: string };
-      if (!res.ok || !data.roomId) { setError(data.error || "Could not create room."); return; }
-      sessionStorage.setItem(`watch-party-name:${data.roomId}`, data.displayName || name);
-      if (data.hostKey) sessionStorage.setItem(`watch-party-host:${data.roomId}`, data.hostKey);
-      router.push(`/watch-party/${data.roomId}`);
-    } catch {
-      setError("Could not create room.");
-    }
-    setCreating(false);
+    createRoom({
+      username: name,
+      roomName: selectedMovie.title,
+      mediaId: String(selectedMovie.id),
+      mediaType: selectedMovie.media_type || "movie",
+      mediaTitle: selectedMovie.title,
+      mediaPoster: selectedMovie.poster_path,
+    });
+    setShowCreate(false);
   };
 
   const openCreate = () => {
@@ -172,26 +141,8 @@ export default function WatchPartyPage() {
     setShowCreate(true);
   };
 
-  if (!configured) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="max-w-md text-center">
-          <div className="w-16 h-16 rounded-2xl bg-white/[0.04] flex items-center justify-center mx-auto mb-4 ring-1 ring-white/5">
-            <AlertCircle className="h-8 w-8 text-white/20" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">Watch Parties Unavailable</h1>
-          <p className="mt-3 text-sm text-white/50">Supabase needs to be configured for watch parties to work.</p>
-          <Link href="/settings" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white hover:bg-accent-hover transition-all shadow-lg shadow-accent/20">
-            <Settings className="h-4 w-4" /> Settings
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Hero banner */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -201,8 +152,16 @@ export default function WatchPartyPage() {
         <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5" />
         <div className="relative">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center mb-4 shadow-lg shadow-blue-500/20">
-            <Users className="w-7 h-7 text-white" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <Users className="w-7 h-7 text-white" />
+            </div>
+            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+              connected ? "bg-emerald-500/10 text-emerald-400" : "bg-yellow-500/10 text-yellow-400"
+            }`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-emerald-400 animate-pulse" : "bg-yellow-400"}`} />
+              {connected ? "Connected" : "Connecting..."}
+            </div>
           </div>
           <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">Watch Together</h1>
           <p className="text-white/50 max-w-md text-sm md:text-base">
@@ -211,7 +170,6 @@ export default function WatchPartyPage() {
         </div>
       </motion.div>
 
-      {/* Action cards */}
       <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
         <motion.button
           initial={{ opacity: 0, x: -20 }}
@@ -219,7 +177,7 @@ export default function WatchPartyPage() {
           transition={{ delay: 0.1 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => setShowJoin(true)}
+          onClick={() => { setShowJoin(true); setCode(["", "", "", "", "", ""]); setError(""); setDisplayName(accountName); }}
           className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c14] p-8 text-left transition-all hover:border-accent/40 hover:shadow-xl hover:shadow-accent/5"
         >
           <div className="absolute -top-12 -right-12 w-32 h-32 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-all" />
@@ -228,7 +186,7 @@ export default function WatchPartyPage() {
               <DoorOpen className="w-7 h-7 text-accent" />
             </div>
             <h2 className="text-xl font-bold text-white mb-1">Join a Room</h2>
-            <p className="text-sm text-white/40 mb-4">Enter a 6-digit code to join a friend&apos;s watch party.</p>
+            <p className="text-sm text-white/40 mb-4">Enter a 6-character code to join a friend&apos;s watch party.</p>
             <div className="flex items-center gap-2 text-sm font-semibold text-accent group-hover:gap-3 transition-all">
               Enter code <ArrowRight className="w-4 h-4" />
             </div>
@@ -258,7 +216,6 @@ export default function WatchPartyPage() {
         </motion.button>
       </div>
 
-      {/* Public rooms */}
       {rooms.length > 0 && (
         <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
           <div className="flex items-center gap-3 mb-5">
@@ -269,20 +226,20 @@ export default function WatchPartyPage() {
             </span>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {rooms.map((room, i) => (
+            {rooms.map((room: any, i: number) => (
               <motion.button
-                key={room.id}
+                key={room.code}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + i * 0.05 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => joinPublicRoom(room.id)}
+                onClick={() => joinPublicRoom(room.code)}
                 className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0c0c14] text-left transition-all hover:border-accent/40 hover:bg-white/[0.02] shadow-lg"
               >
                 <div className="aspect-video relative overflow-hidden bg-white/[0.02]">
-                  {room.poster_path ? (
-                    <img src={getImageUrl(room.poster_path, "w500") || ""} alt="" className="h-full w-full object-cover opacity-60 transition-all duration-500 group-hover:opacity-90 group-hover:scale-105" />
+                  {room.mediaPoster ? (
+                    <img src={getImageUrl(room.mediaPoster, "w500") || ""} alt="" className="h-full w-full object-cover opacity-60 transition-all duration-500 group-hover:opacity-90 group-hover:scale-105" />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center"><Globe className="w-10 h-10 text-white/10" /></div>
                   )}
@@ -295,11 +252,10 @@ export default function WatchPartyPage() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-bold text-white truncate group-hover:text-accent transition-colors">{room.title}</h3>
-                  <p className="mt-1 text-sm text-white/40">by {room.host_name}</p>
+                  <h3 className="font-bold text-white truncate group-hover:text-accent transition-colors">{room.roomName || room.mediaTitle}</h3>
                   <p className="mt-3 flex items-center gap-2 text-xs text-white/40">
                     <Users className="h-3.5 w-3.5" />
-                    <span>{room.participant_count} watching</span>
+                    <span>{room.memberCount || room.members?.length || 0} watching</span>
                     <span className="text-white/20">&bull;</span>
                     <span className="flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-green-400/60 animate-pulse" /> Live</span>
                   </p>
@@ -333,9 +289,9 @@ export default function WatchPartyPage() {
                   <DoorOpen className="w-6 h-6 text-accent" />
                 </div>
                 <h2 className="text-xl font-bold text-white">Enter Room Code</h2>
-                <p className="text-sm text-white/40 mt-1">Ask the host for the 6-digit code</p>
+                <p className="text-sm text-white/40 mt-1">Ask the host for the 6-character code</p>
               </div>
-              <div className="flex gap-2.5 justify-center mb-6" dir="ltr">
+              <div className="flex gap-2 justify-center mb-6" dir="ltr">
                 {code.map((digit, i) => (
                   <input
                     key={i}
@@ -344,19 +300,45 @@ export default function WatchPartyPage() {
                     onChange={(e) => handleCodeChange(i, e.target.value)}
                     onKeyDown={(e) => handleCodeKeyDown(i, e)}
                     onFocus={(e) => e.target.select()}
-                    inputMode="numeric"
-                    maxLength={6}
-                    className="w-12 h-14 md:w-14 md:h-16 rounded-xl border border-white/[0.08] bg-black/40 text-center text-2xl font-black text-white outline-none transition-all focus:border-accent/60 focus:shadow-lg focus:shadow-accent/10"
+                    className="w-11 h-13 md:w-13 md:h-15 rounded-xl border border-white/[0.08] bg-black/40 text-center text-xl font-black text-white outline-none transition-all focus:border-accent/60 focus:shadow-lg focus:shadow-accent/10 uppercase"
                     style={{ caretColor: "transparent" }}
+                    maxLength={1}
                   />
                 ))}
               </div>
+              <div className="relative mb-4">
+                <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-3 focus-within:border-accent/40 transition-all">
+                  <UserRound className="h-4 w-4 text-white/20 flex-shrink-0" />
+                  <input
+                    ref={joinNameRef}
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleJoinSubmit()}
+                    className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/20"
+                    placeholder={accountName || "Your display name"}
+                    maxLength={24}
+                  />
+                </div>
+              </div>
+              {error && (
+                <div className="rounded-xl border border-red-500/20 bg-red-500/8 px-3.5 py-2.5 text-sm text-red-200 flex items-center gap-2 mb-4">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-400/60 flex-shrink-0" />
+                  {error}
+                </div>
+              )}
+              <button
+                onClick={handleJoinSubmit}
+                disabled={code.join("").length !== 6}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent py-3 text-sm font-bold text-white hover:bg-accent-hover transition-all disabled:opacity-50"
+              >
+                <Play className="w-4 h-4" /> Join Room
+              </button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Create Modal - Two Step */}
+      {/* Create Modal */}
       <AnimatePresence>
         {showCreate && (
           <motion.div
@@ -386,7 +368,6 @@ export default function WatchPartyPage() {
               </div>
 
               <div className="space-y-4">
-                {/* Step 1: Search */}
                 {!selectedMovie && (
                   <div className="relative">
                     <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-3 focus-within:border-accent/40 transition-all">
@@ -428,7 +409,6 @@ export default function WatchPartyPage() {
                   </div>
                 )}
 
-                {/* Selected movie display */}
                 {selectedMovie && (
                   <div className="flex items-center gap-3 rounded-xl bg-accent/5 border border-accent/20 p-3">
                     <div className="w-10 h-14 rounded-lg overflow-hidden bg-white/[0.04] flex-shrink-0">
@@ -448,7 +428,6 @@ export default function WatchPartyPage() {
                   </div>
                 )}
 
-                {/* Step 2: Name input */}
                 {selectedMovie && (
                   <div className="relative">
                     <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-3 focus-within:border-accent/40 transition-all">
@@ -474,12 +453,14 @@ export default function WatchPartyPage() {
 
                 {selectedMovie && (
                   <button
-                    onClick={createRoom}
-                    disabled={creating}
+                    onClick={handleCreateRoom}
+                    disabled={creating || !connected}
                     className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 py-3 text-sm font-bold text-white hover:from-emerald-400 hover:to-emerald-500 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/20"
                   >
                     {creating ? (
                       <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Creating...</>
+                    ) : !connected ? (
+                      <><WifiOff className="w-4 h-4" /> Connecting...</>
                     ) : (
                       <><Plus className="w-4 h-4" /> Create Room</>
                     )}

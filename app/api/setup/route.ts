@@ -5,11 +5,6 @@ const REQUIRED_TABLES = [
   "profiles",
   "watch_history",
   "watchlist",
-  "watch_party_rooms",
-  "watch_party_participants",
-  "watch_party_messages",
-  "watch_party_kicks",
-  "watch_party_sync_state",
 ];
 
 export async function POST() {
@@ -40,10 +35,12 @@ export async function POST() {
   const allExist = Object.values(tableStatus).every(Boolean);
 
   if (!allExist && serviceKey) {
-    const admin = createClient(url, serviceKey);
     let sqlOk = false;
     let sqlError = "";
     try {
+      const sql = REQUIRED_TABLES.map((t) => `create table if not exists public.${t} (id uuid primary key default gen_random_uuid());`).join("\n") + "\n" +
+        "alter table if exists public.profiles add column if not exists username text;" + "\n" +
+        "alter table if exists public.profiles add column if not exists password_hash text;";
       const res = await fetch(`${url}/rest/v1/`, {
         method: "POST",
         headers: {
@@ -51,11 +48,7 @@ export async function POST() {
           apikey: serviceKey,
           Authorization: `Bearer ${serviceKey}`,
         },
-        body: [
-          REQUIRED_TABLES.map((t) => `create table if not exists public.${t} (id uuid primary key default gen_random_uuid());`).join("\n"),
-          `alter table if exists public.profiles add column if not exists username text;`,
-          `alter table if exists public.profiles add column if not exists password_hash text;`,
-        ].join("\n"),
+        body: sql,
       });
       if (!res.ok) sqlError = `SQL exec failed (${res.status})`;
       else sqlOk = true;
@@ -75,7 +68,7 @@ export async function POST() {
     message: allExist
       ? "All tables exist."
       : serviceKey
-        ? "Attempted creation but some tables may still be missing. Run supabase-setup.sql in the Supabase SQL Editor."
-        : "Missing tables. Set SUPABASE_SERVICE_ROLE_KEY env var for auto-setup, or run supabase-setup.sql in Supabase SQL Editor.",
+        ? "Attempted creation but some tables may still be missing."
+        : "Missing tables. Set SUPABASE_SERVICE_ROLE_KEY env var for auto-setup.",
   }, { status: allExist ? 200 : 400 });
 }

@@ -29,7 +29,7 @@ export function middleware(request: NextRequest) {
       [isSetup ? 3 : isAuth ? 10 : isManga ? 30 : 60, isSetup ? 3600000 : 60000],
     ];
     const [max, windowMs] = limits[0];
-    const ipKey = path.startsWith("/api/watch-party") ? `wp:${ip}` : isAuth ? `auth:${ip}` : `api:${ip}`;
+    const ipKey = isAuth ? `auth:${ip}` : `api:${ip}`;
     if (!rateLimit(ipKey, max, windowMs)) {
       return NextResponse.json({ error: "Too many requests. Please slow down." }, { status: 429 });
     }
