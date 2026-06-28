@@ -3,9 +3,25 @@
 import { useState, useEffect } from "react";
 import HorizontalSlider from "@/components/HorizontalSlider";
 import MovieCard from "@/components/MovieCard";
+import HeroCarousel from "@/components/HeroCarousel";
 import type { Movie } from "@/types";
+import { getImageUrl, formatRating } from "@/lib/utils";
+import type { HeroItem } from "@/components/HeroCarousel";
 import { TV_GENRES } from "@/lib/tmdb";
 import Link from "next/link";
+
+function toHeroItems(movies: Movie[]): HeroItem[] {
+  return movies.map((m) => ({
+    id: m.id,
+    title: m.title || m.name || "Untitled",
+    image: getImageUrl(m.backdrop_path, "original") || "",
+    rating: formatRating(m.vote_average || 0),
+    year: (m.first_air_date || "").split("-")[0],
+    badge: "Trending",
+    description: m.overview,
+    href: `/watch/tv/${m.id}/1/1`,
+  }));
+}
 
 function GenreRow({ genreId, genreName }: { genreId: number; genreName: string }) {
   const [movies, setMovies] = useState<Movie[]>([]);
@@ -31,9 +47,30 @@ function GenreRow({ genreId, genreName }: { genreId: number; genreName: string }
 }
 
 export default function TVShowsPage() {
+  const [trending, setTrending] = useState<Movie[]>([]);
+
+  useEffect(() => {
+    fetch("/api/tmdb/trending?type=trending_tv&all=true")
+      .then((r) => r.json())
+      .then((d) => setTrending(d.results?.slice(0, 20) || []))
+      .catch(() => {});
+  }, []);
+
+  const heroItems = toHeroItems(trending.slice(0, 5));
+
   return (
     <div className="space-y-6 animate-fade-in">
+      {heroItems.length > 0 && <HeroCarousel items={heroItems} />}
+
       <h1 className="text-xl font-bold text-white">TV Shows</h1>
+
+      {trending.length > 0 && (
+        <HorizontalSlider
+          title="Trending"
+          items={trending}
+          renderCard={(movie, i) => <MovieCard movie={movie} index={i} />}
+        />
+      )}
 
       <div className="space-y-4">
         {TV_GENRES.map((genre) => (

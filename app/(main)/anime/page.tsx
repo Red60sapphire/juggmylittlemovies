@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
 import HorizontalSlider from "@/components/HorizontalSlider";
 import MovieCard from "@/components/MovieCard";
+import HeroCarousel from "@/components/HeroCarousel";
 import type { Movie } from "@/types";
 import { getImageUrl, formatRating } from "@/lib/utils";
+import type { HeroItem } from "@/components/HeroCarousel";
 import {
   Search, Play, Info, Star, X, TrendingUp, Film,
   Trophy, Sparkles, Clock, ChevronDown,
@@ -45,178 +47,24 @@ const QUICK_GENRES = [
   { id: 10749, name: "Romance" },
 ];
 
-function AnimeHero({ movies }: { movies: Movie[] }) {
-  const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(1);
-  const timerRef = useRef<any>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
-
-  const movie = movies[current];
-
-  const goTo = useCallback((i: number) => {
-    setDirection(i > current ? 1 : -1);
-    setCurrent(i);
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setDirection(1);
-      setCurrent((c) => (c + 1) % Math.min(movies.length, 5));
-    }, 6000);
-  }, [current, movies.length]);
-
-  useEffect(() => {
-    if (!movies.length) return;
-    timerRef.current = setInterval(() => {
-      setDirection(1);
-      setCurrent((c) => (c + 1) % Math.min(movies.length, 5));
-    }, 6000);
-    return () => clearInterval(timerRef.current);
-  }, [movies.length]);
-
-  if (!movies.length) return null;
-
-  const containerVariants = {
-    enter: (d: number) => ({ x: d > 0 ? 300 : -300, opacity: 0, scale: 1.05 }),
-    center: { x: 0, opacity: 1, scale: 1 },
-    exit: (d: number) => ({ x: d > 0 ? -300 : 300, opacity: 0, scale: 0.95 }),
-  };
-
-  return (
-    <div ref={heroRef} className="relative w-full h-[75vh] min-h-[520px] md:h-[70vh] md:max-h-[800px] overflow-hidden rounded-none md:rounded-2xl mb-10 shadow-2xl shadow-black/50">
-      <motion.div style={{ y: bgY, scale }} className="absolute inset-0">
-        <AnimatePresence initial={false} custom={direction} mode="popLayout">
-          <motion.div
-            key={movie.id}
-            custom={direction}
-            variants={containerVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-            className="absolute inset-0"
-          >
-            <img
-              src={getImageUrl(movie.backdrop_path, "original") || ""}
-              alt=""
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 via-30% to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/20 to-transparent" />
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
-
-      <motion.div style={{ opacity }} className="absolute inset-0 pointer-events-none">
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background to-transparent" />
-      </motion.div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={movie.id + "-content"}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-12 lg:p-16"
-        >
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="flex items-center gap-3 mb-4 flex-wrap"
-          >
-            <span className="px-3 py-1 bg-accent text-white text-[11px] font-bold rounded-full tracking-wider uppercase shadow-lg shadow-accent/20">
-              Featured
-            </span>
-            <div className="flex items-center gap-1.5 text-yellow-400 text-sm font-bold">
-              <Star className="w-4 h-4 fill-yellow-400" />
-              {formatRating(movie.vote_average)}
-            </div>
-            {(movie.release_date || movie.first_air_date) && (
-              <span className="text-white/50 text-sm">
-                {(movie.release_date || movie.first_air_date || "").split("-")[0]}
-              </span>
-            )}
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-3 tracking-tight leading-[1.1] drop-shadow-2xl max-w-3xl"
-          >
-            {movie.title || movie.name}
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-white/50 text-sm md:text-base line-clamp-2 mb-6 max-w-xl leading-relaxed"
-          >
-            {movie.overview}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.4 }}
-            className="flex items-center gap-3 flex-wrap"
-          >
-            <Link
-              href={`/watch/${movie.id}`}
-              className="flex items-center gap-2.5 px-8 py-4 md:px-6 md:py-3 bg-accent hover:bg-accent-hover text-white text-sm font-bold rounded-xl transition-all hover:shadow-xl hover:shadow-accent/25 active:scale-95"
-            >
-              <Play className="w-5 h-5 fill-white" />
-              Watch Now
-            </Link>
-            <Link
-              href={`/movie/${movie.id}`}
-              className="flex items-center gap-2.5 px-7 py-4 md:px-5 md:py-3 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white text-sm font-semibold rounded-xl border border-white/10 transition-all active:scale-95"
-            >
-              <Info className="w-5 h-5" />
-              Details
-            </Link>
-          </motion.div>
-        </motion.div>
-      </AnimatePresence>
-
-      <div className="absolute bottom-5 right-5 md:bottom-8 md:right-10 flex gap-2.5 z-10">
-        {movies.slice(0, 5).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => goTo(i)}
-            className={`rounded-full transition-all duration-500 active:scale-90 ${
-              i === current
-                ? "w-9 h-2.5 bg-accent shadow-lg shadow-accent/40"
-                : "w-2.5 h-2.5 bg-white/30 hover:bg-white/60"
-            }`}
-          />
-        ))}
-      </div>
-
-      <div className="absolute bottom-5 left-5 md:bottom-8 md:left-10 z-10 hidden sm:block">
-        <motion.div
-          animate={{ y: [0, 5, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="flex flex-col items-center gap-1 text-white/30"
-        >
-          <span className="text-[10px] uppercase tracking-widest">Scroll</span>
-          <ChevronDown className="w-4 h-4" />
-        </motion.div>
-      </div>
-    </div>
-  );
+function toHeroItems(movies: Movie[]): HeroItem[] {
+  return movies.map((m) => ({
+    id: m.id,
+    title: m.title || m.name || "Untitled",
+    image: getImageUrl(m.backdrop_path, "original") || "",
+    rating: formatRating(m.vote_average || 0),
+    year: (m.release_date || m.first_air_date || "").split("-")[0],
+    badge: "Featured",
+    description: m.overview,
+    href: `/watch/movie/${m.id}`,
+  }));
 }
 
 function RankedCard({ movie, rank }: { movie: Movie; rank: number }) {
   const title = movie.title || movie.name || "Untitled";
   const year = (movie.release_date || movie.first_air_date || "").split("-")[0];
   return (
-    <Link href={`/watch/${movie.id}`} className="group flex items-end gap-3 min-w-[280px]">
+    <Link href={`/watch/movie/${movie.id}`} className="group flex items-end gap-3 min-w-[280px]">
       <div className="flex-shrink-0 w-12 text-center">
         <span className="block text-4xl md:text-5xl font-black leading-none text-white/10 group-hover:text-accent/30 transition-colors select-none">
           {rank}
@@ -372,13 +220,14 @@ export default function AnimePage() {
   }, [loading, hasMore, page, loadingMore, debouncedSearch, activeGenre, fetchPage]);
 
   const movieResults = browseMovies;
+  const heroItems = toHeroItems(trending);
 
   return (
     <div className="animate-fade-in">
-      {/* Hero */}
-      {!debouncedSearch && activeGenre === null && <AnimeHero movies={trending} />}
+      {!debouncedSearch && activeGenre === null && heroItems.length > 0 && (
+        <HeroCarousel items={heroItems} />
+      )}
 
-      {/* Search bar */}
       <div className="sticky top-0 z-20 -mx-4 px-4 py-3 backdrop-blur-xl bg-background/80 border-b border-border/0 mb-5">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[200px] max-w-md">
@@ -413,7 +262,6 @@ export default function AnimePage() {
         </div>
       </div>
 
-      {/* Top 10 */}
       {!debouncedSearch && !activeGenre && topRated.length > 0 && (
         <motion.section
           initial={{ opacity: 0, y: 15 }}
@@ -436,7 +284,6 @@ export default function AnimePage() {
         </motion.section>
       )}
 
-      {/* Genre rows */}
       {!debouncedSearch && !activeGenre && (
         <div className="space-y-1">
           {GENRES.slice(0, 6).map((genre) => (
@@ -453,7 +300,6 @@ export default function AnimePage() {
         </div>
       )}
 
-      {/* Browse Grid */}
       <section className="mt-2">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-5 bg-accent rounded-full" />

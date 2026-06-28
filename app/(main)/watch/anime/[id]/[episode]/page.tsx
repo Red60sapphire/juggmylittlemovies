@@ -8,7 +8,7 @@ import { getImageUrl, formatRating } from "@/lib/utils";
 import type { VideoSource } from "@/types";
 import {
   Play, SkipForward, ChevronLeft, ChevronRight, Star, AlertTriangle,
-  RefreshCw, Server, Tv,
+  RefreshCw, Server, Tv, Users, Youtube,
 } from "lucide-react";
 
 const LOAD_TIMEOUT = 5000;
@@ -21,6 +21,8 @@ export default function AnimeWatchPage() {
   const episode = parseInt(params.episode as string) || 1;
 
   const [anime, setAnime] = useState<any>(null);
+  const [trailers, setTrailers] = useState<any[]>([]);
+  const [staff, setStaff] = useState<any[]>([]);
   const [servers, setServers] = useState<VideoSource[]>([]);
   const [currentServer, setCurrentServer] = useState<VideoSource | null>(null);
   const [serverIndex, setServerIndex] = useState(0);
@@ -66,7 +68,13 @@ export default function AnimeWatchPage() {
   }, [iframeError, autoAdvancing, serverIndex, tryServer]);
 
   useEffect(() => {
-    const query = `query ($id: Int) { Media(id: $id, type: ANIME) { id title { romaji english } coverImage { large extraLarge } bannerImage description averageScore genres episodes status seasonYear } }`;
+    const query = `query ($id: Int) {
+      Media(id: $id, type: ANIME) {
+        id title { romaji english } coverImage { large extraLarge } bannerImage
+        description averageScore genres episodes status seasonYear trailer { id site thumbnail }
+        staff(page: 1, perPage: 6) { edges { node { id name { full } image { medium } } role } }
+      }
+    }`;
     fetch("https://graphql.anilist.co", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -78,6 +86,8 @@ export default function AnimeWatchPage() {
         if (media) {
           setAnime(media);
           setTotalEpisodes(media.episodes || 12);
+          if (media.trailer) setTrailers([media.trailer]);
+          if (media.staff?.edges) setStaff(media.staff.edges);
         }
       })
       .catch(() => {});
@@ -253,7 +263,6 @@ export default function AnimeWatchPage() {
             </div>
           </div>
 
-          {/* Episode Navigation */}
           <div className="mt-4">
             <h3 className="text-sm font-semibold text-white mb-2">Episodes</h3>
             <div className="flex flex-wrap gap-1.5">
@@ -273,7 +282,6 @@ export default function AnimeWatchPage() {
             </div>
           </div>
 
-          {/* Servers */}
           <div className="mt-4 mb-6">
             <h3 className="text-sm font-semibold text-white mb-2">Servers ({servers.length})</h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
@@ -310,6 +318,34 @@ export default function AnimeWatchPage() {
               <h2 className="font-bold text-white text-sm mb-1">{title}</h2>
               <p className="text-xs text-muted">{year} &middot; {totalEpisodes} eps</p>
             </div>
+
+            {trailers.length > 0 && (
+              <div className="rounded-xl border border-border bg-surface p-4 mt-4">
+                <h3 className="text-sm font-semibold text-white mb-3">Trailers</h3>
+                {trailers.map((t: any, i: number) => {
+                  const ytId = t.site?.toLowerCase() === "youtube" ? t.id : null;
+                  return ytId ? (
+                    <a
+                      key={i}
+                      href={`https://youtube.com/watch?v=${ytId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-border hover:bg-white/[0.06] transition-all group"
+                    >
+                      <div className="w-10 h-7 rounded-lg bg-black flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {t.thumbnail ? (
+                          <img src={t.thumbnail} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <Youtube className="w-4 h-4 text-red-500" />
+                        )}
+                      </div>
+                      <span className="text-xs text-muted group-hover:text-white transition-colors truncate">Official Trailer</span>
+                    </a>
+                  ) : null;
+                })}
+              </div>
+            )}
+
             {anime.description && (
               <div className="rounded-xl border border-border bg-surface p-4 mt-4">
                 <h3 className="text-sm font-semibold text-white mb-2">Synopsis</h3>
@@ -318,6 +354,33 @@ export default function AnimeWatchPage() {
                 </p>
               </div>
             )}
+
+            {staff.length > 0 && (
+              <div className="rounded-xl border border-border bg-surface p-4 mt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold text-white">Staff</h3>
+                  <Users className="w-3.5 h-3.5 text-muted" />
+                </div>
+                <div className="space-y-2 max-h-[320px] overflow-y-auto scrollbar-hide">
+                  {staff.map((s: any, i: number) => (
+                    <div key={i} className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-white/[0.03] transition-colors">
+                      <div className="w-9 h-9 rounded-full bg-white/[0.04] border border-border overflow-hidden flex-shrink-0">
+                        {s.node?.image?.medium ? (
+                          <img src={s.node.image.medium} alt={s.node.name?.full || "Staff"} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted text-xs">?</div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm text-white truncate">{s.node?.name?.full || "Unknown"}</p>
+                        <p className="text-xs text-muted truncate">{s.role}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {genres.length > 0 && (
               <div className="rounded-xl border border-border bg-surface p-4 mt-4">
                 <h3 className="text-sm font-semibold text-white mb-3">Genres</h3>
